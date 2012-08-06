@@ -18,11 +18,20 @@ class Polygon(object):
         self.point2 = point2
         self.point3 = point3
         self.point4 = point4
+        
+        self.widgetId = None
+    
+    def getWidgetId(self):
+        return self.widgetId
+
+    def setWidgetId(self, widgetId):
+        self.widgetId = widgetId
     
     def getPoints3D(self):
         return [self.point1, self.point2, self.point3, self.point4]
     
     def getPoints2D(self, eye, player):
+        '''transform 3d points to 2d representations on view plane'''
         outPoints = []
         for point in self.getPoints3D():
             if eye.z - point.z == 0.0:
@@ -34,6 +43,7 @@ class Polygon(object):
             outPoints.append(Point2D(x, y))
         
         return outPoints
+        
     
     def getNormalVector(self):
         '''for future use'''

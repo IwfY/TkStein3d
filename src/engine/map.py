@@ -7,9 +7,12 @@ class Map(object):
         # test input
         self.blocks.append(Block(2, 3, 15))
         self.blocks.append(Block(1, 3, 15))
+        self.blocks.append(Block(-2, 3, 15))
+        self.blocks.append(Block(-1, 3, 15))
+        self.blocks.append(Block(0, 3, 15))
         self.blocks.append(Block(2, 2, 15))
-        self.blocks.append(Block(-1, 1, 15))
-        
+        self.blocks.append(Block(-2, 2, 15))
+        self.blocks.append(Block(-2, 1, 15))
     
     
     def getBlocks(self):
