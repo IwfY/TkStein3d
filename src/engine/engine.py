@@ -49,9 +49,13 @@ class Engine(Thread):
                         
                         if polygon.getWidgetId() is None:   # create new widget
                             polygon.setWidgetId(
-                                        self.canvas.create_polygon(tmpPoints,
-                                            fill='grey', outline='black',
-                                            tags='polygon'))
+                                        self.canvas.create_polygon(
+                                                tmpPoints[0], tmpPoints[1],
+                                                tmpPoints[2], tmpPoints[3],
+                                                tmpPoints[4], tmpPoints[5],
+                                                tmpPoints[6], tmpPoints[7],
+                                                fill='grey', outline='black',
+                                                tags='polygon'))
                             logging.debug('newWidget {} {}'.format(
                                             polygon.getWidgetId(), tmpPoints))
                         else:   # move widget
