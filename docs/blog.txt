@@ -1,0 +1,289 @@
+==Links==
+* Angle between vectors (http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/)
+* Spherical coordinate system (http://en.wikipedia.org/wiki/Spherical_coordinate_system)
+* Spherical Coordinates (http://mathworld.wolfram.com/SphericalCoordinates.html)
+
+===Tkinter===
+* Canvas Python 2.* Reference (http://effbot.org/tkinterbook/canvas.htm)
+
+==Blog==
+
+===Something to show===
+<i>Sunday, August 6th 2012 - 17:00</i>
+[[File:Tkstein3d 2012-08-06-164556.png|thumbnail]]
+
+Commit dbe4f79bd047913f07a5a548798761471b5d6f94
+
+Finally something to show. In the screenshot to the right one can see 3 blocks drawn to a canvas. Actually there are 4 blocks but they are arranged like this:
+<pre>- - # #
+- - - #
+- - - -
+# - - -
+
+  ^^^
+  eye</pre>
+It is not possible to see the one in the rigth back corner.
+
+As you can see I haven't included any messures to arrange any drawing order. I did it manually for the blocks but at the sides of the blocks you can see that the one on the back is drawn after the front side.
+
+So the next step is finding out which blocks to draw in which order and which sides to display.
+
+Also I delete all elements at every frame before I draw new ones. That leads to unpleasent flickering. But this can be avoided, by leaving them and only moveing them arround as needed. That should improve performance as well. At the moment I need 5-10 msec per frame with 4 blocks.
+
+===Making 3D-2D - conversion easy===
+<i>Sunday, August 5th 2012 - 10:15</i>
+[[File:Tkstein3d_coordinate_scheme.png|thumbnail]]
+
+To make 3D-2D conversion easy we arrange some things:
+
+* (1) the screen is allways the plane defined by z=0
+* (2) the center of the screen is the point (0, 0, 0)
+* (3) the eye coordinate is (0, 0, n) while n is negative
+
+Now here we go:
+
+[[File:Tkstein3d 3d 2d conversion math.png‎]]
+
+That looks pretty easy. It gets tougher when we want to rotate our head and move around the scene. In analogy to nature the screen plane had to rotate around the eye and both would change their positions while moving.
+
+But we have super powers. We don't move ourself. We move the world around us. That means when we rotate our vision 5° to the right the world has to rotate 5° left around our eye.
+
+In my first prototype I did that by changing the point coordinates permanently when ever the view changed. This time I want to store the player coordinate and the view angle and recalculate the object coordinates for every frame. In this way rounding errors can not add up to get noticable and loading/saving gets much easier.
+
+===Milestone I - Definition===
+<i>Monday, July 23rd 2012 - 12:45</i>
+
+Now that I'm through with some prototypes I want to set the goals for my first prototype.
+
+* The world is partitioned by a grid. One part of the grid can represent a block or be empty (moveable).
+* rendering of the scene using single colored polygons
+* moving in the scene and looking right/left
+
+That's it. Now let's get it done.
+
+===Output Representation II===
+<i>Monday, July 23rd 2012 - 12:15</i>
+
+Who needs textures? As a by pixel representation can not work the way I'd like it to work I want to at least try it using single colored 2D primitives offered by tkinter.
+
+So we got '''Canvas.create_polygon()'''
+
+<pre>from tkinter import *
+from datetime import datetime
+from random import *
+import _thread
+
+def polygonMover(canvas, polygons):
+    for i in range(300):
+        start = datetime.now()
+        for polygonID in polygons:
+            canvas.coords(polygonID,
+                    randrange(0, 320), randrange(0, 160),
+                    randrange(0, 320), randrange(0, 160),
+                    randrange(0, 320), randrange(0, 160),
+                    randrange(0, 320), randrange(0, 160)
+                    )
+        timePerFrame = datetime.now() - start
+        print('frame', i, timePerFrame)
+
+
+if __name__ == '__main__':
+    window = Tk()
+    canvas = Canvas(window, width=800, height=600, bg='white')
+    canvas.pack()
+
+    polygons = []
+
+    for i in range(50):
+        polygons.append(canvas.create_polygon(
+                randrange(0, 320), randrange(0, 160),
+                randrange(0, 320), randrange(0, 160),
+                randrange(0, 320), randrange(0, 160),
+                randrange(0, 320), randrange(0, 160),
+                fill='#{:02x}{:02x}{:02x}'.format(randrange(0, 256), randrange(0, 256), randrange(0, 256))
+                ))
+
+    _thread.start_new_thread(polygonMover, (canvas, polygons))
+
+    window.mainloop()
+</pre>
+
+I create 50 4-sided polygons and move them around frantically. And:
+
+<pre>frame 30 0:00:00.040605
+frame 31 0:00:00.017479
+frame 32 0:00:00.033120
+frame 33 0:00:00.035942
+frame 34 0:00:00.015639
+frame 35 0:00:00.014446
+frame 36 0:00:00.032527
+frame 37 0:00:00.038455
+frame 38 0:00:00.022366
+frame 39 0:00:00.036865
+</pre>
+
+That's exactly the time I aimed for. Of course at the moment I'm doing nothing like coordinate transformation, ai or sprites.
+
+===Output Representation===
+<i>Monday, July 23rd 2012 - 10:30</i>
+
+My Idea for the output is to have single 800x600 PhotoImage that I write all the pixels to. This might be tough to do 30 times a second (33msec per frame).
+
+So let's do some performance messurements:
+<pre>from tkinter import *
+from datetime import datetime
+from random import *
+import _thread
+
+def setPixel(image, pos, color):
+    """Place pixel at pos=(x,y) on image, with color=(r,g,b)."""
+    r, g, b = color
+    x, y = pos
+    image.put("#%02x%02x%02x" % (r, g, b), (x, y))
+
+def colorChanger(image):
+    for i in range(300):
+        r = randrange(0, 256)
+        g = randrange(0, 256)
+        b = randrange(0, 256)
+        start = datetime.now()
+        for x in range(800):
+            for y in range(600):
+                setPixel(image, (x, y), (r, g, b))
+
+        timePerFrame = datetime.now() - start
+        print('frame',i , timePerFrame)
+
+
+if __name__ == '__main__':
+    window = Tk()
+    canvas = Canvas(window, width=800, height=600, bg='white')
+    canvas.pack()
+
+    canvas.image = PhotoImage(width=800, height=600)
+        
+    canvas.create_image(0, 0, image=canvas.image, anchor='nw', state=NORMAL)
+
+    _thread.start_new_thread(colorChanger, (canvas.image,))
+
+    window.mainloop()
+</pre>
+
+Output:
+<pre>frame 0 0:00:27.632031
+frame 1 0:00:26.599962
+frame 2 0:00:26.980705</pre>
+
+I didn't expect it to be that bad! So Wolfenstein 3D had a resolution of 320x240. Let's give it a try.
+
+<pre>frame 0 0:00:04.553253
+frame 1 0:00:04.180941
+frame 2 0:00:04.380012
+frame 3 0:00:04.523221</pre>
+
+Not really playable in this way.
+
+I try to find the bottleneck.
+
+One guess the transformation takes too long:
+<pre>rgbString = '#{:02x}{:02x}{:02x}'.format(r, g, b)</pre>
+When I replace this with a static string it takes 0.1-0.2 seconds less to draw a frame so thats no problem. It would also be impossible to remove this step.
+
+Another idea was to have two images and write the frames to them rotational and bring them to the canvas. But it actually takes longer to draw at a PhotoImage that is not beeing displayed. Weired.
+
+[[File:Tkinterperformancetest 4threads.png|thumbnail|4 threads drawing to a PhotoImage]]
+For the next try let's have 4 threads to each render a part (160x120) of the frame. For simplicity I do without synchronization.
+It looks really cool. And we earn half a second per frame. But it looks really edgy.
+When using 16 threads it doesn't manage to print the changes made to the PhotoImage to the screen.
+<pre>from tkinter import *
+from datetime import datetime
+from random import *
+import _thread
+
+def setPixel(image, pos, color):
+    """Place pixel at pos=(x,y) on image, with color=(r,g,b)."""
+    r, g, b = color
+    x, y = pos
+    image.put('#{:02x}{:02x}{:02x}'.format(r, g, b), (x, y))
+
+def colorChanger(image, offsetX, offsetY):
+    for i in range(300):
+        r = randrange(0, 256)
+        g = randrange(0, 256)
+        b = randrange(0, 256)
+        start = datetime.now()
+        for x in range(offsetX, offsetX + 160):
+            for y in range(offsetY, offsetY + 120):
+                setPixel(image, (x, y), (r, g, b))
+                
+
+        timePerFrame = datetime.now() - start
+        print('frame', i, offsetX, offsetY, timePerFrame)
+
+
+if __name__ == '__main__':
+    window = Tk()
+    canvas = Canvas(window, width=800, height=600, bg='white')
+    canvas.pack()
+
+    canvas.image = PhotoImage(width=800, height=600)
+        
+    canvas.create_image(0, 0, image=canvas.image, anchor='nw', state=NORMAL)
+
+    _thread.start_new_thread(colorChanger, (canvas.image, 0, 0))
+    _thread.start_new_thread(colorChanger, (canvas.image, 160, 0))
+    _thread.start_new_thread(colorChanger, (canvas.image, 0, 120))
+    _thread.start_new_thread(colorChanger, (canvas.image, 160, 120))
+
+    window.mainloop()
+</pre>
+
+To conclude this. Output isn't possible the way I wanted to do it.
+----
+===Client/Server===
+<i>Monday, July 23rd 2012 - 10:00</i>
+
+For the world interaction I want to use the Client-Server-Architecture. As I don't primiliary aim for a mulitplayer game this would not be necessary. It's more a personal challenge.
+
+As I recently wrote a little chat application using TCP/IP I have some knowledge so that it has not supposed to be that hard. First I consider using a message bus.
+
+What the server has to manage:
+* reaction on player input
+* handling of dynamic objects (NPC, Bullets, etc)
+
+Minecraft is an example where they recently had to port the whole Singleplayer to the Client-Server-Architecture which takes them several months they could have used to richen the environment.
+----
+
+===The Beginning===
+<i>Monday, July 23rd 2012 - 08:00</i>
+
+Today I want to start a little experimental programming project. My aim is to implement a Wolfenstein3D-like engine using Python and Tkinter that is capable to be played in a similiar way.
+
+Here a link for comparison:
+http://store.steampowered.com/app/2270/?cc=us
+
+To make my points clear. Thats what I want to achieve:
+* visualization of a 3D world which looks like Wolfenstein 3D
+** plain single colored floor and ceiling
+** world consists of blocks each of the same size with a single texture applied to it
+** objects as 2D sprites
+** doors
+* HUD
+* sounds, music
+* gameplay
+** mouse aiming to the left and right
+** movement back/forward/left/right
+** simple NPC AI
+* technical aspects
+** using Python with no external libraries only
+** all (most) of the content is generated from code
+** aimed screen resolution: 800x600 at 30 FPS
+
+
+====Some weeks back====
+[[File:Tkstein3d pre20120530.png|thumb|Python and Tkinter displaying points of a 3D scenery]]
+In late May I already started working on something that can be considered a prototype from todays perspective.
+
+It was great to get these three dimensional points back on the 2D plane as you would expect them to be in a real world. This one also had a free-look mode but I struggled when it came to coordinate transformation when looking up and down. Tough maths for me.
+
+For my new project I will not reuse the code but rather start again from scratch.
