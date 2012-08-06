@@ -1,1 +1,1 @@
-__all__ = ['block', 'coordinate', 'polygon']
+__all__ = ['block', 'coordinate', 'engine', 'map', 'character', 'polygon']
