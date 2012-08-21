@@ -1,9 +1,11 @@
 from engine.map import Map
 from engine.character import Character
+from engine.mathhelper import getPointDistance
 
 from engine.coordinate import Point3D
 from datetime import datetime, timedelta
 import logging
+from operator import itemgetter
 from threading import Thread
 from time import sleep
 
@@ -30,42 +32,56 @@ class Engine(Thread):
             canvasWidth = self.canvas.winfo_width()
             canvasHeight = self.canvas.winfo_height()
             
+            polygonsToDraw = []
+            
+            # generate list of tuples of polygons and distance to eye
             for block in self.map.getBlocks():
                 for polygon in block.getPolygons():
-                    points = polygon.getPoints2D(
-                                self.eye, self.player)
+                    polygonsToDraw.append(
+                            (getPointDistance(self.eye, polygon.getCenter()),
+                             polygon))
+            
+            # sort list
+            polygonsToDraw = sorted(polygonsToDraw,
+                                    key=itemgetter(0),
+                                    reverse=True)
                     
-                    if points is not None:
-                        # transform coordinates of view plane to canvas
-                        # coordinates  
-                        tmpPoints = []
-                        for point in points:
-                            x = round((point.x + 0.5 * self.viewXRange) * \
-                                      canvasWidth / self.viewXRange)
-                            y = round((point.y + 0.5 * self.viewYRange) * \
-                                      canvasHeight / self.viewYRange)
-                            tmpPoints.append(x)
-                            tmpPoints.append(y)
-                        
-                        if polygon.getWidgetId() is None:   # create new widget
-                            polygon.setWidgetId(
-                                        self.canvas.create_polygon(
-                                                tmpPoints[0], tmpPoints[1],
-                                                tmpPoints[2], tmpPoints[3],
-                                                tmpPoints[4], tmpPoints[5],
-                                                tmpPoints[6], tmpPoints[7],
-                                                fill='grey', outline='black',
-                                                tags='polygon'))
-                            logging.debug('newWidget {} {}'.format(
-                                            polygon.getWidgetId(), tmpPoints))
-                        else:   # move widget
-                            logging.debug('movWidget {} {}'.format(
-                                            polygon.getWidgetId(), tmpPoints))
-                            self.canvas.coords(polygon.getWidgetId(),
-                                               tmpPoints[0], tmpPoints[1],
-                                               tmpPoints[2], tmpPoints[3],
-                                               tmpPoints[4], tmpPoints[5],
-                                               tmpPoints[6], tmpPoints[7])
+            for polygonToDraw in polygonsToDraw:
+                polygon = polygonToDraw[1]
+                points = polygon.getPoints2D(
+                            self.eye, self.player)
+                
+                if points is not None:
+                    # transform coordinates of view plane to canvas
+                    # coordinates  
+                    tmpPoints = []
+                    for point in points:
+                        x = round((point.x + 0.5 * self.viewXRange) * \
+                                  canvasWidth / self.viewXRange)
+                        y = round((point.y + 0.5 * self.viewYRange) * \
+                                  canvasHeight / self.viewYRange)
+                        tmpPoints.append(x)
+                        tmpPoints.append(y)
+                    
+                    if polygon.getWidgetId() is None:   # create new widget
+                        polygon.setWidgetId(
+                                    self.canvas.create_polygon(
+                                            tmpPoints[0], tmpPoints[1],
+                                            tmpPoints[2], tmpPoints[3],
+                                            tmpPoints[4], tmpPoints[5],
+                                            tmpPoints[6], tmpPoints[7],
+                                            fill='grey', outline='black',
+                                            tags='polygon'))
+                        logging.debug('newWidget {} {}'.format(
+                                        polygon.getWidgetId(), tmpPoints))
+                    else:   # move widget
+                        logging.debug('movWidget {} {}'.format(
+                                        polygon.getWidgetId(), tmpPoints))
+                        self.canvas.coords(polygon.getWidgetId(),
+                                           tmpPoints[0], tmpPoints[1],
+                                           tmpPoints[2], tmpPoints[3],
+                                           tmpPoints[4], tmpPoints[5],
+                                           tmpPoints[6], tmpPoints[7])
             
             # time till frame end
             remaining = stop - datetime.now()

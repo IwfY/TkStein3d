@@ -3,7 +3,7 @@ Created on Aug 4, 2012
 
 @author: marcel
 '''
-from engine.coordinate import Point2D
+from engine.coordinate import Point2D, Point3D
 
 class Polygon(object):
     '''
@@ -44,6 +44,12 @@ class Polygon(object):
         
         return outPoints
         
+    
+    def getCenter(self):
+        '''get the point at the center of the polygone'''
+        return Point3D(self.point3.x + (self.point1.x - self.point3.x) / 2,
+                       self.point3.y + (self.point1.y - self.point3.y) / 2,
+                       self.point3.z + (self.point1.z - self.point3.z) / 2)
     
     def getNormalVector(self):
         '''for future use'''
