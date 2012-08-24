@@ -1,10 +1,17 @@
 from engine.coordinate import Point3D
+
+from math import pi
+
 class Character(object):
-    def __init__(self, position=None):
-        if position is not None:
-            self.position = position
-        else:
-            self.position = Point3D(0.0, 0.0, 0.0)
+    def __init__(self, position=Point3D(0.0, 0.0, 0.0), viewAngle=0.0):
+        self.position = position
+        self.viewAngle = viewAngle
+    
+    def getViewAngle(self):
+        return self.viewAngle
+
+    def setViewAngle(self, viewAngle):
+        self.viewAngle = viewAngle        
     
     def getPosition(self):
         return self.position

@@ -1,11 +1,3 @@
-==Links==
-* Angle between vectors (http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/)
-* Spherical coordinate system (http://en.wikipedia.org/wiki/Spherical_coordinate_system)
-* Spherical Coordinates (http://mathworld.wolfram.com/SphericalCoordinates.html)
-
-===Tkinter===
-* Canvas Python 2.* Reference (http://effbot.org/tkinterbook/canvas.htm)
-
 ==Blog==
 
 ===Introducing the game manager===
@@ -16,6 +8,13 @@ It became just clear to me that I started mixing the server and client part. Som
 I added to my engine class a list of characters. A part which should be handled by the server.
 
 To make things clear I rename the engine class and module to 'view' and introduce the game manager which is the interface to the rest of the application.
+
+
+===Drawing order===
+<i>Sunday, August 21st 2012 - 15:30</i>
+
+As I'm dealing with blocks whose sites are allways parallell to the X axis or the Z axis I can make a simple assumption about what polygons need to be drawn before others. If the center of a polygon is further away from the eye then an other one it needs to be drawn first.
+
 
 ===Something to show===
 <i>Sunday, August 6th 2012 - 17:00</i>

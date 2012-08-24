@@ -6,25 +6,31 @@ Created on Aug 4, 2012
 from engine.coordinate import Point2D, Point3D
 
 
-def moveAndRotatePolygon(polygon, movementVector, rotationAngle):
+def moveAndRotatePolygon(polygon,
+                         movementVector,
+                         rotationCenter,
+                         rotationAngle):
     '''return a new polygon that is moved and rotated'''
-    newPolygon = []
+    newPolygonPoints = []
     
     for point in polygon.getPoints3D():
         newPoint = Point3D(point.x, point.y, point.z)
         newPoint.moveByVector(movementVector)
-        # TODO rotate point
-        #newPoint.rotate()
-        newPolygon.append(newPoint)
-    
-    return Polygon(newPolygon[0], newPolygon[1], newPolygon[2], newPolygon[3])
+        newPoint.rotateAroundYAxisToAngle(rotationCenter, rotationAngle)
+        newPolygonPoints.append(newPoint)
+    newPolygon = Polygon(polygon.getPolygonId(), 
+                         newPolygonPoints[0],
+                         newPolygonPoints[1],
+                         newPolygonPoints[2],
+                         newPolygonPoints[3])
+    return newPolygon
 
 class Polygon(object):
     '''
     a 4 sided polygon
     '''
 
-    def __init__(self, point1, point2, point3, point4):
+    def __init__(self, pId, point1, point2, point3, point4):
         '''the blocks normal vector points towards you when you see the points
         from 1 to 4 in a counter-clockwise manner'''
         
@@ -32,14 +38,13 @@ class Polygon(object):
         self.point2 = point2
         self.point3 = point3
         self.point4 = point4
-        
-        self.widgetId = None
+        self.polygonId = pId
     
-    def getWidgetId(self):
-        return self.widgetId
+    def getPolygonId(self):
+        return self.polygonId
 
-    def setWidgetId(self, widgetId):
-        self.widgetId = widgetId
+    def setPolygonId(self, polygonId):
+        self.polygonId = polygonId
     
     def getPoints3D(self):
         return [self.point1, self.point2, self.point3, self.point4]

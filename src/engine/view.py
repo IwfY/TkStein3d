@@ -21,7 +21,7 @@ class View(Thread):
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -1.0)
-        self.millisecondsPerFrame = 100
+        self.millisecondsPerFrame = 500
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
                             level=logging.DEBUG, filemode='w')
     
@@ -37,12 +37,14 @@ class View(Thread):
             # generate list of tuples of polygons and distance to eye
             polygonsToDraw = []
             for block in self.gameMap.getBlocks():
-                for polygon in block.getPolygons():
-                    polygon = moveAndRotatePolygon(polygon,
+                for polygonOriginal in block.getPolygons():
+                    polygon = moveAndRotatePolygon(polygonOriginal,
                                                    self.player.getPosition(),
-                                                   0.0)
+                                                   self.eye,
+                                                   self.player.getViewAngle())
                     info = InfoClass()
                     info.polygon = polygon
+                    info.polygonOriginal = polygonOriginal
                     info.distanceToEye = getPointDistance(self.eye,
                                                           polygon.getCenter())
                     polygonsToDraw.append(info)
@@ -60,7 +62,7 @@ class View(Thread):
                             self.eye, self.player)
                 if points is not None:                    
                     tmpPoints = InfoClass()
-                    tmpPoints.polygon = polygon
+                    tmpPoints.polygonOriginal = polygonToDraw.polygonOriginal
                     tmpPoints.points = []
                     for point in points:
                         x = round((point.x + 0.5 * self.viewXRange) * \
@@ -74,28 +76,29 @@ class View(Thread):
             
             # draw
             for polygon2DPoints in polygon2DPointsList:
-                polygon = polygon2DPoints.polygon
+                polygonOriginal = polygon2DPoints.polygonOriginal
                 points = polygon2DPoints.points
                 
-                if polygon.getWidgetId() is None:   # create new widget
-                    polygon.setWidgetId(
-                                self.canvas.create_polygon(
-                                        points[0], points[1],
-                                        points[2], points[3],
-                                        points[4], points[5],
-                                        points[6], points[7],
-                                        fill='grey', outline='black',
-                                        tags='polygon'))
+                polygonWidgetId = self.canvas.find_withtag(
+                                        polygonOriginal.getPolygonId())
+                if len(polygonWidgetId) == 0:   # create new widget
+                    self.canvas.create_polygon(
+                            points[0], points[1],
+                            points[2], points[3],
+                            points[4], points[5],
+                            points[6], points[7],
+                            fill='grey', outline='black',
+                            tags=polygonOriginal.getPolygonId())
                     logging.debug('newWidget {} {}'.format(
-                                    polygon.getWidgetId(), points))
+                                    polygonOriginal.getPolygonId(), points))
                 else:   # move widget
-                    logging.debug('movWidget {} {}'.format(
-                                    polygon.getWidgetId(), points))
-                    self.canvas.coords(polygon.getWidgetId(),
+                    self.canvas.coords(polygonWidgetId,
                                        points[0], points[1],
                                        points[2], points[3],
                                        points[4], points[5],
                                        points[6], points[7])
+                    logging.debug('movWidget {} {}'.format(
+                                    polygonOriginal.getPolygonId(), points))
             
             # time till frame end
             remaining = stop - datetime.now()
