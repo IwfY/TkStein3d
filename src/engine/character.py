@@ -8,3 +8,6 @@ class Character(object):
     
     def getPosition(self):
         return self.position
+    
+    def setPosition(self, x, y, z):
+        self.position = Point3D(x, y, z)

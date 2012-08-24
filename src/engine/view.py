@@ -19,8 +19,8 @@ class View(Thread):
         
         self.gameMap = gameMap
         self.player = character
-        self.viewXRange = 8    # range in which 2D points are displayed
-        self.viewYRange = 5
+        self.viewXRange = 4    # range in which 2D points are displayed
+        self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -1.0)
         self.millisecondsPerFrame = 100
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
