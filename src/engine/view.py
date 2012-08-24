@@ -1,25 +1,28 @@
 from engine.map import Map
 from engine.character import Character
 from engine.mathhelper import getPointDistance
+from engine.polygon import moveAndRotatePolygon
 
 from engine.coordinate import Point3D
+
 from datetime import datetime, timedelta
 import logging
 from operator import itemgetter
 from threading import Thread
 from time import sleep
 
-class Engine(Thread):
-    def __init__(self, canvas):
+class View(Thread):
+    def __init__(self, gameManager, gameMap, character, canvas):
         Thread.__init__(self)
         self.canvas = canvas
+        self.gameManager = gameManager
         
-        self.map = Map()
-        self.player = Character()
-        self.viewXRange = 40    # range in which 2D points are displayed
-        self.viewYRange = 30
-        self.eye = Point3D(0.0, 0.0, -3.0)
-        self.millisecondsPerFrame = 500
+        self.gameMap = gameMap
+        self.player = character
+        self.viewXRange = 8    # range in which 2D points are displayed
+        self.viewYRange = 5
+        self.eye = Point3D(0.0, 0.0, -1.0)
+        self.millisecondsPerFrame = 100
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
                             level=logging.DEBUG, filemode='w')
     
@@ -35,8 +38,11 @@ class Engine(Thread):
             polygonsToDraw = []
             
             # generate list of tuples of polygons and distance to eye
-            for block in self.map.getBlocks():
+            for block in self.gameMap.getBlocks():
                 for polygon in block.getPolygons():
+                    polygon = moveAndRotatePolygon(polygon,
+                                                   self.player.getPosition(),
+                                                   0.0)
                     polygonsToDraw.append(
                             (getPointDistance(self.eye, polygon.getCenter()),
                              polygon))
@@ -96,3 +102,6 @@ class Engine(Thread):
                       self.millisecondsPerFrame))
             if remaining > 0:
                 sleep(remaining)
+
+    def getCanvas(self):
+        return self.canvas

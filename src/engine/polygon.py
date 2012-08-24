@@ -5,6 +5,20 @@ Created on Aug 4, 2012
 '''
 from engine.coordinate import Point2D, Point3D
 
+
+def moveAndRotatePolygon(polygon, movementVector, rotationAngle):
+    '''return a new polygon that is moved and rotated'''
+    newPolygon = []
+    
+    for point in polygon.getPoints3D():
+        newPoint = Point3D(point.x, point.y, point.z)
+        newPoint.moveByVector(movementVector)
+        # TODO rotate point
+        #newPoint.rotate()
+        newPolygon.append(newPoint)
+    
+    return Polygon(newPolygon[0], newPolygon[1], newPolygon[2], newPolygon[3])
+
 class Polygon(object):
     '''
     a 4 sided polygon

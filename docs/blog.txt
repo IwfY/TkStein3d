@@ -8,6 +8,15 @@
 
 ==Blog==
 
+===Introducing the game manager===
+<i>Sunday, August 24th 2012 - 15:00</i>
+
+It became just clear to me that I started mixing the server and client part. Something I actually wanted to avoid from the beginning.
+
+I added to my engine class a list of characters. A part which should be handled by the server.
+
+To make things clear I rename the engine class and module to 'view' and introduce the game manager which is the interface to the rest of the application.
+
 ===Something to show===
 <i>Sunday, August 6th 2012 - 17:00</i>
 [[File:Tkstein3d 2012-08-06-164556.png|thumbnail]]
