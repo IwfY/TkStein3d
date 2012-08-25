@@ -2,6 +2,7 @@ from engine.character import Character
 from engine.map import Map
 from engine.view import View
 
+from math import cos, pi, sin
 from threading import Thread
 
 
@@ -14,13 +15,13 @@ class GameManager(Thread):
         self.views = []
         self.isStarted = False
     
-    def addView(self, canvas, character):
+    def addView(self, window, canvas, character):
         # don't start two views on same canvas
         for view in self.views:
             if view.getCanvas() == canvas:
                 return
         
-        newView = View(self, self.gameMap, character, canvas)
+        newView = View(self, self.gameMap, character, window, canvas)
         self.views.append(newView)
         
         if self.isStarted:
@@ -32,10 +33,22 @@ class GameManager(Thread):
         
         return character
     
-    def moveCharacter(self, character, vector):
-        character.position.x += vector.x
-        character.position.y += vector.y
-        character.position.z += vector.z
+    def moveRotateCharacter(self, character,
+                            moveDeltaForward, moveDeltaLeft,
+                            rotation):
+        character.viewAngle += rotation
+        
+        # forward/backward
+        moveDeltaX = -sin(character.viewAngle) * moveDeltaForward
+        moveDeltaZ = -cos(character.viewAngle) * moveDeltaForward
+        
+        # left/right
+        #moveDeltaX += -cos(character.viewAngle - pi) * moveDeltaLeft
+        #moveDeltaZ += -sin(character.viewAngle - pi) * moveDeltaLeft
+        
+        character.position.x += moveDeltaX
+        character.position.z += moveDeltaZ
+        
     
     def run(self):
         self.isStarted = True
