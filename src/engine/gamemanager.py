@@ -43,8 +43,8 @@ class GameManager(Thread):
         moveDeltaZ = -cos(character.viewAngle) * moveDeltaForward
         
         # left/right
-        #moveDeltaX += -cos(character.viewAngle - pi) * moveDeltaLeft
-        #moveDeltaZ += -sin(character.viewAngle - pi) * moveDeltaLeft
+        moveDeltaX += -cos(character.viewAngle) * moveDeltaLeft
+        moveDeltaZ += sin(character.viewAngle) * moveDeltaLeft
         
         character.position.x += moveDeltaX
         character.position.z += moveDeltaZ
