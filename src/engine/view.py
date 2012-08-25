@@ -29,6 +29,8 @@ class View(Thread):
     def run(self):
         self.setBindings()
         
+        orderedPolygonTagsLastFrame = []
+        
         while True:
             # time for frame end
             stop = datetime.now() + \
@@ -85,6 +87,12 @@ class View(Thread):
                                     key=attrgetter('distanceToEye'),
                                     reverse=True)
             
+            # exchange polygon tags to match drawing order
+            if len(orderedPolygonTagsLastFrame) != 0:
+                for i in range(0, len(polygonsToDraw)):
+                    polygonsToDraw[i].polygonOriginal.setPolygonId(
+                            orderedPolygonTagsLastFrame[i])
+            
             # transform coordinates of view plane to canvas coordinates
             polygon2DPointsList = []    
             for polygonToDraw in polygonsToDraw:
@@ -106,6 +114,7 @@ class View(Thread):
                     polygon2DPointsList.append(tmpPoints)
             
             # draw
+            i = 0
             for polygon2DPoints in polygon2DPointsList:
                 polygonOriginal = polygon2DPoints.polygonOriginal
                 points = polygon2DPoints.points
@@ -120,6 +129,9 @@ class View(Thread):
                             points[6], points[7],
                             fill='grey', outline='black',
                             tags=polygonOriginal.getPolygonId())
+                    # save tag order
+                    orderedPolygonTagsLastFrame.append(
+                            polygonOriginal.getPolygonId())
                     logging.debug('newWidget {} {}'.format(
                                     polygonOriginal.getPolygonId(), points))
                 else:   # move widget
