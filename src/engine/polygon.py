@@ -18,26 +18,20 @@ def moveAndRotatePolygon(polygon,
         newPoint.moveByVector(movementVector)
         newPoint.rotateAroundYAxisToAngle(rotationCenter, rotationAngle)
         newPolygonPoints.append(newPoint)
-    newPolygon = Polygon(polygon.getPolygonId(), 
-                         newPolygonPoints[0],
-                         newPolygonPoints[1],
-                         newPolygonPoints[2],
-                         newPolygonPoints[3])
+
+    newPolygon = Polygon(polygon.getPolygonId(), newPolygonPoints)
     return newPolygon
 
 class Polygon(object):
     '''
-    a 4 sided polygon
+    a N sided polygon with all points on one plane
     '''
 
-    def __init__(self, pId, point1, point2, point3, point4):
+    def __init__(self, pId, points):
         '''the blocks normal vector points towards you when you see the points
-        from 1 to 4 in a counter-clockwise manner'''
+        from 1 to N in a counter-clockwise manner'''
         
-        self.point1 = point1
-        self.point2 = point2
-        self.point3 = point3
-        self.point4 = point4
+        self.points = points
         self.polygonId = pId
     
     def getPolygonId(self):
@@ -47,7 +41,7 @@ class Polygon(object):
         self.polygonId = polygonId
     
     def getPoints3D(self):
-        return [self.point1, self.point2, self.point3, self.point4]
+        return self.points
     
     def getPoints2D(self, eye, player):
         '''transform 3d points to 2d representations on view plane'''
@@ -66,9 +60,13 @@ class Polygon(object):
     
     def getCenter(self):
         '''get the point at the center of the polygone'''
-        return Point3D(self.point3.x + (self.point1.x - self.point3.x) / 2,
-                       self.point3.y + (self.point1.y - self.point3.y) / 2,
-                       self.point3.z + (self.point1.z - self.point3.z) / 2)
+        if len(self.points) >= 3:
+            return Point3D(self.points[3].x + \
+                                (self.points[1].x - self.points[3].x) / 2,
+                           self.points[3].y + \
+                                (self.points[1].y - self.points[3].y) / 2,
+                           self.points[3].z + \
+                                (self.points[1].z - self.points[3].z) / 2)
     
     def getNormalVector(self):
         '''for future use'''

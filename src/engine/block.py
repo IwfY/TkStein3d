@@ -44,13 +44,13 @@ class Block(object):
         point8 = Point3D(offsetX, halfEdgeLength, offsetZ + self.edgeLength)
         
         self.polygons.append(Polygon('{}p1'.format(self.blockId),
-                                     point1, point2, point6, point5))
+                                     [point1, point2, point6, point5]))
         self.polygons.append(Polygon('{}p2'.format(self.blockId),
-                                     point2, point3, point7, point6))
+                                     [point2, point3, point7, point6]))
         self.polygons.append(Polygon('{}p3'.format(self.blockId),
-                                     point3, point4, point8, point7))
+                                     [point3, point4, point8, point7]))
         self.polygons.append(Polygon('{}p4'.format(self.blockId),
-                                     point4, point1, point5, point8))
+                                     [point4, point1, point5, point8]))
     
     def getPolygons(self):
         return self.polygons
