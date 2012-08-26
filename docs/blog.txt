@@ -1,7 +1,88 @@
+==Links==
+* Angle between vectors (http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/)
+* Spherical coordinate system (http://en.wikipedia.org/wiki/Spherical_coordinate_system)
+* Spherical Coordinates (http://mathworld.wolfram.com/SphericalCoordinates.html)
+
+===Tkinter===
+* Canvas Python 2.* Reference (http://effbot.org/tkinterbook/canvas.htm)
+
 ==Blog==
 
+===Points with negative z-value===
+<i>Sunday, August 26th 2012 - 19:30</i>
+
+Another problem left is handling of polygons that have points with negative z-values. My idea is to iterate over every neighbouring two points of every polygon. If the line connecting them crosses the x-Axis I move the second point to the point of intersection. Then I go on until I find an intersecting line towards a positive z-value and use this intersection as the new successor of the drawn polygon. If all points of a polygon have a negative z-value i simply change the polygon state to HIDDEN.
+
+This can lead to two new cases when I have sloped edges:
+
+* Case 1: The new polygon has more vertices then the original one.
+
+[[File:TkStein3d polygons cutted.png]]
+
+* Case 2: The new polygon has few.
+
+[[File:TkStein3d polygons cutted 2.png]]
+
+
+As the following code shows this isn't a functional problem for tkinter. It adjusts the polygons to any set of points I pass to it via ''canvas.coords(<widgetId>, ...)''.
+<pre>from tkinter import Tk, Canvas
+from time import sleep
+import _thread
+
+def polygonMover(canvas, polygon):
+	sleep(2)
+	canvas.coords(polygon,
+				100, 100,
+				200, 100,
+				200, 200)
+
+	sleep(2)
+	canvas.coords(polygon,
+				100, 100,
+				200, 100,
+				200, 200,
+				100, 200,
+				 50, 150)
+
+	sleep(2)
+	canvas.coords(polygon,
+				100, 100,
+				200, 100,
+				200, 200,
+				100, 200)
+		
+
+window = Tk()
+canvas = Canvas(window, width=1024, height=768)
+canvas.pack()
+
+polygon = None
+
+polygon = canvas.create_polygon(
+		100, 100,
+		200, 100,
+		200, 200,
+		100, 200,
+		fill='blue'
+		)
+
+_thread.start_new_thread(polygonMover, (canvas, polygon))
+
+window.mainloop()</pre>
+
+===Drawing order II===
+<i>Saturday, August 25th 2012 - 21:30</i>
+
+Now that I'm able to walk around in this 3d space I've run into a problem with the drawing order. I didn't realize that once a polygon is drawn before another one it is always behind the ones that are draw afterwards. When the perspective changes this leads to wrong ordering again.
+
+As I traverse through the polygons from back to front I gave Canvas::tag_raise(<widgetId>) a try. Every polygon that is updated is brought to the front. But this leads expectably to flickering and bad performance.
+
+My new solution is to keep the sorted polygon list of the last frame and when the new list is sorted I exchange the widget tags.
+
+It works but leads to a little flickering as well.
+
 ===Introducing the game manager===
-<i>Sunday, August 24th 2012 - 15:00</i>
+<i>Friday, August 24th 2012 - 15:00</i>
 
 It became just clear to me that I started mixing the server and client part. Something I actually wanted to avoid from the beginning.
 
@@ -11,7 +92,7 @@ To make things clear I rename the engine class and module to 'view' and introduc
 
 
 ===Drawing order===
-<i>Sunday, August 21st 2012 - 15:30</i>
+<i>Tuesday, August 21st 2012 - 15:30</i>
 
 As I'm dealing with blocks whose sites are allways parallell to the X axis or the Z axis I can make a simple assumption about what polygons need to be drawn before others. If the center of a polygon is further away from the eye then an other one it needs to be drawn first.
 
