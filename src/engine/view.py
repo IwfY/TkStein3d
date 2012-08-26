@@ -1,4 +1,5 @@
 from engine.coordinate import Point3D, Vector3D
+from engine.infoclass import InfoClass
 from engine.mathhelper import getPointDistance
 from engine.polygon import moveAndRotatePolygon
 
@@ -7,7 +8,8 @@ import logging
 from operator import attrgetter
 from threading import Thread
 from time import sleep
-from engine.infoclass import InfoClass
+from tkinter import _flatten, HIDDEN, NORMAL
+
 
 class View(Thread):
     def __init__(self, gameManager, gameMap, character, window, canvas):
@@ -87,6 +89,14 @@ class View(Thread):
                                     key=attrgetter('distanceToEye'),
                                     reverse=True)
             
+            # check for position towards x-y-plane
+            for polygonToDraw in polygonsToDraw:
+                polygon = polygonToDraw.polygon
+                polygonToDraw.state = NORMAL
+                for point in polygon.getPoints3D():
+                    if point.z < 0.0:
+                        polygonToDraw.state = HIDDEN
+            
             # exchange polygon tags to match drawing order
             if len(orderedPolygonTagsLastFrame) != 0:
                 for i in range(0, len(polygonsToDraw)):
@@ -102,6 +112,7 @@ class View(Thread):
                 if points is not None:                    
                     tmpPoints = InfoClass()
                     tmpPoints.polygonOriginal = polygonToDraw.polygonOriginal
+                    tmpPoints.state = polygonToDraw.state
                     tmpPoints.points = []
                     for point in points:
                         x = round((point.x + 0.5 * self.viewXRange) * \
@@ -123,11 +134,9 @@ class View(Thread):
                                         polygonOriginal.getPolygonId())
                 if len(polygonWidgetId) == 0:   # create new widget
                     self.canvas.create_polygon(
-                            points[0], points[1],
-                            points[2], points[3],
-                            points[4], points[5],
-                            points[6], points[7],
+                            _flatten(points),
                             fill='grey', outline='black',
+                            state=polygon2DPoints.state,
                             tags=polygonOriginal.getPolygonId())
                     # save tag order
                     orderedPolygonTagsLastFrame.append(
@@ -135,13 +144,14 @@ class View(Thread):
                     logging.debug('newWidget {} {}'.format(
                                     polygonOriginal.getPolygonId(), points))
                 else:   # move widget
-                    self.canvas.coords(polygonWidgetId,
-                                       points[0], points[1],
-                                       points[2], points[3],
-                                       points[4], points[5],
-                                       points[6], points[7])
-                    logging.debug('movWidget {} {}'.format(
-                                    polygonOriginal.getPolygonId(), points))
+                    self.canvas.itemconfig(polygonWidgetId,
+                                           state=polygon2DPoints.state)
+                    if polygon2DPoints.state == NORMAL:
+                        self.canvas.coords(polygonWidgetId,
+                                           _flatten(points))
+                        logging.debug('movWidget {} {}'.format(
+                                        polygonOriginal.getPolygonId(), points))
+                        
             
             # time till frame end
             remaining = stop - datetime.now()
