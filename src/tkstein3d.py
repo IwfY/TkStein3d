@@ -18,7 +18,7 @@ if __name__ == '__main__':
     #player2 = engine.addCharacter()
     #player2.setPosition(10, 0, 10)
     engine.addView(window, canvas, player)
-    #engine.addView(canvas2, player2)
+    #engine.addView(window, canvas2, player)
     #engine.addView(canvas3, player2)
     #engine.addView(canvas4, player2)
     engine.start()

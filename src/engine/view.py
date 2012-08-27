@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D, Vector3D
+from engine.coordinate import Point3D
 from engine.infoclass import InfoClass
 from engine.mathhelper import getIntersectionXYPlane, getPointDistance
 from engine.polygon import moveAndRotatePolygon, Polygon
@@ -25,8 +25,10 @@ class View(Thread):
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
         self.millisecondsPerFrame = 60
+        #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
+        #                    level=logging.DEBUG, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
-                            level=logging.DEBUG, filemode='w')
+                            level=logging.CRITICAL, filemode='w')
     
     def run(self):
         self.setBindings()
@@ -37,6 +39,7 @@ class View(Thread):
             # time for frame end
             stop = datetime.now() + \
                    timedelta(milliseconds=self.millisecondsPerFrame)
+            stopWatchTime = datetime.now()
             
             #INPUT
             ######################
@@ -62,6 +65,10 @@ class View(Thread):
                                                  moveDeltaForward,
                                                  moveDeltaLeft,
                                                  rotation)
+            logging.debug('input: in {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
+            
             
             #DRAWING
             ######################
@@ -83,12 +90,17 @@ class View(Thread):
                     info.distanceToEye = getPointDistance(self.eye,
                                                           polygon.getCenter())
                     polygonsToDraw.append(info)
-            
+            logging.debug('move and rotate polygons: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
             
             # sort list
             polygonsToDraw = sorted(polygonsToDraw,
                                     key=attrgetter('distanceToEye'),
                                     reverse=True)
+            logging.debug('sorting list: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
             
             
             # check for position towards x-y-plane
@@ -128,6 +140,9 @@ class View(Thread):
                 else:
                     polygonToDraw.polygon = Polygon(polygon.getPolygonId(),
                                                     newPoints)
+            logging.debug('xy-plane intersection: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
                             
             
             
@@ -158,6 +173,9 @@ class View(Thread):
                         tmpPoints.points.append(y)
                     
                     polygon2DPointsList.append(tmpPoints)
+            logging.debug('3d-2d conversion: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
             
             
             # draw
@@ -177,16 +195,19 @@ class View(Thread):
                     # save tag order
                     orderedPolygonTagsLastFrame.append(
                             polygonOriginal.getPolygonId())
-                    logging.debug('newWidget {} {}'.format(
-                                    polygonOriginal.getPolygonId(), points))
+                    #logging.debug('newWidget {} {}'.format(
+                    #                polygonOriginal.getPolygonId(), points))
                 else:   # move widget
                     self.canvas.itemconfig(polygonWidgetId,
                                            state=polygon2DPoints.state)
                     if polygon2DPoints.state == NORMAL:
                         self.canvas.coords(polygonWidgetId,
                                            _flatten(points))
-                        logging.debug('movWidget {} {}'.format(
-                                        polygonOriginal.getPolygonId(), points))
+                        #logging.debug('movWidget {} {}'.format(
+                        #                polygonOriginal.getPolygonId(), points))
+            
+            logging.debug('draw update: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
                         
             
             # time till frame end
