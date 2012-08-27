@@ -1,4 +1,5 @@
 from engine.block import Block
+from engine.mapobjects import Tree
 
 class Map(object):
     def __init__(self):
@@ -14,6 +15,10 @@ class Map(object):
                 [1, 0, 0, 1, 1, 1, 1],
                 [1, 0, 0, 0, 0, 0, 1],
                 [1, 0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 2, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 1],
                 [1, 1, 1, 1, 1, 1, 1]                
                 ]
         i = 0
@@ -21,6 +26,8 @@ class Map(object):
             for j in range(len(grid[i])):
                 if grid[i][j] == 1:
                     self.objects.append(Block(i, j, self.edgeLength))
+                elif grid[i][j] == 2:
+                    self.objects.append(Tree(i, j, self.edgeLength))
     
     
     def getObjects(self):
