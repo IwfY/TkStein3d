@@ -167,7 +167,7 @@ class View(Thread):
                     for point in points:
                         x = round((point.x + 0.5 * self.viewXRange) * \
                                   canvasWidth / self.viewXRange)
-                        y = round((point.y + 0.5 * self.viewYRange) * \
+                        y = round((-point.y + 0.5 * self.viewYRange) * \
                                   canvasHeight / self.viewYRange)
                         tmpPoints.points.append(x)
                         tmpPoints.points.append(y)
