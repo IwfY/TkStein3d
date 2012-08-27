@@ -1,7 +1,7 @@
 from engine.coordinate import Point3D, Vector3D
 from engine.infoclass import InfoClass
-from engine.mathhelper import getPointDistance
-from engine.polygon import moveAndRotatePolygon
+from engine.mathhelper import getIntersectionXYPlane, getPointDistance
+from engine.polygon import moveAndRotatePolygon, Polygon
 
 from datetime import datetime, timedelta
 import logging
@@ -84,24 +84,59 @@ class View(Thread):
                                                           polygon.getCenter())
                     polygonsToDraw.append(info)
             
+            
             # sort list
             polygonsToDraw = sorted(polygonsToDraw,
                                     key=attrgetter('distanceToEye'),
                                     reverse=True)
             
+            
             # check for position towards x-y-plane
             for polygonToDraw in polygonsToDraw:
                 polygon = polygonToDraw.polygon
                 polygonToDraw.state = NORMAL
-                for point in polygon.getPoints3D():
-                    if point.z < 0.0:
-                        polygonToDraw.state = HIDDEN
+                
+                newPoints = []
+                oldPoints = polygon.getPoints3D()
+                for i in range(len(oldPoints)):
+                    cursor = oldPoints[i]
+                    cursorSuccessor = oldPoints[0]
+                    if i != len(oldPoints) - 1:
+                        cursorSuccessor = oldPoints[i + 1]
+                     
+                    if cursorSuccessor.z >= 0.0:
+                        if cursor.z < 0.0:
+                            tmpPointCoordinates = \
+                                getIntersectionXYPlane(cursor,
+                                                       cursorSuccessor)
+                            tmpPoint = Point3D(tmpPointCoordinates[0],
+                                               tmpPointCoordinates[1],
+                                               0.0)
+                            newPoints.append(tmpPoint)
+                        newPoints.append(cursorSuccessor)
+                    elif cursor.z > 0:  # and cursorSuccessor.z < 0.0
+                        tmpPointCoordinates = \
+                                getIntersectionXYPlane(cursor,
+                                                       cursorSuccessor)
+                        tmpPoint = Point3D(tmpPointCoordinates[0],
+                                           tmpPointCoordinates[1],
+                                           0.0)
+                        newPoints.append(tmpPoint)
+                
+                if len(newPoints) == 0:
+                    polygonToDraw.state = HIDDEN
+                else:
+                    polygonToDraw.polygon = Polygon(polygon.getPolygonId(),
+                                                    newPoints)
+                            
+            
             
             # exchange polygon tags to match drawing order
             if len(orderedPolygonTagsLastFrame) != 0:
                 for i in range(0, len(polygonsToDraw)):
                     polygonsToDraw[i].polygonOriginal.setPolygonId(
                             orderedPolygonTagsLastFrame[i])
+            
             
             # transform coordinates of view plane to canvas coordinates
             polygon2DPointsList = []    
@@ -123,6 +158,7 @@ class View(Thread):
                         tmpPoints.points.append(y)
                     
                     polygon2DPointsList.append(tmpPoints)
+            
             
             # draw
             i = 0
@@ -166,17 +202,21 @@ class View(Thread):
                       self.millisecondsPerFrame))
             if remaining > 0:
                 sleep(remaining)
-    
+
+
     def setBindings(self):
         self.window.bind('<KeyPress>', self.keyPressed)
         self.window.bind('<KeyRelease>', self.keyReleased)
-    
+
+
     def keyPressed(self, event):
         self.keysPressed.add(event.keysym_num)
-    
+
+
     def keyReleased(self, event):
         if event.keysym_num in self.keysPressed:
             self.keysPressed.remove(event.keysym_num)
+
 
     def getCanvas(self):
         return self.canvas
