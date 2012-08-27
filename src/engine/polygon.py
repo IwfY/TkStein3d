@@ -27,12 +27,14 @@ class Polygon(object):
     a N sided polygon with all points on one plane
     '''
 
-    def __init__(self, pId, points):
+    def __init__(self, pId, points, fill='grey', outline='darkgrey'):
         '''the blocks normal vector points towards you when you see the points
         from 1 to N in a counter-clockwise manner'''
         
         self.points = points
         self.polygonId = pId
+        self.fill = fill
+        self.outline = outline
     
     def getPolygonId(self):
         return self.polygonId

@@ -189,7 +189,8 @@ class View(Thread):
                 if len(polygonWidgetId) == 0:   # create new widget
                     self.canvas.create_polygon(
                             _flatten(points),
-                            fill='grey', outline='black',
+                            fill=polygonOriginal.fill,
+                            outline=polygonOriginal.outline,
                             state=polygon2DPoints.state,
                             tags=polygonOriginal.getPolygonId())
                     # save tag order
@@ -199,7 +200,9 @@ class View(Thread):
                     #                polygonOriginal.getPolygonId(), points))
                 else:   # move widget
                     self.canvas.itemconfig(polygonWidgetId,
-                                           state=polygon2DPoints.state)
+                                           state=polygon2DPoints.state,
+                                           fill=polygonOriginal.fill,
+                                           outline=polygonOriginal.outline)
                     if polygon2DPoints.state == NORMAL:
                         self.canvas.coords(polygonWidgetId,
                                            _flatten(points))
