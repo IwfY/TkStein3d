@@ -89,3 +89,25 @@ class Tree(Block):
                          fill='#1c8d16', outline='#1c5c16'))
 
 
+class Floor(Block):
+    def __init__(self, gridX, gridZ, edgeLength):
+        Block.__init__(self, gridX, gridZ, edgeLength)
+        
+    def initPolygons(self):
+        x1 = self.gridX * self.edgeLength
+        x2 = self.gridX * self.edgeLength + self.edgeLength
+        
+        z1 = self.gridZ * self.edgeLength
+        z2 = self.gridZ * self.edgeLength + self.edgeLength
+        
+        halfEdgeLength = self.edgeLength / 2
+        y1 = -halfEdgeLength
+        
+        point1 = Point3D(x1, y1, z1)
+        point2 = Point3D(x2, y1, z1)
+        point3 = Point3D(x2, y1, z2)
+        point4 = Point3D(x1, y1, z2)
+        
+        self.polygons.append(Polygon('{}p1'.format(self.blockId),
+                                     [point1, point2, point3, point4],
+                                     fill='#9e9e9e', outline='#9e9e9e'))
