@@ -48,45 +48,50 @@ class Tree(Block):
         crownPoint7 = Point3D(x4, y3, z4)
         crownPoint8 = Point3D(x1, y3, z4)
         
+        colorStemFill = '#665223'
+        colorStemOutline = '#453818'
+        colorCrownFill = '#1c8d16'
+        colorCrownOutline = '#1c5c16'      
+        
         self.polygons.append(
                  Polygon('{}p1'.format(self.blockId),
                          [stemPoint1, stemPoint2, stemPoint6, stemPoint5],
-                         fill='#665223', outline='#453818'))
+                         fill=colorStemFill, outline=colorStemOutline))
         self.polygons.append(
                  Polygon('{}p2'.format(self.blockId),
                          [stemPoint2, stemPoint3, stemPoint7, stemPoint6],
-                         fill='#665223', outline='#453818'))
+                         fill=colorStemFill, outline=colorStemOutline))
         self.polygons.append(
                  Polygon('{}p3'.format(self.blockId),
                          [stemPoint3, stemPoint4, stemPoint8, stemPoint7],
-                         fill='#665223', outline='#453818'))
+                         fill=colorStemFill, outline=colorStemOutline))
         self.polygons.append(
                  Polygon('{}p4'.format(self.blockId),
                          [stemPoint4, stemPoint1, stemPoint5, stemPoint8],
-                         fill='#665223', outline='#453818'))
+                         fill=colorStemFill, outline=colorStemOutline))
         
         
         self.polygons.append(
                  Polygon('{}p5'.format(self.blockId),
                          [crownPoint1, crownPoint2, crownPoint6, crownPoint5],
-                         fill='#1c8d16', outline='#1c5c16'))
+                         fill=colorCrownFill, outline=colorCrownOutline))
         self.polygons.append(
                  Polygon('{}p6'.format(self.blockId),
                          [crownPoint2, crownPoint3, crownPoint7, crownPoint6],
-                         fill='#1c8d16', outline='#1c5c16'))
+                         fill=colorCrownFill, outline=colorCrownOutline))
         self.polygons.append(
                  Polygon('{}p7'.format(self.blockId),
                          [crownPoint3, crownPoint4, crownPoint8, crownPoint7],
-                         fill='#1c8d16', outline='#1c5c16'))
+                         fill=colorCrownFill, outline=colorCrownOutline))
         self.polygons.append(
                  Polygon('{}p8'.format(self.blockId),
                          [crownPoint4, crownPoint1, crownPoint5, crownPoint8],
-                         fill='#1c8d16', outline='#1c5c16'))
+                         fill=colorCrownFill, outline=colorCrownOutline))
         
         self.polygons.append(
                  Polygon('{}p9'.format(self.blockId),
                          [crownPoint1, crownPoint2, crownPoint3, crownPoint4],
-                         fill='#1c8d16', outline='#1c5c16'))
+                         fill=colorCrownFill, outline=colorCrownOutline))
 
 
 class Floor(Block):

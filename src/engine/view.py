@@ -78,18 +78,17 @@ class View(Thread):
             
             # generate list of tuples of polygons and distance to eye
             polygonsToDraw = []
-            for mapObject in self.gameMap.getObjects():
-                for polygonOriginal in mapObject.getPolygons():
-                    polygon = moveAndRotatePolygon(polygonOriginal,
-                                                   self.player.getPosition(),
-                                                   self.eye,
-                                                   self.player.getViewAngle())
-                    info = InfoClass()
-                    info.polygon = polygon
-                    info.polygonOriginal = polygonOriginal
-                    info.distanceToEye = getPointDistance(self.eye,
-                                                          polygon.getCenter())
-                    polygonsToDraw.append(info)
+            for polygonOriginal in self.gameMap.getPolygons():
+                polygon = moveAndRotatePolygon(polygonOriginal,
+                                               self.player.getPosition(),
+                                               self.eye,
+                                               self.player.getViewAngle())
+                info = InfoClass()
+                info.polygon = polygon
+                info.polygonOriginal = polygonOriginal
+                info.distanceToEye = getPointDistance(self.eye,
+                                                      polygon.getCenter())
+                polygonsToDraw.append(info)
             logging.debug('move and rotate polygons: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             stopWatchTime = datetime.now()

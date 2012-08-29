@@ -31,6 +31,13 @@ class Map(object):
                 #elif grid[i][j] == 0:
                 #    self.objects.append(Floor(i, j, self.edgeLength))
     
+    def getPolygons(self):
+        tmp = []
+        for mapObject in self.objects:
+            tmp.extend(mapObject.getPolygons())
+        
+        return tmp
+    
     
     def getObjects(self):
         return self.objects
