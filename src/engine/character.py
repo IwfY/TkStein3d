@@ -16,5 +16,8 @@ class Character(object):
     def getPosition(self):
         return self.position
     
-    def setPosition(self, x, y, z):
+    def setPositionXYZ(self, x, y, z):
         self.position = Point3D(x, y, z)
+    
+    def setPosition(self, point3d):
+        self.position = point3d

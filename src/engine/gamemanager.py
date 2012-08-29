@@ -29,6 +29,7 @@ class GameManager(Thread):
     
     def addCharacter(self):
         character = Character()
+        character.setPosition(self.gameMap.getStartPosition())
         self.characters.append(character)
         
         return character
@@ -46,8 +47,8 @@ class GameManager(Thread):
         moveDeltaX += -cos(character.viewAngle) * moveDeltaLeft
         moveDeltaZ += sin(character.viewAngle) * moveDeltaLeft
         
-        character.position.x += moveDeltaX
-        character.position.z += moveDeltaZ
+        character.position.x -= moveDeltaX
+        character.position.z -= moveDeltaZ
         
     
     def run(self):

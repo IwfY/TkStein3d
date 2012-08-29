@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D
+from engine.coordinate import Point3D, Vector3D
 from engine.infoclass import InfoClass
 from engine.mathhelper import getIntersectionXYPlane, getPointDistance
 from engine.polygon import moveAndRotatePolygon, Polygon
@@ -77,10 +77,14 @@ class View(Thread):
             canvasHeight = self.canvas.winfo_height()
             
             # generate list of tuples of polygons and distance to eye
+            playerPostion = self.player.getPosition()
+            moveVector = Vector3D(-playerPostion.x,
+                                -playerPostion.y,
+                                -playerPostion.z)
             polygonsToDraw = []
             for polygonOriginal in self.gameMap.getPolygons():
                 polygon = moveAndRotatePolygon(polygonOriginal,
-                                               self.player.getPosition(),
+                                               moveVector,
                                                self.eye,
                                                self.player.getViewAngle())
                 info = InfoClass()
