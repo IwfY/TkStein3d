@@ -1,5 +1,5 @@
 from engine.character import Character
-from engine.map import Map
+from engine.gridmap import GridMap
 from engine.view import View
 
 from math import cos, pi, sin
@@ -11,7 +11,7 @@ class GameManager(Thread):
         Thread.__init__(self)
         
         self.characters = []
-        self.gameMap = Map()
+        self.gameMap = GridMap()
         self.views = []
         self.isStarted = False
     
