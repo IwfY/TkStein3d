@@ -4,6 +4,7 @@ from engine.view import View
 
 from math import cos, pi, sin
 from threading import Thread
+from engine.svgmap import SVGMap
 
 
 class GameManager(Thread):
@@ -11,7 +12,8 @@ class GameManager(Thread):
         Thread.__init__(self)
         
         self.characters = []
-        self.gameMap = GridMap()
+        #self.gameMap = GridMap()
+        self.gameMap = SVGMap("/home/marcel/projects/programming/python/TkStein3d/docs/map_samples/map1.svg")
         self.views = []
         self.isStarted = False
     
