@@ -1,4 +1,5 @@
 from engine.block import Block
+from engine.coordinate import Point3D
 from engine.map import Map
 from engine.mapobjects import Floor, Tree
 
@@ -6,22 +7,23 @@ class GridMap(Map):
     def __init__(self):
         Map.__init__(self)
         self.objects = []
+        self.startPosition = Point3D(0.0, 0.0, 0.0)
         
         self.edgeLength = 15
         
         # test input
-        grid = [[1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 0, 0, 0, 0, 0, 0, 1],
-                [1, 0, 0, 1, 0, 0, 0, 1],
-                [1, 1, 0, 1, 0, 0, 0, 1],
-                [1, 0, 0, 1, 1, 1, 0, 1],
-                [1, 0, 0, 0, 0, 0, 0, 1],
-                [1, 0, 0, 0, 2, 0, 0, 1],
-                [1, 0, 0, 0, 0, 0, 2, 1],
-                [1, 0, 2, 0, 2, 0, 0, 1],
-                [1, 0, 0, 2, 0, 0, 0, 1],
-                [1, 0, 0, 0, 0, 0, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1]
+        grid = [[1, 1, 1, 1, 1,   1, 1, 1],
+                [1, 0, 0, 0, 0,   0, 0, 1],
+                [1, 0, 0, 1, 0, 's', 0, 1],
+                [1, 1, 0, 1, 0,   0, 0, 1],
+                [1, 0, 0, 1, 1,   1, 0, 1],
+                [1, 0, 0, 0, 0,   0, 0, 1],
+                [1, 0, 0, 0, 2,   0, 0, 1],
+                [1, 0, 0, 0, 0,   0, 2, 1],
+                [1, 0, 2, 0, 2,   0, 0, 1],
+                [1, 0, 0, 2, 0,   0, 0, 1],
+                [1, 0, 0, 0, 0,   0, 0, 1],
+                [1, 1, 1, 1, 1,   1, 1, 1]
                 ]
         i = 0
         for i in range(len(grid)):
@@ -32,6 +34,10 @@ class GridMap(Map):
                     self.objects.append(Tree(i, j, self.edgeLength))
                 #elif grid[i][j] == 0:
                 #    self.objects.append(Floor(i, j, self.edgeLength))
+                elif grid[i][j] == 's':     #start position
+                    self.startPosition = Point3D((0.5 + i) * self.edgeLength,
+                                                 0.0,
+                                                 (0.5 + j) * self.edgeLength)
     
     def getPolygons(self):
         tmp = []
@@ -39,6 +45,9 @@ class GridMap(Map):
             tmp.extend(mapObject.getPolygons())
         
         return tmp
+
+    def getStartPosition(self):
+        return self.startPosition
     
     
     def getObjects(self):
