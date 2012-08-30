@@ -3,6 +3,9 @@ from engine.coordinate import Point3D
 class Map(object):
     def __init__(self):
         self.polygons = []
+        
+        self.groundColor = ''
+        self.skyColor = ''
     
     def getPolygons(self):
         return self.polygons
@@ -11,7 +14,7 @@ class Map(object):
         return Point3D(0.0, 0.0, 0.0)
     
     def getGroundColor(self):
-        return '#339900'
+        return self.groundColor
     
     def getSkyColor(self):
-        return '#b3defd'
+        return self.skyColor

@@ -17,10 +17,37 @@ class SVGMap(Map):
         self.wallTop = 7.5
         self.startPosition = Point3D(0.0, 0.0, 0.0)
         
+        
         self.loadMap(svgFilename)
     
     def loadMap(self, svgFilename):
         xml = dom.parse(svgFilename)
+        
+        reFillColor = re.compile('.*fill:#([0-9a-f]{6}|none).*')
+        reStrokeColor = re.compile('.*stroke:#([0-9a-f]{6}|none).*')
+        rePathTranslate = re.compile('translate\(([0-9.-]+),([0-9.-]+)\)')
+        
+        # sky and ground color
+        for rect in xml.getElementsByTagName('rect'):
+            if rect.getAttribute('id') == 'sky':
+                styleString = rect.getAttribute('style')
+                if styleString is not None:
+                    matches = reFillColor.match(styleString)
+                    if matches is not None:
+                        if matches.groups()[0] == 'none':
+                            self.skyColor = ''
+                        else:
+                            self.skyColor = '#{}'.format(matches.groups()[0])
+            
+            if rect.getAttribute('id') == 'ground':
+                styleString = rect.getAttribute('style')
+                if styleString is not None:
+                    matches = reFillColor.match(styleString)
+                    if matches is not None:
+                        if matches.groups()[0] == 'none':
+                            self.groundColor = ''
+                        else:
+                            self.groundColor = '#{}'.format(matches.groups()[0])
         
         for path in xml.getElementsByTagName('path'):
             coordinateString = path.getAttribute('d')
@@ -29,8 +56,7 @@ class SVGMap(Map):
             translateVector = Vector3D(0.0, 0.0, 0.0)
             transformString = path.getAttribute('transform')
             if transformString is not None:
-                if transformString.startswith('translate'):
-                    rePathTranslate = re.compile('translate\(([0-9.-]+),([0-9.-]+)\)')
+                if transformString.startswith('translate'):                    
                     matches = rePathTranslate.match(transformString)
                     if matches is not None:
                         matchGroups = matches.groups()
@@ -46,7 +72,7 @@ class SVGMap(Map):
                                              z + translateVector.z)
                 continue
             
-            # wall
+            # wall coordinates
             parts = coordinateString.split(' ')
             x = float(parts[1].split(',')[0]) + translateVector.x
             z = -float(parts[1].split(',')[1]) + translateVector.z
@@ -60,7 +86,26 @@ class SVGMap(Map):
                 print('something went horribly wrong')
                 continue
             
-            self.addWall(x, z, xDelta, zDelta)
+            #parse color
+            fill = 'grey'
+            outline = 'darkgrey'
+            styleString = path.getAttribute('style')
+            if styleString is not None:
+                matches = reFillColor.match(styleString)
+                if matches is not None:
+                    if matches.groups()[0] == 'none':
+                        fill = ''
+                    else:
+                        fill = '#{}'.format(matches.groups()[0])
+                
+                matches = reStrokeColor.match(styleString)
+                if matches is not None:
+                    if matches.groups()[0] == 'none':
+                        outline = ''
+                    else:
+                        outline = '#{}'.format(matches.groups()[0])
+            
+            self.addWall(x, z, xDelta, zDelta, fill, outline)
         
         
     def addWall(self, x, z, xDelta, zDelta, fill='grey', outline='darkgrey'):

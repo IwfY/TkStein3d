@@ -36,9 +36,12 @@ class View(Thread):
         orderedPolygonTagsLastFrame = []
         
         #draw ground/ ceiling
-        canvasWidth = self.canvas.winfo_width()
-        canvasHeight = self.canvas.winfo_height()
-
+        canvasWidth = 1
+        canvasHeight = 1
+        #sometimes canvas dimensions can't be loaded first time
+        while canvasWidth ==1 or canvasHeight == 1:
+            canvasWidth = self.canvas.winfo_width()
+            canvasHeight = self.canvas.winfo_height()
         self.canvas.create_rectangle(0, 0, canvasWidth, canvasHeight / 2,
                                      fill=self.gameMap.getSkyColor())
         self.canvas.create_rectangle(0, canvasHeight / 2,
