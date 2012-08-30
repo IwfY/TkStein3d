@@ -50,9 +50,9 @@ class View(Thread):
             tmpKeysPressed = set(self.keysPressed)
             for key in tmpKeysPressed:
                 if key == 65363:    # right array
-                    rotation += 0.05
+                    rotation += 0.075
                 elif key == 65361:  # left array
-                    rotation -= 0.05
+                    rotation -= 0.075
                 if key == 119:      # w
                     moveDeltaForward += 1.0
                 elif key == 115:    # s
