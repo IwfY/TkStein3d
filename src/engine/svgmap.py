@@ -24,18 +24,21 @@ class SVGMap(Map):
         
         for path in xml.getElementsByTagName('path'):
             coordinateString = path.getAttribute('d')
+            
+            # parse translate transform
             translateVector = Vector3D(0.0, 0.0, 0.0)
             transformString = path.getAttribute('transform')
             if transformString is not None:
                 if transformString.startswith('translate'):
-                    rePathTranslate = re.compile('translate\(([0-9.]+),([0-9.]+)\)')
+                    rePathTranslate = re.compile('translate\(([0-9.-]+),([0-9.-]+)\)')
                     matches = rePathTranslate.match(transformString)
                     if matches is not None:
                         matchGroups = matches.groups()
                         translateVector.x = float(matchGroups[0])
                         translateVector.z = -float(matchGroups[1])
             
-            if path.getAttribute('sodipodi:type') == 'arc': # start position
+            # start position
+            if path.getAttribute('sodipodi:type') == 'arc':
                 x = float(path.getAttribute('sodipodi:cx'))
                 z = -float(path.getAttribute('sodipodi:cy'))
                 self.startPosition = Point3D(x + translateVector.x,
@@ -43,6 +46,7 @@ class SVGMap(Map):
                                              z + translateVector.z)
                 continue
             
+            # wall
             parts = coordinateString.split(' ')
             x = float(parts[1].split(',')[0]) + translateVector.x
             z = -float(parts[1].split(',')[1]) + translateVector.z
