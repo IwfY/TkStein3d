@@ -9,3 +9,9 @@ class Map(object):
 
     def getStartPosition(self):
         return Point3D(0.0, 0.0, 0.0)
+    
+    def getGroundColor(self):
+        return '#339900'
+    
+    def getSkyColor(self):
+        return '#b3defd'

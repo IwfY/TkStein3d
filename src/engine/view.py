@@ -24,7 +24,7 @@ class View(Thread):
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
-        self.millisecondsPerFrame = 60
+        self.millisecondsPerFrame = 40
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
         #                    level=logging.DEBUG, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
@@ -34,6 +34,16 @@ class View(Thread):
         self.setBindings()
         
         orderedPolygonTagsLastFrame = []
+        
+        #draw ground/ ceiling
+        canvasWidth = self.canvas.winfo_width()
+        canvasHeight = self.canvas.winfo_height()
+
+        self.canvas.create_rectangle(0, 0, canvasWidth, canvasHeight / 2,
+                                     fill=self.gameMap.getSkyColor())
+        self.canvas.create_rectangle(0, canvasHeight / 2,
+                                     canvasWidth, canvasHeight,
+                                     fill=self.gameMap.getGroundColor())
         
         while True:
             # time for frame end
