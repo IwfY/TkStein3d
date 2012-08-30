@@ -13,7 +13,7 @@ class GameManager(Thread):
         
         self.characters = []
         #self.gameMap = GridMap()
-        self.gameMap = SVGMap("/home/marcel/projects/programming/python/TkStein3d/docs/map_samples/map1.svg")
+        self.gameMap = SVGMap("/home/marcel/projects/programming/python/TkStein3d/docs/map_samples/map2.svg")
         self.views = []
         self.isStarted = False
     

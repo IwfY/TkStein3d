@@ -51,7 +51,7 @@ class Tree(Block):
         colorStemFill = '#665223'
         colorStemOutline = '#453818'
         colorCrownFill = '#1c8d16'
-        colorCrownOutline = '#1c5c16'      
+        colorCrownOutline = '#1c5c16'
         
         self.polygons.append(
                  Polygon('{}p1'.format(self.blockId),
@@ -116,3 +116,206 @@ class Floor(Block):
         self.polygons.append(Polygon('{}p1'.format(self.blockId),
                                      [point1, point2, point3, point4],
                                      fill='#9e9e9e', outline='#9e9e9e'))
+
+class Hut(Block):
+    def __init__(self, gridX, gridZ, edgeLength):
+        Block.__init__(self, gridX, gridZ, edgeLength)
+    
+    def initPolygons(self):
+        offsetX = self.gridX
+        offsetZ = self.gridZ
+        
+        colorWallFill = '#855223'
+        colorWallOutline = '#69411c'
+        colorRoofFill = '#d19640'
+        colorRoofOutline = '#725223'
+        
+        #bottom wall points
+        pb1 = Point3D(10 + offsetX,
+                      -7.5,
+                      0 + offsetZ)
+        pb2 = Point3D(25 + offsetX,
+                      -7.5,
+                      0 + offsetZ)
+        pb3 = Point3D(35 + offsetX,
+                      -7.5,
+                      10 + offsetZ)
+        pb4 = Point3D(35 + offsetX,
+                      -7.5,
+                      25 + offsetZ)
+        pb5 = Point3D(25 + offsetX,
+                      -7.5,
+                      35 + offsetZ)
+        pb6 = Point3D(10 + offsetX,
+                      -7.5,
+                      35 + offsetZ)
+        pb7 = Point3D(0 + offsetX,
+                      -7.5,
+                      25 + offsetZ)
+        pb8 = Point3D(0 + offsetX,
+                      -7.5,
+                      10 + offsetZ)
+        
+        #top wall points
+        pt1 = Point3D(10 + offsetX,
+                      7.5,
+                      0 + offsetZ)
+        pt2 = Point3D(25 + offsetX,
+                      7.5,
+                      0 + offsetZ)
+        pt3 = Point3D(35 + offsetX,
+                      7.5,
+                      10 + offsetZ)
+        pt4 = Point3D(35 + offsetX,
+                      7.5,
+                      25 + offsetZ)
+        pt5 = Point3D(25 + offsetX,
+                      7.5,
+                      35 + offsetZ)
+        pt6 = Point3D(10 + offsetX,
+                      7.5,
+                      35 + offsetZ)
+        pt7 = Point3D(0 + offsetX,
+                      7.5,
+                      25 + offsetZ)
+        pt8 = Point3D(0 + offsetX,
+                      7.5,
+                      10 + offsetZ)
+        
+        #top wall points expanded
+        pte1 = Point3D(10 + offsetX,
+                      7.0,
+                      0 - 5 + offsetZ)
+        pte2 = Point3D(25 + offsetX,
+                      7.0,
+                      0 - 5 + offsetZ)
+        pte3 = Point3D(35 + 5 + offsetX,
+                      7.0,
+                      10 + offsetZ)
+        pte4 = Point3D(35 + 5 + offsetX,
+                      7.0,
+                      25 + offsetZ)
+        pte5 = Point3D(25 + offsetX,
+                      7.0,
+                      35 + 5 + offsetZ)
+        pte6 = Point3D(10 + offsetX,
+                      7.0,
+                      35 + 5 + offsetZ)
+        pte7 = Point3D(0 - 5 + offsetX,
+                      7.0,
+                      25 + offsetZ)
+        pte8 = Point3D(0 - 5 + offsetX,
+                      7.0,
+                      10 + offsetZ)
+        
+        #roof point
+        pr = Point3D(17.5 + offsetX,
+                     17.5,
+                     17.5 + offsetZ)
+        
+        self.polygons.append(Polygon('{}p1'.format(self.blockId),
+                                     [pb1, pb2, pt2, pt1],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p2'.format(self.blockId),
+                                     [pb2, pb3, pt3, pt2],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p3'.format(self.blockId),
+                                     [pb3, pb4, pt4, pt3],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p4'.format(self.blockId),
+                                     [pb4, pb5, pt5, pt4],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p5'.format(self.blockId),
+                                     [pb5, pb6, pt6, pt5],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p6'.format(self.blockId),
+                                     [pb6, pb7, pt7, pt6],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p7'.format(self.blockId),
+                                     [pb7, pb8, pt8, pt7],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        self.polygons.append(Polygon('{}p8'.format(self.blockId),
+                                     [pb8, pb1, pt1, pt8],
+                                     fill=colorWallFill, outline=colorWallOutline))
+        
+        self.polygons.append(Polygon('{}p9'.format(self.blockId),
+                                     [pte1, pte2, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p10'.format(self.blockId),
+                                     [pte2, pte3, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p11'.format(self.blockId),
+                                     [pte3, pte4, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p12'.format(self.blockId),
+                                     [pte4, pte5, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p13'.format(self.blockId),
+                                     [pte5, pte6, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p14'.format(self.blockId),
+                                     [pte6, pte7, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p15'.format(self.blockId),
+                                     [pte7, pte8, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+        self.polygons.append(Polygon('{}p16'.format(self.blockId),
+                                     [pte8, pte1, pr],
+                                     fill=colorRoofFill, outline=colorRoofOutline))
+
+
+class Sun(Block):
+    def __init__(self, gridX, gridZ, edgeLength):
+        Block.__init__(self, gridX, gridZ, edgeLength)
+    
+    def initPolygons(self):
+        offsetX = self.gridX
+        offsetZ = self.gridZ
+        
+        colorFill = '#f9fb4d'
+        colorOutline = '#adae36'
+        halfEdgeLength = 2.5
+        
+        point1 = Point3D(offsetX,
+                         40 + -halfEdgeLength,
+                         offsetZ)
+        point2 = Point3D(offsetX + self.edgeLength,
+                         40 + -halfEdgeLength,
+                         offsetZ)
+        point3 = Point3D(offsetX + self.edgeLength,
+                         40 + -halfEdgeLength,
+                         offsetZ + self.edgeLength)
+        point4 = Point3D(offsetX,
+                         40 + -halfEdgeLength,
+                         offsetZ + self.edgeLength)
+        
+        point5 = Point3D(offsetX,
+                         40 + halfEdgeLength,
+                         offsetZ)
+        point6 = Point3D(offsetX + self.edgeLength,
+                         40 + halfEdgeLength,
+                         offsetZ)
+        point7 = Point3D(offsetX + self.edgeLength,
+                         40 + halfEdgeLength,
+                         offsetZ + self.edgeLength)
+        point8 = Point3D(offsetX,
+                         40 + halfEdgeLength,
+                         offsetZ + self.edgeLength)
+        
+        self.polygons.append(Polygon('{}p1'.format(self.blockId),
+                                     [point1, point2, point6, point5],
+                                     fill=colorFill, outline=colorOutline))
+        self.polygons.append(Polygon('{}p2'.format(self.blockId),
+                                     [point2, point3, point7, point6],
+                                     fill=colorFill, outline=colorOutline))
+        self.polygons.append(Polygon('{}p3'.format(self.blockId),
+                                     [point3, point4, point8, point7],
+                                     fill=colorFill, outline=colorOutline))
+        self.polygons.append(Polygon('{}p4'.format(self.blockId),
+                                     [point4, point1, point5, point8],
+                                     fill=colorFill, outline=colorOutline))
+        self.polygons.append(Polygon('{}p5'.format(self.blockId),
+                                     [point1, point2, point3, point4],
+                                     fill=colorFill, outline=colorOutline))
+        
+        

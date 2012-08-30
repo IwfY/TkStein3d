@@ -63,12 +63,12 @@ class Polygon(object):
     def getCenter(self):
         '''get the point at the center of the polygone'''
         if len(self.points) >= 3:
-            return Point3D(self.points[3].x + \
-                                (self.points[1].x - self.points[3].x) / 2,
-                           self.points[3].y + \
-                                (self.points[1].y - self.points[3].y) / 2,
-                           self.points[3].z + \
-                                (self.points[1].z - self.points[3].z) / 2)
+            return Point3D(self.points[2].x + \
+                                (self.points[0].x - self.points[2].x) / 2,
+                           self.points[2].y + \
+                                (self.points[0].y - self.points[2].y) / 2,
+                           self.points[2].z + \
+                                (self.points[0].z - self.points[2].z) / 2)
     
     def getNormalVector(self):
         '''for future use'''

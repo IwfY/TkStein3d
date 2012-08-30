@@ -5,6 +5,7 @@ from engine.polygon import Polygon
 import re
 from threading import Lock
 import xml.dom.minidom as dom
+from engine.mapobjects import Hut, Sun
 
 class SVGMap(Map):
     count = 0
@@ -65,12 +66,31 @@ class SVGMap(Map):
             
             # start position
             if path.getAttribute('sodipodi:type') == 'arc':
-                x = float(path.getAttribute('sodipodi:cx'))
-                z = -float(path.getAttribute('sodipodi:cy'))
-                self.startPosition = Point3D(x + translateVector.x,
-                                             0.0,
-                                             z + translateVector.z)
-                continue
+                if path.getAttribute('id') == 'startposition':
+                    x = float(path.getAttribute('sodipodi:cx'))
+                    z = -float(path.getAttribute('sodipodi:cy'))
+                    self.startPosition = Point3D(x + translateVector.x,
+                                                 0.0,
+                                                 z + translateVector.z)
+                    continue
+                
+                if path.getAttribute('inkscape:label') == 'hut':
+                    x = float(path.getAttribute('sodipodi:cx'))
+                    z = -float(path.getAttribute('sodipodi:cy'))
+                    hut = Hut(x + translateVector.x,
+                              z + translateVector.z,
+                              1)
+                    self.polygons.extend(hut.getPolygons())
+                    continue
+                
+                if path.getAttribute('inkscape:label') == 'sun':
+                    x = float(path.getAttribute('sodipodi:cx'))
+                    z = -float(path.getAttribute('sodipodi:cy'))
+                    hut = Sun(x + translateVector.x,
+                              z + translateVector.z,
+                              5)
+                    self.polygons.extend(hut.getPolygons())
+                    continue
             
             # wall coordinates
             parts = coordinateString.split(' ')
