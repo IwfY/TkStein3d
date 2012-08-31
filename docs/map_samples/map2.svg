@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="119.96222"
-     inkscape:cy="148.50457"
+     inkscape:zoom="7.919596"
+     inkscape:cx="627.44609"
+     inkscape:cy="630.54487"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -216,7 +216,7 @@
        sodipodi:cy="552.5"
        sodipodi:rx="2.5"
        sodipodi:ry="2.5"
-       d="m 75,552.5 a 2.5,2.5 0 1 1 -5,0 2.5,2.5 0 1 1 5,0 z"
+       d="m 75,552.5 c 0,1.38071 -1.119288,2.5 -2.5,2.5 -1.380712,0 -2.5,-1.11929 -2.5,-2.5 0,-1.38071 1.119288,-2.5 2.5,-2.5 1.380712,0 2.5,1.11929 2.5,2.5 z"
        transform="translate(0,252.3622)"
        inkscape:label="#path5893" />
     <path
@@ -227,7 +227,7 @@
        sodipodi:cy="532.5"
        sodipodi:rx="2.5"
        sodipodi:ry="2.5"
-       d="m 215,532.5 a 2.5,2.5 0 1 1 -5,0 2.5,2.5 0 1 1 5,0 z"
+       d="m 215,532.5 c 0,1.38071 -1.11929,2.5 -2.5,2.5 -1.38071,0 -2.5,-1.11929 -2.5,-2.5 0,-1.38071 1.11929,-2.5 2.5,-2.5 1.38071,0 2.5,1.11929 2.5,2.5 z"
        transform="translate(-7.5,267.3622)"
        inkscape:label="hut" />
     <path
@@ -239,7 +239,7 @@
        sodipodi:rx="2.5"
        sodipodi:ry="2.5"
        d="m 215,532.5 a 2.5,2.5 0 1 1 -5,0 2.5,2.5 0 1 1 5,0 z"
-       transform="translate(42.5,247.3622)"
-       inkscape:label="sun" />
+       transform="translate(425,-120.1378)"
+       inkscape:label="mo:sun:200:0.5" />
   </g>
 </svg>

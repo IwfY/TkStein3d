@@ -1,0 +1,20 @@
+color colorFill #f9fb4d
+color colorOutline #adae36
+
+c cb1 0 0 0
+c cb2 0 0 20
+c cb3 20 0 20
+c cb4 20 0 0
+
+c ct1 0 20 0
+c ct2 0 20 20
+c ct3 20 20 20
+c ct4 20 20 0
+
+c rotationCenter 10 0 10
+
+p pb cb1 cb2 cb3 cb4 colorFill colorOutline
+p ps1 cb1 cb2 ct2 ct1 colorFill colorOutline
+p ps2 cb2 cb3 ct3 ct2 colorFill colorOutline
+p ps3 cb3 cb4 ct4 ct3 colorFill colorOutline
+p ps4 cb4 cb1 ct1 ct4 colorFill colorOutline

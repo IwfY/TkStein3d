@@ -5,7 +5,6 @@ from engine.polygon import Polygon
 import re
 from threading import Lock
 import xml.dom.minidom as dom
-from engine.mapobjects import Hut, Sun
 
 class SVGMap(Map):
     count = 0
@@ -64,8 +63,9 @@ class SVGMap(Map):
                         translateVector.x = float(matchGroups[0])
                         translateVector.z = -float(matchGroups[1])
             
-            # start position
+            # arcs
             if path.getAttribute('sodipodi:type') == 'arc':
+                # start position
                 if path.getAttribute('id') == 'startposition':
                     x = float(path.getAttribute('sodipodi:cx'))
                     z = -float(path.getAttribute('sodipodi:cy'))
@@ -74,23 +74,29 @@ class SVGMap(Map):
                                                  z + translateVector.z)
                     continue
                 
-                if path.getAttribute('inkscape:label') == 'hut':
-                    x = float(path.getAttribute('sodipodi:cx'))
-                    z = -float(path.getAttribute('sodipodi:cy'))
-                    hut = Hut(x + translateVector.x,
-                              z + translateVector.z,
-                              1)
-                    self.polygons.extend(hut.getPolygons())
-                    continue
-                
-                if path.getAttribute('inkscape:label') == 'sun':
-                    x = float(path.getAttribute('sodipodi:cx'))
-                    z = -float(path.getAttribute('sodipodi:cy'))
-                    hut = Sun(x + translateVector.x,
-                              z + translateVector.z,
-                              5)
-                    self.polygons.extend(hut.getPolygons())
-                    continue
+                # map objects
+                if path.getAttribute('inkscape:label') is not None:
+                    labelParts =  path.getAttribute('inkscape:label').split(':')
+                    if labelParts[0] == 'mo':
+                        x = float(path.getAttribute('sodipodi:cx'))
+                        z = -float(path.getAttribute('sodipodi:cy'))
+                        y = 0.0
+                        if len(labelParts) >= 3:
+                            y = float(labelParts[2])
+                        movementVector = Vector3D(x + translateVector.x,
+                                                  y,
+                                                  z + translateVector.z)
+                        rotationAngle = 0.0
+                        if len(labelParts) >= 4:
+                            rotationAngle = float(labelParts[3])
+                        polygons = self.mapObjectManager. \
+                                getPolygonsForMapObjectRotateMove(
+                                          labelParts[1],
+                                          rotationAngle,
+                                          movementVector)
+                        if polygons is not None:
+                            self.polygons.extend(polygons)
+                continue
             
             # wall coordinates
             parts = coordinateString.split(' ')

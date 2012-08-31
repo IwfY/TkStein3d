@@ -1,4 +1,5 @@
 from engine.coordinate import Point3D
+from engine.mapobjects import MapObjectManager
 
 class Map(object):
     def __init__(self):
@@ -6,6 +7,7 @@ class Map(object):
         
         self.groundColor = ''
         self.skyColor = ''
+        self.mapObjectManager = MapObjectManager()
     
     def getPolygons(self):
         return self.polygons

@@ -10,7 +10,9 @@ def moveAndRotatePolygon(polygon,
                          movementVector,
                          rotationCenter,
                          rotationAngle):
-    '''return a new polygon that is moved and rotated'''
+    '''return a new polygon that is moved and rotated
+    the polygon is first moved, rotated afterwards
+    the rotation center is not moved'''
     newPolygonPoints = []
     
     for point in polygon.getPoints3D():
@@ -19,8 +21,37 @@ def moveAndRotatePolygon(polygon,
         newPoint.rotateAroundYAxisToAngle(rotationCenter, rotationAngle)
         newPolygonPoints.append(newPoint)
 
-    newPolygon = Polygon(polygon.getPolygonId(), newPolygonPoints)
+    newPolygon = getPolygonCopy(polygon)
+    newPolygon.points = newPolygonPoints
     return newPolygon
+
+
+def rotateAndMovePolygon(polygon,
+                         movementVector,
+                         rotationCenter,
+                         rotationAngle):
+    '''return a new polygon that is rotated and moved
+    the polygon is first rotated, moved afterwards'''
+    newPolygonPoints = []
+    
+    for point in polygon.getPoints3D():
+        newPoint = Point3D(point.x, point.y, point.z)
+        newPoint.rotateAroundYAxisToAngle(rotationCenter, rotationAngle)
+        newPoint.moveByVector(movementVector)
+        newPolygonPoints.append(newPoint)
+
+    newPolygon = getPolygonCopy(polygon)
+    newPolygon.points = newPolygonPoints
+    return newPolygon
+
+
+def getPolygonCopy(polygon):
+    newPolygon = Polygon(polygon.polygonId,
+                         polygon.points,
+                         polygon.fill,
+                         polygon.outline)
+    return newPolygon
+
 
 class Polygon(object):
     '''

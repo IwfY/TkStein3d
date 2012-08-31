@@ -1,6 +1,82 @@
 from engine.block import Block
 from engine.coordinate import Point3D
-from engine.polygon import Polygon
+from engine.polygon import Polygon, rotateAndMovePolygon
+
+from os import path
+from threading import Lock
+
+class MapObjectManager(object):
+    count = 0
+    mutex = Lock()
+    
+    def __init__(self):
+        self.mapObjectPath = 'engine/resources/mapobjects/'  #TODO make portable
+    
+    def getPolygonsForMapObjectRotateMove(self,
+                                          mapObjectName,
+                                          rotationAngle,
+                                          movementVector):
+        filename = '{}{}.txt'.format(self.mapObjectPath, mapObjectName)
+        fileContent = ''
+        if path.isfile(filename):
+            try:
+                file = open(filename, 'r')
+                fileContent = file.readlines()        
+            finally:
+                file.close()
+            
+            
+            # using mutex for unique IDs if several threads try to create
+            MapObjectManager.mutex.acquire()
+            try:
+                mapObjectId = 'mo{}'.format(MapObjectManager.count)
+                MapObjectManager.count += 1
+            finally:
+                MapObjectManager.mutex.release()
+                
+            colors = {}
+            points = {'rotationCenter' : Point3D(0.0, 0.0, 0.0)}
+            polygons = []
+            
+            for line in fileContent:
+                parts = line.split()
+                if len(parts) > 0:
+                    if parts[0] == 'color':
+                        colors[parts[1]] = parts[2]
+                    elif parts[0] == 'c':
+                        points[parts[1]] = Point3D(float(parts[2]),
+                                                   float(parts[3]),
+                                                   float(parts[4]))
+                    elif parts[0] == 'p':
+                        newPolygonId = '{}{}'.format(mapObjectId, parts[1])
+                        newPolygonPoints = []
+                        for i in range(2, len(parts) - 2):
+                            if parts[i] in points:
+                                newPolygonPoints.append(points[parts[i]])
+                        fillColor = ''
+                        outlineColor = ''
+                        if parts[-2] in colors:
+                            fillColor = colors[parts[-2]]
+                        if parts[-1] in colors:
+                            outlineColor = colors[parts[-1]]
+                        newPolygon =  Polygon(newPolygonId,
+                                              newPolygonPoints,
+                                              fillColor,
+                                              outlineColor)
+                        polygons.append(newPolygon)
+            
+            newPolygons = []
+            for polygon in polygons:
+                transformedPolygon = \
+                        rotateAndMovePolygon(polygon,
+                                             movementVector,
+                                             points['rotationCenter'],
+                                             rotationAngle)
+                newPolygons.append(transformedPolygon)
+            
+            return newPolygons
+        else:
+            return None
 
 class Tree(Block):
     def __init__(self, gridX, gridZ, edgeLength):
@@ -262,60 +338,3 @@ class Hut(Block):
         self.polygons.append(Polygon('{}p16'.format(self.blockId),
                                      [pte8, pte1, pr],
                                      fill=colorRoofFill, outline=colorRoofOutline))
-
-
-class Sun(Block):
-    def __init__(self, gridX, gridZ, edgeLength):
-        Block.__init__(self, gridX, gridZ, edgeLength)
-    
-    def initPolygons(self):
-        offsetX = self.gridX
-        offsetZ = self.gridZ
-        
-        colorFill = '#f9fb4d'
-        colorOutline = '#adae36'
-        halfEdgeLength = 2.5
-        
-        point1 = Point3D(offsetX,
-                         40 + -halfEdgeLength,
-                         offsetZ)
-        point2 = Point3D(offsetX + self.edgeLength,
-                         40 + -halfEdgeLength,
-                         offsetZ)
-        point3 = Point3D(offsetX + self.edgeLength,
-                         40 + -halfEdgeLength,
-                         offsetZ + self.edgeLength)
-        point4 = Point3D(offsetX,
-                         40 + -halfEdgeLength,
-                         offsetZ + self.edgeLength)
-        
-        point5 = Point3D(offsetX,
-                         40 + halfEdgeLength,
-                         offsetZ)
-        point6 = Point3D(offsetX + self.edgeLength,
-                         40 + halfEdgeLength,
-                         offsetZ)
-        point7 = Point3D(offsetX + self.edgeLength,
-                         40 + halfEdgeLength,
-                         offsetZ + self.edgeLength)
-        point8 = Point3D(offsetX,
-                         40 + halfEdgeLength,
-                         offsetZ + self.edgeLength)
-        
-        self.polygons.append(Polygon('{}p1'.format(self.blockId),
-                                     [point1, point2, point6, point5],
-                                     fill=colorFill, outline=colorOutline))
-        self.polygons.append(Polygon('{}p2'.format(self.blockId),
-                                     [point2, point3, point7, point6],
-                                     fill=colorFill, outline=colorOutline))
-        self.polygons.append(Polygon('{}p3'.format(self.blockId),
-                                     [point3, point4, point8, point7],
-                                     fill=colorFill, outline=colorOutline))
-        self.polygons.append(Polygon('{}p4'.format(self.blockId),
-                                     [point4, point1, point5, point8],
-                                     fill=colorFill, outline=colorOutline))
-        self.polygons.append(Polygon('{}p5'.format(self.blockId),
-                                     [point1, point2, point3, point4],
-                                     fill=colorFill, outline=colorOutline))
-        
-        
