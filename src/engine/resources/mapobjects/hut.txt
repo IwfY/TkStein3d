@@ -1,0 +1,55 @@
+color colorWallFill #855223
+color colorWallOutline #69411c
+color colorRoofFill #d19640
+color colorRoofOutline #725223
+
+#bottom wall points
+c pb1 10 -7.5 0
+c pb2 25 -7.5 0
+c pb3 35 -7.5 10
+c pb4 35 -7.5 25
+c pb5 25 -7.5 35
+c pb6 10 -7.5 35
+c pb7 0 -7.5 25
+c pb8 0 -7.5 10
+
+#top wall points
+c pt1 10 7.5 0
+c pt2 25 7.5 0
+c pt3 35 7.5 10
+c pt4 35 7.5 25
+c pt5 25 7.5 35
+c pt6 10 7.5 35
+c pt7 0 7.5 25
+c pt8 0 7.5 10
+
+#top wall points expanded
+c pte1 10 7.0 -2
+c pte2 25 7.0 -2
+c pte3 38 7.0 10
+c pte4 38 7.0 25
+c pte5 25 7.0 38
+c pte6 10 7.0 38
+c pte7 -2 7.0 25
+c pte8 -2 7.0 10
+
+#roof point
+c pr 17.5 17.5 17.5
+
+p p1 pb1 pb2 pt2 pt1 colorWallFill colorWallOutline
+p p2 pb2 pb3 pt3 pt2 colorWallFill colorWallOutline
+p p3 pb3 pb4 pt4 pt3 colorWallFill colorWallOutline
+p p4 pb4 pb5 pt5 pt4 colorWallFill colorWallOutline
+p p5 pb5 pb6 pt6 pt5 colorWallFill colorWallOutline
+p p6 pb6 pb7 pt7 pt6 colorWallFill colorWallOutline
+p p7 pb7 pb8 pt8 pt7 colorWallFill colorWallOutline
+p p8 pb8 pb1 pt1 pt8 colorWallFill colorWallOutline
+
+p p9 pte1 pte2 pr colorRoofFill colorRoofOutline
+p p10 pte2 pte3 pr colorRoofFill colorRoofOutline
+p p11 pte3 pte4 pr colorRoofFill colorRoofOutline
+p p12 pte4 pte5 pr colorRoofFill colorRoofOutline
+p p13 pte5 pte6 pr colorRoofFill colorRoofOutline
+p p14 pte6 pte7 pr colorRoofFill colorRoofOutline
+p p15 pte7 pte8 pr colorRoofFill colorRoofOutline
+p p16 pte8 pte1 pr colorRoofFill colorRoofOutline
