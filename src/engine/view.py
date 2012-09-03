@@ -8,7 +8,7 @@ import logging
 from operator import attrgetter
 from threading import Thread
 from time import sleep
-from tkinter import _flatten, HIDDEN, NORMAL
+from tkinter import _flatten, ALL, HIDDEN, NORMAL
 
 
 class View(Thread):
@@ -28,12 +28,15 @@ class View(Thread):
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
         #                    level=logging.DEBUG, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
-                            level=logging.CRITICAL, filemode='w')
+                            level=logging.DEBUG, filemode='w')
     
     def run(self):
         self.setBindings()
         
         orderedPolygonTagsLastFrame = []
+        
+        activeBuffer = 'buffer1'
+        inactiveBuffer = 'buffer2'
         
         #draw ground/ ceiling
         canvasWidth = 1
@@ -54,8 +57,9 @@ class View(Thread):
                    timedelta(milliseconds=self.millisecondsPerFrame)
             stopWatchTime = datetime.now()
             
-            #INPUT
-            ######################
+            ##########################################
+            # INPUT
+            ##########################################
             moveDeltaForward = 0.0
             moveDeltaLeft = 0.0
             rotation = 0.0
@@ -83,13 +87,15 @@ class View(Thread):
             stopWatchTime = datetime.now()
             
             
-            #DRAWING
-            ######################
+            ##########################################
+            # DRAWING
+            ##########################################
             
             canvasWidth = self.canvas.winfo_width()
             canvasHeight = self.canvas.winfo_height()
             
             # generate list of tuples of polygons and distance to eye
+            ##########################################
             playerPostion = self.player.getPosition()
             moveVector = Vector3D(-playerPostion.x,
                                 -playerPostion.y,
@@ -111,6 +117,7 @@ class View(Thread):
             stopWatchTime = datetime.now()
             
             # sort list
+            ##########################################
             polygonsToDraw = sorted(polygonsToDraw,
                                     key=attrgetter('distanceToEye'),
                                     reverse=True)
@@ -120,6 +127,7 @@ class View(Thread):
             
             
             # check for position towards x-y-plane
+            ##########################################
             for polygonToDraw in polygonsToDraw:
                 polygon = polygonToDraw.polygon
                 polygonToDraw.state = NORMAL
@@ -163,6 +171,7 @@ class View(Thread):
             
             
             # exchange polygon tags to match drawing order
+            ##########################################
             if len(orderedPolygonTagsLastFrame) != 0:
                 for i in range(0, len(polygonsToDraw)):
                     polygonsToDraw[i].polygonOriginal.setPolygonId(
@@ -170,6 +179,7 @@ class View(Thread):
             
             
             # transform coordinates of view plane to canvas coordinates
+            ##########################################
             polygon2DPointsList = []    
             for polygonToDraw in polygonsToDraw:
                 polygon = polygonToDraw.polygon
@@ -195,50 +205,87 @@ class View(Thread):
             
             
             # draw
+            ##########################################
+            
+            # remove show/hide tags
+            self.canvas.dtag(ALL, 'normal')
+            self.canvas.dtag(ALL, 'hide')
+            
             i = 0
             for polygon2DPoints in polygon2DPointsList:
                 polygonOriginal = polygon2DPoints.polygonOriginal
                 points = polygon2DPoints.points
                 
-                polygonWidgetId = self.canvas.find_withtag(
+                polygonWidgetIds = self.canvas.find_withtag(
                                         polygonOriginal.getPolygonId())
-                if len(polygonWidgetId) == 0:   # create new widget
+                activeWidgetIds = self.canvas.find_withtag(activeBuffer)
+                
+                if len(polygonWidgetIds) == 0:   # create new widget
                     self.canvas.create_polygon(
                             _flatten(points),
                             fill=polygonOriginal.fill,
                             outline=polygonOriginal.outline,
                             state=polygon2DPoints.state,
-                            tags=polygonOriginal.getPolygonId())
+                            tags=(polygonOriginal.getPolygonId(), activeBuffer))
+                    self.canvas.create_polygon(
+                            _flatten(points),
+                            fill=polygonOriginal.fill,
+                            outline=polygonOriginal.outline,
+                            state=polygon2DPoints.state,
+                            tags=(polygonOriginal.getPolygonId(), inactiveBuffer))
                     # save tag order
                     orderedPolygonTagsLastFrame.append(
                             polygonOriginal.getPolygonId())
                     #logging.debug('newWidget {} {}'.format(
                     #                polygonOriginal.getPolygonId(), points))
                 else:   # move widget
-                    self.canvas.itemconfig(polygonWidgetId,
-                                           state=polygon2DPoints.state,
-                                           fill=polygonOriginal.fill,
-                                           outline=polygonOriginal.outline)
+                    # get active polygon id
+                    polygonWidgetId = [r for r in polygonWidgetIds \
+                                       if r in activeWidgetIds]
+                    polygonWidgetId = polygonWidgetId[0]
                     if polygon2DPoints.state == NORMAL:
+                        i += 1
+                        self.canvas.itemconfig(polygonWidgetId,
+                                               fill=polygonOriginal.fill,
+                                               outline=polygonOriginal.outline)
                         self.canvas.coords(polygonWidgetId,
                                            _flatten(points))
+                        self.canvas.addtag_withtag('normal', polygonWidgetId)
+                    else:
+                        self.canvas.addtag_withtag('hide', polygonWidgetId)
+                        
                         #logging.debug('movWidget {} {}'.format(
                         #                polygonOriginal.getPolygonId(), points))
-            
             logging.debug('draw update: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
-                        
+            logging.debug('polygons moved: {}'.format(i))
+            stopWatchTime = datetime.now()
+            
+            # switch display buffers
+            ##########################################
+            self.canvas.itemconfig('normal',
+                                   state=NORMAL)
+            self.canvas.itemconfig('hide',
+                                   state=HIDDEN)
+            self.canvas.itemconfig(inactiveBuffer,
+                                   state=HIDDEN)
+            tmp = activeBuffer
+            activeBuffer = inactiveBuffer
+            inactiveBuffer = tmp
+            
+            logging.debug('buffer switching: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
             
             # time till frame end
             remaining = stop - datetime.now()
             if remaining.days < 0:  # frame needed too long
-                logging.debug('remaining: {}/{} msec'.format(
+                logging.debug('  remaining: {}/{} msec'.format(
                       round(-1000 + remaining.microseconds / 1000, 1),
                       self.millisecondsPerFrame))
                 remaining = -1
             else:
                 remaining = round(remaining.microseconds / 1000000, 3)
-                logging.debug('remaining: {}/{} msec'.format(remaining * 1000, 
+                logging.debug('  remaining: {}/{} msec'.format(remaining * 1000, 
                       self.millisecondsPerFrame))
             if remaining > 0:
                 sleep(remaining)
