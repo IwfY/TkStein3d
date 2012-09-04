@@ -6,12 +6,15 @@ from engine.polygon import moveAndRotatePolygon, Polygon
 from datetime import datetime, timedelta
 import logging
 from operator import attrgetter
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 from tkinter import _flatten, ALL, HIDDEN, NORMAL
 
 
 class View(Thread):
+    count = 0
+    mutex = Lock()
+    
     def __init__(self, gameManager, gameMap, character, window, canvas):
         Thread.__init__(self)
         self.canvas = canvas
@@ -24,12 +27,25 @@ class View(Thread):
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
-        self.millisecondsPerFrame = 60
+        self.millisecondsPerFrame = 40
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
         #                    level=logging.DEBUG, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
                             level=logging.DEBUG, filemode='w')
-    
+
+
+    def getNewPolygonTag(self):
+        # using mutex for unique IDs if several threads create polygon tags
+        View.mutex.acquire()
+        try:
+            newPolygonId = 'p{}'.format(View.count)
+            View.count += 1
+        finally:
+            View.mutex.release()
+            
+        return newPolygonId
+
+
     def run(self):
         self.setBindings()
         
@@ -130,6 +146,7 @@ class View(Thread):
             ##########################################
             for polygonToDraw in polygonsToDraw:
                 polygon = polygonToDraw.polygon
+                polygonOriginal = polygonToDraw.polygonOriginal
                 polygonToDraw.state = NORMAL
                 
                 newPoints = []
@@ -162,8 +179,8 @@ class View(Thread):
                 if len(newPoints) == 0:
                     polygonToDraw.state = HIDDEN
                 else:
-                    polygonToDraw.polygon = Polygon(polygon.getPolygonId(),
-                                                    newPoints)
+                    polygonToDraw.polygon = \
+                            Polygon(polygonOriginal.getPolygonId(), newPoints)
             logging.debug('xy-plane intersection: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             stopWatchTime = datetime.now()
@@ -172,10 +189,40 @@ class View(Thread):
             
             # exchange polygon tags to match drawing order
             ##########################################
-            if len(orderedPolygonTagsLastFrame) != 0:
-                for i in range(0, len(polygonsToDraw)):
-                    polygonsToDraw[i].polygonOriginal.setPolygonId(
-                            orderedPolygonTagsLastFrame[i])
+            
+            # get number of polygons to be drawn
+            stateNormalCount = 0
+            for i in range(len(polygonsToDraw)):
+                if polygonsToDraw[i].state == NORMAL:
+                    stateNormalCount += 1
+            
+            # create additional polygons
+            for i in range(stateNormalCount - len(orderedPolygonTagsLastFrame)):
+                newPolygonTag = self.getNewPolygonTag()
+                self.canvas.create_polygon(
+                        (0.0, 0.0, 0.0, 0.0),
+                        state=HIDDEN,
+                        tags=(newPolygonTag, activeBuffer))
+                self.canvas.create_polygon(
+                        (0.0, 0.0, 0.0, 0.0),
+                        state=HIDDEN,
+                        tags=(newPolygonTag, inactiveBuffer))
+                # save tag order
+                orderedPolygonTagsLastFrame.append(newPolygonTag)
+            
+            # set tags
+            indexOrderedPolygons = 0
+            for i in range(len(polygonsToDraw)):
+                if polygonsToDraw[i].state == NORMAL:
+                    polygonsToDraw[i].polygonOriginal.\
+                            setPolygonId(orderedPolygonTagsLastFrame[
+                                            indexOrderedPolygons])
+                    indexOrderedPolygons += 1
+            
+            logging.debug('polygon creation, assignment: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()        
+            print(len(orderedPolygonTagsLastFrame), len(polygonsToDraw), indexOrderedPolygons, stateNormalCount)
             
             
             # transform coordinates of view plane to canvas coordinates
@@ -220,29 +267,13 @@ class View(Thread):
                                         polygonOriginal.getPolygonId())
                 activeWidgetIds = self.canvas.find_withtag(activeBuffer)
                 
-                if len(polygonWidgetIds) == 0:   # create new widget
-                    self.canvas.create_polygon(
-                            _flatten(points),
-                            fill=polygonOriginal.fill,
-                            outline=polygonOriginal.outline,
-                            state=polygon2DPoints.state,
-                            tags=(polygonOriginal.getPolygonId(), activeBuffer))
-                    self.canvas.create_polygon(
-                            _flatten(points),
-                            fill=polygonOriginal.fill,
-                            outline=polygonOriginal.outline,
-                            state=polygon2DPoints.state,
-                            tags=(polygonOriginal.getPolygonId(), inactiveBuffer))
-                    # save tag order
-                    orderedPolygonTagsLastFrame.append(
-                            polygonOriginal.getPolygonId())
-                    #logging.debug('newWidget {} {}'.format(
-                    #                polygonOriginal.getPolygonId(), points))
-                else:   # move widget
-                    # get active polygon id
-                    polygonWidgetId = [r for r in polygonWidgetIds \
-                                       if r in activeWidgetIds]
+                polygonWidgetId = [r for r in polygonWidgetIds \
+                                   if r in activeWidgetIds]
+                
+                
+                if len(polygonWidgetId) >= 1:
                     polygonWidgetId = polygonWidgetId[0]
+                    # get active polygon id
                     if polygon2DPoints.state == NORMAL:
                         i += 1
                         self.canvas.itemconfig(polygonWidgetId,
@@ -253,7 +284,9 @@ class View(Thread):
                         self.canvas.addtag_withtag('normal', polygonWidgetId)
                     else:
                         self.canvas.addtag_withtag('hide', polygonWidgetId)
-                        
+                        self.canvas.delete(polygonOriginal.getPolygonId())
+                        orderedPolygonTagsLastFrame.remove(
+                                polygonOriginal.getPolygonId())
                         #logging.debug('movWidget {} {}'.format(
                         #                polygonOriginal.getPolygonId(), points))
             logging.debug('draw update: {} msec'.format(
