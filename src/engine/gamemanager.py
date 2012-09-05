@@ -12,8 +12,8 @@ class GameManager(Thread):
         Thread.__init__(self)
         
         self.characters = []
-        #self.gameMap = GridMap()
-        self.gameMap = SVGMap("data/maps/map2.svg")
+        self.gameMap = GridMap()
+        #self.gameMap = SVGMap("data/maps/map_city.svg")
         self.views = []
         self.isStarted = False
     
