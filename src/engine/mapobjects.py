@@ -10,7 +10,7 @@ class MapObjectManager(object):
     mutex = Lock()
     
     def __init__(self):
-        self.mapObjectPath = 'engine/resources/mapobjects/'  #TODO make portable
+        self.mapObjectPath = 'data/mapobjects/'  #TODO make portable
     
     def getPolygonsForMapObjectRotateMove(self,
                                           mapObjectName,
