@@ -27,9 +27,9 @@ class View(Thread):
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
-        self.millisecondsPerFrame = 40
+        self.millisecondsPerFrame = 60
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
-        #                    level=logging.DEBUG, filemode='w')
+        #                    level=logging.CRITICAL, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
                             level=logging.DEBUG, filemode='w')
 
@@ -210,6 +210,11 @@ class View(Thread):
                 # save tag order
                 orderedPolygonTagsLastFrame.append(newPolygonTag)
             
+            # set hide state for surplus polygons
+            surplusCount = len(orderedPolygonTagsLastFrame) - stateNormalCount
+            for i in range(surplusCount):
+                self.canvas.addtag_withtag('hide', orderedPolygonTagsLastFrame[-1 - i])
+            
             # set tags
             indexOrderedPolygons = 0
             for i in range(len(polygonsToDraw)):
@@ -218,11 +223,12 @@ class View(Thread):
                             setPolygonId(orderedPolygonTagsLastFrame[
                                             indexOrderedPolygons])
                     indexOrderedPolygons += 1
+                else:
+                    polygonsToDraw[i].polygonOriginal.setPolygonId('None')
             
             logging.debug('polygon creation, assignment: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
-            stopWatchTime = datetime.now()        
-            print(len(orderedPolygonTagsLastFrame), len(polygonsToDraw), indexOrderedPolygons, stateNormalCount)
+            stopWatchTime = datetime.now()
             
             
             # transform coordinates of view plane to canvas coordinates
@@ -284,11 +290,6 @@ class View(Thread):
                         self.canvas.addtag_withtag('normal', polygonWidgetId)
                     else:
                         self.canvas.addtag_withtag('hide', polygonWidgetId)
-                        self.canvas.delete(polygonOriginal.getPolygonId())
-                        orderedPolygonTagsLastFrame.remove(
-                                polygonOriginal.getPolygonId())
-                        #logging.debug('movWidget {} {}'.format(
-                        #                polygonOriginal.getPolygonId(), points))
             logging.debug('draw update: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             logging.debug('polygons moved: {}'.format(i))
@@ -302,6 +303,13 @@ class View(Thread):
                                    state=HIDDEN)
             self.canvas.itemconfig(inactiveBuffer,
                                    state=HIDDEN)
+            
+            # remove surplus polygons
+            surplusCount = len(orderedPolygonTagsLastFrame) - stateNormalCount
+            for i in range(surplusCount):
+                self.canvas.delete(orderedPolygonTagsLastFrame[-1])
+                orderedPolygonTagsLastFrame = orderedPolygonTagsLastFrame[:-1]
+            
             tmp = activeBuffer
             activeBuffer = inactiveBuffer
             inactiveBuffer = tmp
