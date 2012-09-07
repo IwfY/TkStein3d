@@ -22,7 +22,13 @@ class MapGenerator(object):
         x1, x2 = min(x1, x2), max(x1, x2)
         y1, y2 = min(y1, y2), max(y1, y2)
     
+        # rooms not too small
         if x2 - x1 < 3 or y2 - y1 < 3:
+            self.addRectangle(start)
+            return()
+        
+        # rooms not to large
+        if x2 - x1 > self.width * 2/3 or y2 - y1 > self.height * 2/3:
             self.addRectangle(start)
             return()
     

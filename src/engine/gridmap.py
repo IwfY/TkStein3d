@@ -15,7 +15,7 @@ class GridMap(Map):
         self.edgeLength = 15
         
         # test input
-        self.mapGenerator = MapGenerator(30, 20, 1)
+        self.mapGenerator = MapGenerator(30, 20, seed=1)
         grid = self.mapGenerator.generateMap()
         
         # make walls towards these map grid values
