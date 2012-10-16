@@ -1,10 +1,12 @@
 from engine.character import Character
 from engine.gridmap import GridMap
+from engine.inputcontrol import InputControl
+from engine.svgmap import SVGMap
 from engine.view import View
+
 
 from math import cos, pi, sin
 from threading import Thread
-from engine.svgmap import SVGMap
 
 
 class GameManager(Thread):
@@ -16,6 +18,7 @@ class GameManager(Thread):
         #self.gameMap = SVGMap("data/maps/map_city.svg")
         self.views = []
         self.isStarted = False
+        self.inputController = []
     
     def addView(self, window, canvas, character):
         # don't start two views on same canvas
@@ -28,6 +31,14 @@ class GameManager(Thread):
         
         if self.isStarted:
             newView.start()
+    
+    def addInputControl(self, window, character):
+        newInputControl = InputControl(self, character, window)
+        self.inputController.append(newInputControl)
+        
+        if self.isStarted:
+            newInputControl.start()
+    
     
     def addCharacter(self):
         character = Character()
@@ -55,6 +66,9 @@ class GameManager(Thread):
     
     def run(self):
         self.isStarted = True
+        
+        for inputControl in self.inputController:
+            inputControl.start()
         
         for view in self.views:
             view.start()
