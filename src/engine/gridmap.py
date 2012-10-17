@@ -15,7 +15,7 @@ class GridMap(Map):
         self.edgeLength = 15
         
         # test input
-        self.mapGenerator = MapGenerator(30, 20, seed=1)
+        self.mapGenerator = MapGenerator(20, 20, seed=1)
         grid = self.mapGenerator.generateMap()
         
         # make walls towards these map grid values
@@ -23,7 +23,7 @@ class GridMap(Map):
         
         for i in range(len(grid)):
             for j in range(len(grid[i])):
-                if grid[i][j] == 2:
+                if grid[i][j] == 2:     # wall
                     if i > 0 and grid[i-1][j] in makeWallsTo:
                         self.addWall(i * self.edgeLength, j * self.edgeLength,
                                      0, self.edgeLength)
@@ -39,6 +39,18 @@ class GridMap(Map):
                         self.addWall(i * self.edgeLength,
                                      (j+1) * self.edgeLength,
                                      self.edgeLength, 0)
+
+                elif grid[i][j] == '#':     #door
+                    if grid[i-1][j] in makeWallsTo and grid[i+1][j] in makeWallsTo:
+                        self.addWall((i + 0.5) * self.edgeLength,
+                                     j * self.edgeLength,
+                                     0 ,self.edgeLength,
+                                     fill='brown')
+                    else:
+                        self.addWall(i * self.edgeLength,
+                                     (j + 0.5) * self.edgeLength,
+                                     self.edgeLength, 0,
+                                     fill='brown')
                     
                     
                 elif grid[i][j] == 's':     #start position

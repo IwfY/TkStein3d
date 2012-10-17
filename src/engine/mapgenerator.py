@@ -91,9 +91,9 @@ class MapGenerator(object):
             self.addDoor()
         
         # show result
-        #for i in range(self.width):
-        #    for j in range(self.height):
-        #        print(self.walls[i][j], end='')
-        #    print()
+        for i in range(self.width):
+            for j in range(self.height):
+                print(self.walls[i][j], end='')
+            print()
         
         return self.walls
