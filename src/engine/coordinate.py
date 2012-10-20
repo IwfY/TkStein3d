@@ -6,6 +6,9 @@ class Point2D(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+    
+    def __str__(self):
+        return '{} ({}, {})'.format(id(self), self.x, self.y)
 
 class Point3D(object):
     def __init__(self, x, y, z):
@@ -23,7 +26,7 @@ class Point3D(object):
     
     def rotateAroundYAxisToAngle(self, rotationCenter, angle):
         '''see http://mathworld.wolfram.com/SphericalCoordinates.html
-        (z and y are reversed here)'''
+        (z and y are switched here)'''
         length = getPointDistance(Point3D(self.x, 0.0, self.z),
                                   Point3D(rotationCenter.x,
                                           0.0,
@@ -44,3 +47,6 @@ class Vector3D(object):
         self.x = x
         self.y = y
         self.z = z
+    
+    def __str__(self):
+        return '{} ({}, {}, {})'.format(id(self), self.x, self.y, self.z)
