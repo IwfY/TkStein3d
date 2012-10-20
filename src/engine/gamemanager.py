@@ -9,10 +9,8 @@ from math import cos, pi, sin
 from threading import Thread
 
 
-class GameManager(Thread):
-    def __init__(self):
-        Thread.__init__(self)
-        
+class GameManager():
+    def __init__(self):        
         self.characters = []
         self.gameMap = GridMap()
         #self.gameMap = SVGMap("data/maps/map_city.svg")
@@ -62,7 +60,15 @@ class GameManager(Thread):
         
         character.position.x -= moveDeltaX
         character.position.z -= moveDeltaZ
+    
+    def stop(self):
+        self.isStarted = False
         
+        for inputControl in self.inputController:
+            inputControl.stop()
+        
+        for view in self.views:
+            view.stop()
     
     def run(self):
         self.isStarted = True

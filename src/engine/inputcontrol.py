@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from math import pi
 from threading import Thread
 from time import sleep
 
@@ -20,12 +21,17 @@ class InputControl(Thread):
         self.window = window
         self.keysPressed = set()
         self.millisecondsPerTick = 30
+        self.running = False
         
         self.setBindings()
     
+    def stop(self):
+        self.running = False
+    
     
     def run(self):
-        while True:
+        self.running = True
+        while self.running:
             stop = datetime.now() + \
                    timedelta(milliseconds=self.millisecondsPerTick)
             
@@ -36,9 +42,9 @@ class InputControl(Thread):
             tmpKeysPressed = set(self.keysPressed)
             for key in tmpKeysPressed:
                 if key == 65363:    # right array
-                    rotation += 0.075
+                    rotation += pi / 40
                 elif key == 65361:  # left array
-                    rotation -= 0.075
+                    rotation -= pi / 40
                 if key == 119:      # w
                     moveDeltaForward += 1.0
                 elif key == 115:    # s
@@ -47,6 +53,8 @@ class InputControl(Thread):
                     moveDeltaLeft -= 1.0
                 elif key == 100:    # d
                     moveDeltaLeft += 1.0
+                elif key == 113:    # q -> stop
+                    self.gameManager.stop()
             self.gameManager.moveRotateCharacter(self.player,
                                                  moveDeltaForward,
                                                  moveDeltaLeft,

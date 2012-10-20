@@ -5,6 +5,7 @@ from engine.polygon import moveAndRotatePolygon, Polygon
 
 from datetime import datetime, timedelta
 import logging
+from math import atan2, pi 
 from operator import attrgetter
 from threading import Thread, Lock
 from time import sleep
@@ -27,6 +28,7 @@ class View(Thread):
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
         self.millisecondsPerFrame = 60
+        self.running = False
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
         #                    level=logging.CRITICAL, filemode='w')
         logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
@@ -43,6 +45,10 @@ class View(Thread):
             View.mutex.release()
             
         return newPolygonId
+    
+    def stop(self):
+        '''stop the loop from running'''
+        self.running = False
 
 
     def run(self):
@@ -68,7 +74,8 @@ class View(Thread):
                                      canvasWidth, canvasHeight,
                                      fill=self.gameMap.getGroundColor())
         
-        while True:
+        self.running = True
+        while self.running:
             # time for frame end
             stop = datetime.now() + \
                    timedelta(milliseconds=self.millisecondsPerFrame)
@@ -155,8 +162,27 @@ class View(Thread):
             logging.debug('xy-plane intersection: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             stopWatchTime = datetime.now()
-                            
             
+            
+            # check for normals corresponding to view vector
+            ##########################################
+            viewVector = Vector3D(0, 0, 1)
+            viewVectorATan2XZ = atan2(viewVector.z, viewVector.x)
+            #print("viewVectorATan2XZ", viewVectorATan2XZ)
+            for polygonToDraw in polygonsToDraw:
+                #print("orig coord ", polygonToDraw.polygonOriginal.points[0], '-', polygonToDraw.polygonOriginal.points[2])
+                #print("orig normal", polygonToDraw.polygonOriginal.getNormalVectorXZ())
+                #print("rota coord ", polygonToDraw.polygon.points[0], '-', polygonToDraw.polygon.points[2])
+                #print("rota normal", polygonToDraw.polygon.getNormalVectorXZ())
+                #print("rota normal angle", atan2(polygonToDraw.polygon.getNormalVectorXZ().z, polygonToDraw.polygon.getNormalVectorXZ().x))
+                if polygonToDraw.state == NORMAL:
+                    polygonNormalXZ = polygonToDraw.polygon.getNormalVectorXZ()
+                    if abs(atan2(polygonNormalXZ.z, polygonNormalXZ.x) - \
+                           viewVectorATan2XZ) > pi:
+                        polygonToDraw.state = HIDDEN
+            logging.debug('normal-view angle check: {} msec'.format(
+                        (datetime.now() - stopWatchTime).microseconds / 1000))
+            stopWatchTime = datetime.now()
             
             # exchange polygon tags to match drawing order
             ##########################################

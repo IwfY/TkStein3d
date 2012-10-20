@@ -3,6 +3,10 @@ from engine.coordinate import Point3D
 
 from tkinter import Tk, Canvas
 
+def stop():
+    engine.stop()
+    window.destroy()
+
 if __name__ == '__main__':
     window = Tk()
     canvas = Canvas(window, width=1024, height=768)
@@ -23,6 +27,9 @@ if __name__ == '__main__':
     #engine.addView(window, canvas2, player2)
     #engine.addView(canvas3, player2)
     #engine.addView(canvas4, player2)
-    engine.start()
+    engine.run()
+    
+    window.protocol('WM_DELETE_WINDOW', stop)
+
 
     window.mainloop()
