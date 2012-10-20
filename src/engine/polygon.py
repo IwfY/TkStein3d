@@ -3,7 +3,7 @@ Created on Aug 4, 2012
 
 @author: marcel
 '''
-from engine.coordinate import Point2D, Point3D
+from engine.coordinate import Point2D, Point3D, Vector3D
 
 
 def moveAndRotatePolygon(polygon,
@@ -101,7 +101,22 @@ class Polygon(object):
                            self.points[2].z + \
                                 (self.points[0].z - self.points[2].z) / 2)
     
-    def getNormalVector(self):
-        '''for future use'''
+    def getNormalVectorXZ(self):
+        '''get the normal vector when considering the polygon as a line on the
+        x-z-plane
+        
+        points 1 and 3 are used to calculate the the line v
+        
+        v = (p3.x) - (p1.x)
+            (p3.z)   (p1.z)
+            
+        normal n = ( v.z)
+                   (-v.x)
+        '''
+        
+        vX = self.points[2].x - self.points[0].x
+        vZ = self.points[2].z - self.points[0].z
+        
+        return Vector3D(-vZ, 0, vX)
         
         pass
