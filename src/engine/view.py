@@ -223,23 +223,24 @@ class View(Thread):
             ##########################################
             polygon2DPointsList = []    
             for polygonToDraw in polygonsToDraw:
-                polygon = polygonToDraw.polygon
-                points = polygon.getPoints2D(
-                            self.eye, self.player)
-                if points is not None:                    
-                    tmpPoints = InfoClass()
-                    tmpPoints.polygonOriginal = polygonToDraw.polygonOriginal
-                    tmpPoints.state = polygonToDraw.state
-                    tmpPoints.points = []
-                    for point in points:
-                        x = round((point.x + 0.5 * self.viewXRange) * \
-                                  canvasWidth / self.viewXRange)
-                        y = round((-point.y + 0.5 * self.viewYRange) * \
-                                  canvasHeight / self.viewYRange)
-                        tmpPoints.points.append(x)
-                        tmpPoints.points.append(y)
-                    
-                    polygon2DPointsList.append(tmpPoints)
+                if polygonToDraw.state == NORMAL:
+                    polygon = polygonToDraw.polygon
+                    points = polygon.getPoints2D(
+                                self.eye, self.player)
+                    if points is not None:                    
+                        tmpPoints = InfoClass()
+                        tmpPoints.polygonOriginal = polygonToDraw.polygonOriginal
+                        tmpPoints.state = polygonToDraw.state
+                        tmpPoints.points = []
+                        for point in points:
+                            x = round((point.x + 0.5 * self.viewXRange) * \
+                                      canvasWidth / self.viewXRange)
+                            y = round((-point.y + 0.5 * self.viewYRange) * \
+                                      canvasHeight / self.viewYRange)
+                            tmpPoints.points.append(x)
+                            tmpPoints.points.append(y)
+                        
+                        polygon2DPointsList.append(tmpPoints)
             logging.debug('3d-2d conversion: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             stopWatchTime = datetime.now()
