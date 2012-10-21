@@ -120,3 +120,49 @@ class Polygon(object):
         return Vector3D(-vZ, 0, vX)
         
         pass
+
+
+    def polygonFacesPoint(self, point):
+        '''returns true if polygon faces a point so it can be seen from it
+        
+        mathematical background
+        ~~~~~~~~~~~~~~~~~~~~~~
+        v ... the vector (x, z) from polygon point0 to point2
+        n ... normal (x, z) of vector v using the following formula:
+                n = ( v.z)
+                    (-v.x)
+        p ... point
+        
+        pp0 ... polygon point 0
+        
+        p can be expressed as linear combination of v, n and pp0:
+        
+        p = pp0 + a*v + b*n
+        
+        normal faces the eye if b < 0
+        
+        b = ((p.x  - pp0.x) * v.z / v.x + pp0.z - p.z) / (n.x * v.z / v.x - n.z)
+        
+        return true if b >= 0, false otherwise
+        '''
+        v = Vector3D(self.points[2].x - self.points[0].x,
+                     0,
+                     self.points[2].z - self.points[0].z)
+        n = self.getNormalVectorXZ()
+        
+        if v.x == 0.0:
+            b = -0.1
+        elif (n.x * v.z / v.x - n.z) == 0.0:
+            b = -0.1
+        else:
+            b = ((point.x  - self.points[0].x) * v.z / v.x + \
+                  self.points[0].z - point.z) / (n.x * v.z / v.x - n.z)
+        
+        #print(id(self), self.points[0], self.points[2], '\n  v ', v, \
+        # '\n  n ', n, '\n  p ', point, '\n  b ', b)
+        
+        
+        if b < 0.0:
+            return True
+        
+        return False

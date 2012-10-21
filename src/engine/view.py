@@ -166,19 +166,9 @@ class View(Thread):
             
             # check for normals corresponding to view vector
             ##########################################
-            viewVector = Vector3D(0, 0, 1)
-            viewVectorATan2XZ = atan2(viewVector.z, viewVector.x)
-            #print("viewVectorATan2XZ", viewVectorATan2XZ)
             for polygonToDraw in polygonsToDraw:
-                #print("orig coord ", polygonToDraw.polygonOriginal.points[0], '-', polygonToDraw.polygonOriginal.points[2])
-                #print("orig normal", polygonToDraw.polygonOriginal.getNormalVectorXZ())
-                #print("rota coord ", polygonToDraw.polygon.points[0], '-', polygonToDraw.polygon.points[2])
-                #print("rota normal", polygonToDraw.polygon.getNormalVectorXZ())
-                #print("rota normal angle", atan2(polygonToDraw.polygon.getNormalVectorXZ().z, polygonToDraw.polygon.getNormalVectorXZ().x))
                 if polygonToDraw.state == NORMAL:
-                    polygonNormalXZ = polygonToDraw.polygon.getNormalVectorXZ()
-                    if abs(atan2(polygonNormalXZ.z, polygonNormalXZ.x) - \
-                           viewVectorATan2XZ) > pi:
+                    if not polygonToDraw.polygon.polygonFacesPoint(self.eye):
                         polygonToDraw.state = HIDDEN
             logging.debug('normal-view angle check: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
@@ -192,6 +182,7 @@ class View(Thread):
             for i in range(len(polygonsToDraw)):
                 if polygonsToDraw[i].state == NORMAL:
                     stateNormalCount += 1
+            logging.debug('polycount {}'.format(stateNormalCount))    
             
             # create additional polygons
             for i in range(stateNormalCount - len(orderedPolygonTagsLastFrame)):
