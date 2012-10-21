@@ -17,6 +17,11 @@ class GridMap(Map):
         # test input
         self.mapGenerator = MapGenerator(20, 20, seed=1)
         grid = self.mapGenerator.generateMap()
+        #grid = [[0,0,0,0,0],
+        #        [0,2,2,2,0],
+        #        [0,0,1,2,0],
+        #        [0,0,0,2,0],
+        #        [0,0,0,0,0]]
         
         # make walls towards these map grid values
         makeWallsTo = set([1, 's', '#'])
