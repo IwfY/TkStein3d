@@ -106,12 +106,34 @@ class GridMap(Map):
         intersects an object
         
         return none if no intersection'''
-        
         i2 = int(point2.x / self.edgeLength)
         j2 = int(point2.z / self.edgeLength)
         
+        distanceCellXM1 = point2.x % self.edgeLength
+        distanceCellXP1 = self.edgeLength - point2.x % self.edgeLength
+        distanceCellZM1 = point2.z % self.edgeLength
+        distanceCellZP1 = self.edgeLength - point2.z % self.edgeLength
+        
+        minDistance = 3.0
+        
+        # check goal cell
         if self.grid[i2][j2] not in self.makeWallsTo:
             return Point3D(0.0, 0.0, 0.0)
+        
+        # check neighbouring cells
+        if distanceCellXM1 < minDistance:
+            if self.grid[i2 - 1][j2] not in self.makeWallsTo:
+                return Point3D(0.0, 0.0, 0.0)
+        elif distanceCellXP1 < minDistance:
+            if self.grid[i2 + 1][j2] not in self.makeWallsTo:
+                return Point3D(0.0, 0.0, 0.0)
+        
+        if distanceCellZM1 < minDistance:
+            if self.grid[i2][j2 - 1] not in self.makeWallsTo:
+                return Point3D(0.0, 0.0, 0.0)
+        elif distanceCellZP1 < minDistance:
+            if self.grid[i2][j2 + 1] not in self.makeWallsTo:
+                return Point3D(0.0, 0.0, 0.0)
         
         return None
 
