@@ -27,7 +27,7 @@ class View(Thread):
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
         self.eye = Point3D(0.0, 0.0, -2.0)
-        self.millisecondsPerFrame = 60
+        self.millisecondsPerFrame = 50
         self.running = False
         #logging.basicConfig(filename='/tmp/tkstein3d_engine.log',
         #                    level=logging.CRITICAL, filemode='w')

@@ -7,6 +7,7 @@ from engine.view import View
 
 from math import cos, pi, sin
 from threading import Thread
+from engine.coordinate import Point3D
 
 
 class GameManager():
@@ -58,8 +59,16 @@ class GameManager():
         moveDeltaX += -cos(character.viewAngle) * moveDeltaLeft
         moveDeltaZ += sin(character.viewAngle) * moveDeltaLeft
         
-        character.position.x -= moveDeltaX
-        character.position.z -= moveDeltaZ
+        newPosition = Point3D(character.position.x - moveDeltaX,
+                              character.position.y,
+                              character.position.z - moveDeltaZ)
+        
+        if character.clipping == False:
+            character.position = newPosition
+        else:
+            if self.gameMap.getPathBlockedPoint(character.position,
+                    newPosition) is None:
+                character.position = newPosition
     
     def stop(self):
         self.isStarted = False
