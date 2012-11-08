@@ -3,22 +3,22 @@ from math import pi
 from threading import Thread
 from time import sleep
 
-class InputControl(Thread):
+class TkInputController(Thread):
     '''
     class to handle input for the game manager
     runs in a thread
     '''
 
-
-    def __init__(self, gameManager, character, window):
+    def __init__(self, client, character, window):
         '''
         Constructor
         '''
         Thread.__init__(self)
         
-        self.gameManager = gameManager
+        self.client = client
         self.player = character
         self.window = window
+        
         self.keysPressed = set()
         self.millisecondsPerTick = 30
         self.running = False
@@ -54,7 +54,7 @@ class InputControl(Thread):
                 elif key == 100:    # d
                     moveDeltaLeft += 1.0
                 elif key == 113:    # q -> stop
-                    self.gameManager.stop()
+                    self.client.stop()
             self.gameManager.moveRotateCharacter(self.player,
                                                  moveDeltaForward,
                                                  moveDeltaLeft,
