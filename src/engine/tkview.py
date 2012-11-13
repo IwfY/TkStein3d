@@ -30,8 +30,17 @@ class TkView(Thread):
         self.millisecondsPerFrame = 50
         self.running = False
         
+        self.lastPolygonId = 0
+        
         logging.basicConfig(filename='tkstein3d_engine.log',
                             level=logging.DEBUG, filemode='w')
+    
+    def getNewPolygonTag(self):
+        newPolygonId = 'p{}'.format(self.lastPolygonId)
+        self.lastPolygonId += 1
+            
+        return newPolygonId
+    
     
     def stop(self):
         '''stop the loop from running'''
@@ -63,6 +72,7 @@ class TkView(Thread):
         
         self.running = True
         while self.running:
+            print(".")
             # time for frame end
             stop = datetime.now() + \
                    timedelta(milliseconds=self.millisecondsPerFrame)
@@ -306,3 +316,5 @@ class TkView(Thread):
                       self.millisecondsPerFrame))
             if remaining > 0:
                 sleep(remaining)
+
+        print("TkView::run main loop canceled")
