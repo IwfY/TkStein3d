@@ -1,12 +1,9 @@
 from engine.character import Character
 from engine.gridmap import GridMap
-from engine.inputcontrol import InputControl
-from engine.svgmap import SVGMap
-from engine.view import View
+#from engine.svgmap import SVGMap
 
 
 from math import cos, pi, sin
-from threading import Thread
 from engine.coordinate import Point3D
 
 
@@ -15,28 +12,6 @@ class GameManager():
         self.characters = []
         self.gameMap = GridMap()
         #self.gameMap = SVGMap("data/maps/map_city.svg")
-        self.views = []
-        self.isStarted = False
-        self.inputController = []
-    
-    def addView(self, window, canvas, character):
-        # don't start two views on same canvas
-        for view in self.views:
-            if view.getCanvas() == canvas:
-                return
-        
-        newView = View(self, self.gameMap, character, window, canvas)
-        self.views.append(newView)
-        
-        if self.isStarted:
-            newView.start()
-    
-    def addInputControl(self, window, character):
-        newInputControl = InputControl(self, character, window)
-        self.inputController.append(newInputControl)
-        
-        if self.isStarted:
-            newInputControl.start()
     
     
     def addCharacter(self):
@@ -46,6 +21,10 @@ class GameManager():
         
         return character
     
+    def getGameMap(self):
+        return self.gameMap
+
+
     def moveRotateCharacter(self, character,
                             moveDeltaForward, moveDeltaLeft,
                             rotation):
@@ -69,21 +48,3 @@ class GameManager():
             if self.gameMap.getPathBlockedPoint(character.position,
                     newPosition) is None:
                 character.position = newPosition
-    
-    def stop(self):
-        self.isStarted = False
-        
-        for inputControl in self.inputController:
-            inputControl.stop()
-        
-        for view in self.views:
-            view.stop()
-    
-    def run(self):
-        self.isStarted = True
-        
-        for inputControl in self.inputController:
-            inputControl.start()
-        
-        for view in self.views:
-            view.start()

@@ -10,8 +10,6 @@ def createTkClient(gameManager, character):
     canvas = Canvas(window, width=1024, height=768)
     canvas.pack()
     
-    client.viewAndInput = TkViewAndInput(window, canvas)
+    client.viewAndInput = TkViewAndInput(client, window, canvas)
     
     return client
-    
-    

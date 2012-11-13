@@ -9,16 +9,16 @@ class TkInputController(Thread):
     runs in a thread
     '''
 
-    def __init__(self, client, character, window):
+    def __init__(self, client, window):
         '''
         Constructor
         '''
         Thread.__init__(self)
         
         self.client = client
-        self.player = character
         self.window = window
         
+        self.player = self.client.getPlayer()
         self.keysPressed = set()
         self.millisecondsPerTick = 30
         self.running = False
@@ -55,10 +55,10 @@ class TkInputController(Thread):
                     moveDeltaLeft += 1.0
                 elif key == 113:    # q -> stop
                     self.client.stop()
-            self.gameManager.moveRotateCharacter(self.player,
-                                                 moveDeltaForward,
-                                                 moveDeltaLeft,
-                                                 rotation)
+            self.client.moveRotateCharacter(self.player,
+                                            moveDeltaForward,
+                                            moveDeltaLeft,
+                                            rotation)
             
             remaining = stop - datetime.now()
             if remaining.days < 0:  # input processing needed too long
