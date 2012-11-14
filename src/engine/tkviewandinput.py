@@ -43,9 +43,11 @@ class TkViewAndInput(object):
             self.inputController.stop()
             print("stopped inputcontroller")
             
-            self.view.join()
+            if self.view.is_alive():
+                self.view.join()
             print("joined view")
-            self.inputController.join()
+            if self.inputController.is_alive():
+                self.inputController.join()
             print("joined inputcontroller")
             
             self.tkWindowMainLoop.stop()

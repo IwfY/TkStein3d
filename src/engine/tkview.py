@@ -72,7 +72,6 @@ class TkView(Thread):
         
         self.running = True
         while self.running:
-            print(".")
             # time for frame end
             stop = datetime.now() + \
                    timedelta(milliseconds=self.millisecondsPerFrame)
@@ -226,7 +225,8 @@ class TkView(Thread):
                                 self.eye, self.player)
                     if points is not None:                    
                         tmpPoints = InfoClass()
-                        tmpPoints.polygonOriginal = polygonToDraw.polygonOriginal
+                        tmpPoints.polygonOriginal = polygonToDraw. \
+                                                        polygonOriginal
                         tmpPoints.state = polygonToDraw.state
                         tmpPoints.points = []
                         for point in points:
@@ -317,4 +317,3 @@ class TkView(Thread):
             if remaining > 0:
                 sleep(remaining)
 
-        print("TkView::run main loop canceled")

@@ -3,7 +3,7 @@ Created on Nov 7, 2012
 
 @author: Marcel Pfeiffer
 '''
-
+from time import sleep
 
 class Client(object):
     def __init__(self, gameManager, player):
@@ -12,6 +12,7 @@ class Client(object):
         
         self.gameMap = self.gameManager.getGameMap()
         self.viewAndInput = None
+        self.running = True
     
     
     def getGameMap(self):
@@ -30,7 +31,11 @@ class Client(object):
     
     def start(self):
         self.viewAndInput.start()
+        
+        while self.running:
+            sleep(0.25)
+        self.viewAndInput.stop()
     
     
     def stop(self):
-        self.viewAndInput.stop()
+        self.running = False

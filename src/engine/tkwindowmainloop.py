@@ -15,9 +15,8 @@ class TkWindowMainLoop(Thread):
 
     
     def callbackDeleteWindow(self):
-        self.window.quit()
         self.client.stop()
-    
+        
     def stop(self):
         self.window.quit()
         
