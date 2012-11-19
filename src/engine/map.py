@@ -1,5 +1,5 @@
 from engine.coordinate import Point3D
-from engine.mapobjects import MapObjectManager
+from engine.mapobjects import MapObjectsManager
 
 class Map(object):
     def __init__(self):
@@ -7,10 +7,13 @@ class Map(object):
         
         self.groundColor = ''
         self.skyColor = ''
-        self.mapObjectManager = MapObjectManager()
+        self.mapObjectManager = MapObjectsManager()
     
     def getPolygons(self):
-        return self.polygons
+        outPolygons = [x for x in self.polygons]
+        outPolygons.extend(self.mapObjectManager.getPolygons())
+        
+        return outPolygons
 
     def getStartPosition(self):
         return Point3D(0.0, 0.0, 0.0)
@@ -28,3 +31,9 @@ class Map(object):
         return none if no intersection'''
         
         return None
+
+    def start(self):
+        self.mapObjectManager.start()
+    
+    def stop(self):
+        self.mapObjectManager.stop()

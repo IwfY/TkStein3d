@@ -48,3 +48,9 @@ class GameManager():
             if self.gameMap.getPathBlockedPoint(character.position,
                     newPosition) is None:
                 character.position = newPosition
+
+    def start(self):
+        self.gameMap.start()
+    
+    def stop(self):
+        self.gameMap.stop()

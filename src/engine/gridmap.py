@@ -1,6 +1,5 @@
 from engine.coordinate import Point3D
 from engine.map import Map
-from engine.mapobjects import Floor, Tree
 from engine.mapgenerator import MapGenerator
 from engine.polygon import Polygon
 
