@@ -1,5 +1,5 @@
 from engine.coordinate import Point3D
-from engine.mapobjects import MapObjectsManager
+from engine.mapobjectmanager import MapObjectsManager
 
 class Map(object):
     def __init__(self):
