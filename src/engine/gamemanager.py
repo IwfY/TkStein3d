@@ -21,8 +21,11 @@ class GameManager():
         
         return character
     
-    def getGameMap(self):
-        return self.gameMap
+    def getStaticPolygons(self):
+        return self.gameMap.getStaticPolygons()
+    
+    def getDynamicPolygons(self):
+        return self.gameMap.getDynamicPolygons()
 
 
     def moveRotateCharacter(self, character,

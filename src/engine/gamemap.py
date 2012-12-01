@@ -1,19 +1,26 @@
 from engine.coordinate import Point3D
 from engine.mapobjectmanager import MapObjectsManager
 
-class Map(object):
+class GameMap(object):
     def __init__(self):
         self.polygons = []
         
         self.groundColor = ''
         self.skyColor = ''
-        self.mapObjectManager = MapObjectsManager()
+        self.mapObjectsManager = MapObjectsManager()
     
     def getPolygons(self):
         outPolygons = [x for x in self.polygons]
-        outPolygons.extend(self.mapObjectManager.getPolygons())
+        outPolygons.extend(self.mapObjectsManager.getPolygons())
         
         return outPolygons
+    
+    def getStaticPolygons(self):
+        return self.polygons
+    
+    def getDynamicPolygons(self):
+        return self.mapObjectsManager.getPolygons()
+
 
     def getStartPosition(self):
         return Point3D(0.0, 0.0, 0.0)
@@ -33,7 +40,7 @@ class Map(object):
         return None
 
     def start(self):
-        self.mapObjectManager.start()
+        self.mapObjectsManager.start()
     
     def stop(self):
-        self.mapObjectManager.stop()
+        self.mapObjectsManager.stop()

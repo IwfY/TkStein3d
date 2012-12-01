@@ -1,16 +1,15 @@
 from engine.coordinate import Point3D
-from engine.map import Map
+from engine.gamemap import GameMap
 from engine.mapgenerator import MapGenerator
 from engine.polygon import Polygon
 
-class GridMap(Map):
+class GridMap(GameMap):
     def __init__(self):
-        Map.__init__(self)
+        GameMap.__init__(self)
         
         self.groundColor = '#7d7d7d'
         self.skyColor = '#515151'
         
-        self.objects = []
         self.startPosition = Point3D(0.0, 0.0, 0.0)
         self.wallBottom = -7.5
         self.wallTop = 7.5
@@ -138,7 +137,3 @@ class GridMap(Map):
 
     def getStartPosition(self):
         return self.startPosition
-    
-    
-    def getObjects(self):
-        return self.objects
