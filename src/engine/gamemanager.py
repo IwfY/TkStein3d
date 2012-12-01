@@ -1,4 +1,4 @@
-from engine.character import Character
+from engine.charactermanager import CharacterManager
 from engine.gridmap import GridMap
 #from engine.svgmap import SVGMap
 
@@ -7,22 +7,22 @@ from math import cos, pi, sin
 from engine.coordinate import Point3D
 
 
+
 class GameManager():
     def __init__(self):        
         self.characters = []
+        self.characterManager = CharacterManager(self)
         self.gameMap = GridMap(self)
         #self.gameMap = SVGMap("data/maps/map_city.svg")
     
+    def getGameMap(self):
+        return self.gameMap
     
     def addCharacter(self):
-        character = Character()
-        character.setPosition(self.gameMap.getStartPosition())
-        self.characters.append(character)
-        
-        return character
+        return self.characterManager.addCharacter()
     
     def getCharacters(self):
-        return self.characters
+        return self.characterManager.getCharacters()
     
     def getStaticPolygons(self):
         return self.gameMap.getStaticPolygons()
