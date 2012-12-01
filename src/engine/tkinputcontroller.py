@@ -18,7 +18,6 @@ class TkInputController(Thread):
         self.client = client
         self.window = window
         
-        self.player = self.client.getPlayer()
         self.keysPressed = set()
         self.millisecondsPerTick = 30
         self.running = False
@@ -55,8 +54,7 @@ class TkInputController(Thread):
                     moveDeltaLeft += 1.0
                 elif key == 113:    # q -> stop
                     self.client.stop()
-            self.client.moveRotateCharacter(self.player,
-                                            moveDeltaForward,
+            self.client.moveRotateCharacter(moveDeltaForward,
                                             moveDeltaLeft,
                                             rotation)
             
