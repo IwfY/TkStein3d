@@ -2,10 +2,11 @@ from engine.coordinate import Point3D
 from engine.gamemap import GameMap
 from engine.mapgenerator import MapGenerator
 from engine.polygon import Polygon
+from engine.mapobjects.door import Door
 
 class GridMap(GameMap):
-    def __init__(self):
-        GameMap.__init__(self)
+    def __init__(self, gameManager):
+        GameMap.__init__(self, gameManager)
         
         self.groundColor = '#7d7d7d'
         self.skyColor = '#515151'
@@ -52,31 +53,13 @@ class GridMap(GameMap):
                                      self.edgeLength, 0)
 
                 elif self.grid[i][j] == '#':     #door
+                    rotation = 1
                     if self.grid[i-1][j] in self.makeWallsTo and \
                             self.grid[i+1][j] in self.makeWallsTo:
-                        self.addWall((i + 0.5) * self.edgeLength - 2,
-                                     j * self.edgeLength,
-                                     0 ,self.edgeLength,
-                                     fill='#298b94',
-                                     outline='#2a6a70')
-                        self.addWall((i + 0.5) * self.edgeLength + 2,
-                                     (j + 1) * self.edgeLength,
-                                     0 ,-self.edgeLength,
-                                     fill='#298b94',
-                                     outline='#2a6a70')
-                    else:
-                        self.addWall((i + 1) * self.edgeLength,
-                                     (j + 0.5) * self.edgeLength - 2,
-                                     -self.edgeLength, 0,
-                                     fill='#298b94',
-                                     outline='#2a6a70')
-                        self.addWall(i * self.edgeLength,
-                                     (j + 0.5) * self.edgeLength + 2,
-                                     self.edgeLength, 0,
-                                     fill='#298b94',
-                                     outline='#2a6a70')
-                    
-                    
+                        rotation = 0
+                    self.mapObjectsManager.addMapObject(
+                            Door(self.gameManager,
+                                 self, (i, j), self.edgeLength, rotation))
                 elif self.grid[i][j] == 's':     #start position
                     self.startPosition = Point3D((0.5 + i) * self.edgeLength,
                                                  0.0,

@@ -10,7 +10,7 @@ from engine.coordinate import Point3D
 class GameManager():
     def __init__(self):        
         self.characters = []
-        self.gameMap = GridMap()
+        self.gameMap = GridMap(self)
         #self.gameMap = SVGMap("data/maps/map_city.svg")
     
     
@@ -20,6 +20,9 @@ class GameManager():
         self.characters.append(character)
         
         return character
+    
+    def getCharacters(self):
+        return self.characters
     
     def getStaticPolygons(self):
         return self.gameMap.getStaticPolygons()

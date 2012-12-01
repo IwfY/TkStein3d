@@ -1,13 +1,15 @@
 from engine.coordinate import Point3D
-from engine.mapobjectmanager import MapObjectsManager
+from engine.mapobjectsmanager import MapObjectsManager
 
 class GameMap(object):
-    def __init__(self):
+    def __init__(self, gameManager):
+        self.gameManager = gameManager
+        
         self.polygons = []
         
         self.groundColor = ''
         self.skyColor = ''
-        self.mapObjectsManager = MapObjectsManager()
+        self.mapObjectsManager = MapObjectsManager(self.gameManager)
     
     def getPolygons(self):
         outPolygons = [x for x in self.polygons]
