@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from engine.shared.utils import runAndWait
+
 from threading import Thread
-from time import sleep
 
 
 class ClientGameMap(Thread):
@@ -38,19 +38,10 @@ class ClientGameMap(Thread):
     
     def run(self):
         while self.running:
-            stop = datetime.now() + \
-                   timedelta(milliseconds=self.millisecondsPerTick)
-            
-            unusedBuffer = int(not self.activeDynamicPolygonBuffer)
-            self.dynamicPolygonBuffers[unusedBuffer] = \
-                    self.client.getDynamicPolygons()
-            self.activeDynamicPolygonBuffer = unusedBuffer
-            
-            #wait until quota runs out
-            remaining = stop - datetime.now()
-            if remaining.days < 0:  # input processing needed too long
-                remaining = -1
-            else:
-                remaining = round(remaining.microseconds / 1000000, 3)
-            if remaining > 0:
-                sleep(remaining)
+            runAndWait(self._run, self.millisecondsPerTick)
+    
+    def _run(self):
+        unusedBuffer = int(not self.activeDynamicPolygonBuffer)
+        self.dynamicPolygonBuffers[unusedBuffer] = \
+                self.client.getDynamicPolygons()
+        self.activeDynamicPolygonBuffer = unusedBuffer
