@@ -21,8 +21,6 @@ class TkView(Thread):
         self.canvas = canvas
         
         self.gameMap = client.getGameMap()
-        self.player = client.getPlayer()
-        
         
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
@@ -77,6 +75,7 @@ class TkView(Thread):
                    timedelta(milliseconds=self.millisecondsPerFrame)
             stopWatchTime = datetime.now()
             
+            
             ##########################################
             # DRAWING
             ##########################################
@@ -86,7 +85,8 @@ class TkView(Thread):
             
             # generate list of tuples of polygons and distance to eye
             ##########################################
-            playerPostion = self.player.getPosition()
+            player = self.client.getPlayer()
+            playerPostion = player.getPosition()
             moveVector = Vector3D(-playerPostion.x,
                                 -playerPostion.y,
                                 -playerPostion.z)
@@ -95,7 +95,7 @@ class TkView(Thread):
                 polygon = moveAndRotatePolygon(polygonOriginal,
                                                moveVector,
                                                self.eye,
-                                               self.player.getViewAngle())
+                                               player.getViewAngle())
                 info = InfoClass()
                 info.polygon = polygon
                 info.polygonOriginal = polygonOriginal
@@ -222,7 +222,7 @@ class TkView(Thread):
                 if polygonToDraw.state == NORMAL:
                     polygon = polygonToDraw.polygon
                     points = polygon.getPoints2D(
-                                self.eye, self.player)
+                                self.eye, player)
                     if points is not None:                    
                         tmpPoints = InfoClass()
                         tmpPoints.polygonOriginal = polygonToDraw. \

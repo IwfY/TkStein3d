@@ -7,9 +7,9 @@ from time import sleep
 from engine.clientgamemap import ClientGameMap
 
 class Client(object):
-    def __init__(self, gameManager, player):
+    def __init__(self, gameManager, playerID):
         self.gameManager = gameManager
-        self.player = player
+        self.playerID = playerID
         
         self.gameMap = ClientGameMap(self)
         self.viewAndInput = None
@@ -20,7 +20,8 @@ class Client(object):
         return self.gameMap
 
     def getPlayer(self):
-        return self.player
+        return self.gameManager.getCharacterInfo(self.playerID)
+    
     
     def getStaticPolygons(self):
         return self.gameManager.getStaticPolygons()
@@ -32,7 +33,7 @@ class Client(object):
                             moveDeltaForward, moveDeltaLeft,
                             rotation):
         '''wrapper for GameManager method'''
-        self.gameManager.moveRotateCharacter(self.player,
+        self.gameManager.moveRotateCharacter(self.playerID,
                                              moveDeltaForward, moveDeltaLeft,
                                              rotation)
     

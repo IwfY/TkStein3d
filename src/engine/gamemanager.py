@@ -19,7 +19,17 @@ class GameManager():
         return self.gameMap
     
     def addCharacter(self):
+        '''adds a new character to the game and returns its ID'''
         return self.characterManager.addCharacter()
+    
+    def getCharacterInfo(self, characterID):
+        character = self.characterManager.getCharacterByID(characterID)
+        if character is None:
+            print('GameManager::getCharacterInfo character not found.',
+                  characterID)
+            return None
+
+        return character.getCharacterInfo()
     
     def getCharacters(self):
         return self.characterManager.getCharacters()
@@ -31,9 +41,15 @@ class GameManager():
         return self.gameMap.getDynamicPolygons()
 
 
-    def moveRotateCharacter(self, character,
+    def moveRotateCharacter(self, characterID,
                             moveDeltaForward, moveDeltaLeft,
                             rotation):
+        character = self.characterManager.getCharacterByID(characterID)
+        if character is None:
+            print('GameManager::moveRotateCharacter: character not found',
+                  characterID)
+            return
+        
         character.viewAngle += rotation
         
         # forward/backward
