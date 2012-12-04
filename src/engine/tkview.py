@@ -1,6 +1,7 @@
 from engine.coordinate import Point3D, Vector3D
 from engine.infoclass import InfoClass
-from engine.mathhelper import getPointDistance, getIntersectionXYPlane
+from engine.mathhelper import getPointDistance, getIntersectionXYPlane,\
+    getSquaredPointDistance
 from engine.polygon import moveAndRotatePolygon, Polygon
 
 
@@ -11,6 +12,7 @@ from threading import Thread
 from time import sleep
 from tkinter.constants import ALL, HIDDEN, NORMAL 
 from tkinter.ttk import _flatten
+import cProfile
 
 
 class TkView(Thread):
@@ -44,6 +46,13 @@ class TkView(Thread):
         '''stop the loop from running'''
         self.running = False
     
+    def run2(self):
+        '''rename this to run and run to _run for profiling output'''
+        profiler = cProfile.Profile()
+        try:
+            return profiler.runcall(self._run)
+        finally:
+            profiler.print_stats()
     
     def run(self):
         
@@ -99,8 +108,10 @@ class TkView(Thread):
                 info = InfoClass()
                 info.polygon = polygon
                 info.polygonOriginal = polygonOriginal
-                info.distanceToEye = getPointDistance(self.eye,
-                                                      polygon.getCenter())
+                # using squared distance as it's for comparison only 
+                info.distanceToEye = getSquaredPointDistance(
+                                          self.eye,
+                                          polygon.getCenter())
                 polygonsToDraw.append(info)
             logging.debug('move and rotate polygons: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))

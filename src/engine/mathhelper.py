@@ -1,11 +1,15 @@
-from math import acos
+from math import acos, sqrt
 
 def getPointDistance(point1, point2):
     '''get the distance between 2 points'''
-    return pow(pow(point1.x - point2.x, 2.0) + \
-               pow(point1.y - point2.y, 2.0) + \
-               pow(point1.z - point2.z, 2.0),
-               0.5)
+    return sqrt(pow(point1.x - point2.x, 2.0) + \
+                pow(point1.y - point2.y, 2.0) + \
+                pow(point1.z - point2.z, 2.0))
+
+def getSquaredPointDistance(point1, point2):
+    return (point1.x - point2.x) * (point1.x - point2.x) + \
+           (point1.y - point2.y) * (point1.y - point2.y) + \
+           (point1.z - point2.z) * (point1.z - point2.z)
 
 def getIntersectionXYPlane(point1, point2):
     '''get the intersection of the x-y plane of the line between two given
@@ -27,6 +31,8 @@ def getIntersectionXYPlane(point1, point2):
     return (x, y, 0.0)
 
 def getVectorDotProduct(vector1, vector2):
+    '''dot product of two vectors, both have to be equal in length'''
+        
     return vector1.x * vector2.x + \
            vector1.y * vector2.y + \
            vector1.z * vector2.z

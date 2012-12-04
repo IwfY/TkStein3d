@@ -1,6 +1,6 @@
 from engine.mathhelper import getPointDistance
 
-from math import atan2, cos, pi, sin
+from math import atan2, cos, pi, sin, sqrt
 
 class Point2D(object):
     def __init__(self, x, y):
@@ -49,10 +49,7 @@ class Vector3D(object):
         self.z = z
     
     def getLength(self):
-        return pow(pow(self.x, 2.0) + \
-                   pow(self.y, 2.0) + \
-                   pow(self.z, 2.0),
-                   0.5)
+        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
     
     def getNormalizedVector(self):
         length = self.getLength()
