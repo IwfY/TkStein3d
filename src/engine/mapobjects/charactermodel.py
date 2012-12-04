@@ -7,11 +7,14 @@ class CharacterModel(MapObject):
         MapObject.__init__(self, gameMap)
         self.character = character
         
+        self.tick()
+    
+    def tick(self):
         characterPosition = self.character.getPosition()
         block = Block(Point3D(characterPosition.x - 3,
-                              characterPosition.y - 5,
+                              characterPosition.y - 7.5,
                               characterPosition.z - 3),
                       Point3D(characterPosition.x + 3,
-                              characterPosition.y + 5,
+                              characterPosition.y + 2,
                               characterPosition.z + 3))
         self.polygons = block.getPolygons()

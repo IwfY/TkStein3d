@@ -15,7 +15,7 @@ class Door(MapObject):
         
         self.state = Door.STATE_CLOSING
         self.edgeLength = edgeLength
-        self.height = self.edgeLength / 2
+        self.height = - self.edgeLength / 2
         self.rotation = rotation
         
         i, j = coordinate
@@ -47,9 +47,14 @@ class Door(MapObject):
 
 
     def updatePolygons(self):
-        for polygon in self.polygons:
-            polygon.points[0].y = self.height
-            polygon.points[1].y = self.height
+        self.polygons[0].points[0].y = self.height
+        self.polygons[0].points[1].y = self.height
+        self.polygons[1].points[0].y = self.height
+        self.polygons[1].points[1].y = self.height
+        self.polygons[2].points[0].y = self.height
+        self.polygons[2].points[1].y = self.height
+        self.polygons[2].points[2].y = self.height
+        self.polygons[2].points[3].y = self.height
 
 
 
@@ -62,6 +67,25 @@ class Door(MapObject):
             self.addWall((i + 0.5) * self.edgeLength + 2,
                          j * self.edgeLength,
                          0, self.edgeLength)
+            
+            # horizontal part
+            point1 = Point3D((i + 0.5) * self.edgeLength - 2,
+                             self.height,
+                             j * self.edgeLength)
+            point2 = Point3D((i + 0.5) * self.edgeLength - 2,
+                             self.height,
+                             (j + 1) * self.edgeLength)            
+            point3 = Point3D((i + 0.5) * self.edgeLength + 2,
+                             self.height,
+                             (j + 1) * self.edgeLength)
+            point4 = Point3D((i + 0.5) * self.edgeLength + 2,
+                             self.height,
+                             j * self.edgeLength)
+            newPolygon = Polygon('',
+                             [point1, point2, point3, point4],
+                             '#298b94', '#2a6a70')
+            self.polygons.append(newPolygon)
+            
         else:
             self.addWall(i * self.edgeLength,
                          (j + 0.5) * self.edgeLength - 2,
@@ -69,6 +93,24 @@ class Door(MapObject):
             self.addWall((i + 1) * self.edgeLength,
                          (j + 0.5) * self.edgeLength + 2,
                          -self.edgeLength, 0)
+            
+            # horizontal part
+            point1 = Point3D(i * self.edgeLength,
+                             self.height,
+                             (j + 0.5) * self.edgeLength + 2)
+            point2 = Point3D((i + 1) * self.edgeLength,
+                             self.height,
+                             (j + 0.5) * self.edgeLength + 2)            
+            point3 = Point3D((i + 1) * self.edgeLength,
+                             self.height,
+                             (j + 0.5) * self.edgeLength - 2)
+            point4 = Point3D(i * self.edgeLength,
+                             self.height,
+                             (j + 0.5) * self.edgeLength - 2)
+            newPolygon = Polygon('',
+                             [point1, point2, point3, point4],
+                             '#298b94', '#2a6a70')
+            self.polygons.append(newPolygon)
 
 
     def addWall(self, x, z, xDelta, zDelta, fill='#298b94', outline='#2a6a70'):

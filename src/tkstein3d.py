@@ -7,6 +7,7 @@ if __name__ == '__main__':
     engine = GameManager()
     engine.start()
     player = engine.addCharacter()
+    player2 = engine.addCharacter()
     
     client = clientfactory.createTkClient(engine, player)
     client.start()
