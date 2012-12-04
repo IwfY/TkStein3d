@@ -48,5 +48,26 @@ class Vector3D(object):
         self.y = y
         self.z = z
     
+    def getLength(self):
+        return pow(pow(self.x, 2.0) + \
+                   pow(self.y, 2.0) + \
+                   pow(self.z, 2.0),
+                   0.5)
+    
+    def getNormalizedVector(self):
+        length = self.getLength()
+        if length == 0.0:
+            return Vector3D(0, 0, 0)
+        
+        return Vector3D(self.x / length,
+                        self.y / length,
+                        self.z / length)
+    
+    def getCrossProduct(self, vector):
+        result = Vector3D((self.y * vector.z) - (self.z * vector.y),
+                          (self.z * vector.x) - (self.x * vector.z),
+                          (self.x * vector.y) - (self.y * vector.x))
+        return result
+    
     def __str__(self):
         return '{} ({}, {}, {})'.format(id(self), self.x, self.y, self.z)
