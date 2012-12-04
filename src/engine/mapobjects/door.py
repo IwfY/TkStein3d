@@ -37,7 +37,7 @@ class Door(MapObject):
             self.state = Door.STATE_CLOSING
         
         if self.state == Door.STATE_OPENING:
-            if self.height < self.edgeLength / 2:
+            if self.height < self.edgeLength / 2 - self.edgeLength / 10:
                 self.height += self.edgeLength / 10
         elif self.state == Door.STATE_CLOSING:
             if self.height > -self.edgeLength / 2:
@@ -57,18 +57,18 @@ class Door(MapObject):
         i, j = coordinate
         if self.rotation == 0:
             self.addWall((i + 0.5) * self.edgeLength - 2,
-                         j * self.edgeLength,
-                         0 ,self.edgeLength)
-            self.addWall((i + 0.5) * self.edgeLength + 2,
                          (j + 1) * self.edgeLength,
-                         0 ,-self.edgeLength)
+                         0, -self.edgeLength)
+            self.addWall((i + 0.5) * self.edgeLength + 2,
+                         j * self.edgeLength,
+                         0, self.edgeLength)
         else:
-            self.addWall((i + 1) * self.edgeLength,
-                         (j + 0.5) * self.edgeLength - 2,
-                         -self.edgeLength, 0)
             self.addWall(i * self.edgeLength,
-                         (j + 0.5) * self.edgeLength + 2,
+                         (j + 0.5) * self.edgeLength - 2,
                          self.edgeLength, 0)
+            self.addWall((i + 1) * self.edgeLength,
+                         (j + 0.5) * self.edgeLength + 2,
+                         -self.edgeLength, 0)
 
 
     def addWall(self, x, z, xDelta, zDelta, fill='#298b94', outline='#2a6a70'):
@@ -77,11 +77,11 @@ class Door(MapObject):
         point1 = Point3D(x, wallBottom, z)
         point2 = Point3D(x + xDelta, wallBottom, z + zDelta)
         
-        point3 = Point3D(x, wallTop, z)
-        point4 = Point3D(x + xDelta, wallTop, z + zDelta)
+        point3 = Point3D(x + xDelta, wallTop, z + zDelta)
+        point4 = Point3D(x, wallTop, z)
         
         newPolygon = Polygon('',
-                             [point1, point2, point4, point3],
+                             [point1, point2, point3, point4],
                              fill, outline)
         
         self.polygons.append(newPolygon)

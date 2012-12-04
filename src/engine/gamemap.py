@@ -22,6 +22,9 @@ class GameMap(object):
     
     def getDynamicPolygons(self):
         return self.mapObjectsManager.getPolygons()
+    
+    def addMapObject(self, mapObject):
+        self.mapObjectsManager.addMapObject(mapObject)
 
 
     def getStartPosition(self):

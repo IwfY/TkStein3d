@@ -5,6 +5,7 @@ from engine.gridmap import GridMap
 
 from math import cos, pi, sin
 from engine.coordinate import Point3D
+from engine.mapobjects.charactermodel import CharacterModel
 
 
 
@@ -20,7 +21,12 @@ class GameManager():
     
     def addCharacter(self):
         '''adds a new character to the game and returns its ID'''
-        return self.characterManager.addCharacter()
+        newCharacterID = self.characterManager.addCharacter()
+        character = self.characterManager.getCharacterByID(newCharacterID)
+        
+        self.gameMap.addMapObject(CharacterModel(self.gameMap, character))
+        
+        return newCharacterID
     
     def getCharacterInfo(self, characterID):
         character = self.characterManager.getCharacterByID(characterID)

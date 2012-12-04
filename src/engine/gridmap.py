@@ -34,23 +34,23 @@ class GridMap(GameMap):
                 if self.grid[i][j] == 2:     # wall
                     if i > 0 and self.grid[i-1][j] in self.makeWallsTo:
                         self.addWall(i * self.edgeLength,
+                                     (j + 1) * self.edgeLength,
+                                     0, -self.edgeLength)
+                    if i < len(self.grid) - 1 and \
+                            self.grid[i+1][j] in self.makeWallsTo:                        
+                        self.addWall((i + 1) * self.edgeLength,
                                      j * self.edgeLength,
                                      0, self.edgeLength)
-                    if i < len(self.grid) - 1 and \
-                            self.grid[i+1][j] in self.makeWallsTo:
-                        self.addWall((i+1) * self.edgeLength,
-                                     (j+1) * self.edgeLength,
-                                     0, -self.edgeLength)
                     
                     if j > 0 and self.grid[i][j-1] in self.makeWallsTo:
-                        self.addWall((i+1) * self.edgeLength,
+                        self.addWall(i * self.edgeLength,
                                      j * self.edgeLength,
-                                     -self.edgeLength, 0)
+                                     self.edgeLength, 0)
                     if j < len(self.grid[i]) - 1 and\
                             self.grid[i][j+1] in self.makeWallsTo:
-                        self.addWall(i * self.edgeLength,
-                                     (j+1) * self.edgeLength,
-                                     self.edgeLength, 0)
+                        self.addWall((i + 1) * self.edgeLength,
+                                     (j + 1) * self.edgeLength,
+                                     -self.edgeLength, 0)
 
                 elif self.grid[i][j] == '#':     #door
                     rotation = 1
@@ -72,11 +72,11 @@ class GridMap(GameMap):
         point1 = Point3D(x, self.wallBottom, z)
         point2 = Point3D(x + xDelta, self.wallBottom, z + zDelta)
         
-        point3 = Point3D(x, self.wallTop, z)
-        point4 = Point3D(x + xDelta, self.wallTop, z + zDelta)
+        point3 = Point3D(x + xDelta, self.wallTop, z + zDelta)
+        point4 = Point3D(x, self.wallTop, z)
         
         newPolygon = Polygon('',
-                             [point1, point2, point4, point3],
+                             [point1, point2, point3, point4],
                              fill, outline)
         
         self.polygons.append(newPolygon)
