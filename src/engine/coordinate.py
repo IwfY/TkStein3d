@@ -27,20 +27,19 @@ class Point3D(object):
     def rotateAroundYAxisToAngle(self, rotationCenter, angle):
         '''see http://mathworld.wolfram.com/SphericalCoordinates.html
         (z and y are switched here)'''
-        length = getPointDistance(Point3D(self.x, 0.0, self.z),
-                                  Point3D(rotationCenter.x,
-                                          0.0,
-                                          rotationCenter.z))
+        length = sqrt(pow(self.x - rotationCenter.x, 2) + \
+                      pow(self.z - rotationCenter.z, 2))
+        
         vector = Vector3D(self.x - rotationCenter.x,
                           0,
                           self.z - rotationCenter.z)
         
         azimuthal = atan2(vector.z, vector.x)
         azimuthal += angle
-        polar = pi/2
+        sinPolar = 1    # == sin(pi/2); polar = pi/2
         
-        self.x = length * cos(azimuthal) * sin(polar) + rotationCenter.x
-        self.z = length * sin(azimuthal) * sin(polar) + rotationCenter.z
+        self.x = length * cos(azimuthal) * sinPolar + rotationCenter.x
+        self.z = length * sin(azimuthal) * sinPolar + rotationCenter.z
 
 class Vector3D(object):
     def __init__(self, x, y, z):
