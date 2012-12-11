@@ -44,6 +44,10 @@ def getAngleBetweenVectors(vector1, vector2):
     
     if (length1 * length2) == 0.0:
         return 0
+
+    if dotProduct / (length1 * length2) > 1.0 or \
+       dotProduct / (length1 * length2) < -1.0:
+        return 0
     
     result = acos(dotProduct / (length1 * length2))
     
