@@ -46,7 +46,7 @@ class TkView(Thread):
         '''stop the loop from running'''
         self.running = False
     
-    def run2(self):
+    def run(self):
         '''rename this to run and run to _run for profiling output'''
         profiler = cProfile.Profile()
         try:
@@ -54,12 +54,11 @@ class TkView(Thread):
         finally:
             profiler.print_stats()
     
-    def run(self):
+    def _run(self):
         
         orderedPolygonTagsLastFrame = []
         
-        activeBuffer = 'buffer1'
-        inactiveBuffer = 'buffer2'
+        activeBuffer = 0
         
         #draw ground/ ceiling
         canvasWidth = 1
@@ -71,11 +70,13 @@ class TkView(Thread):
         
         # sky
         self.canvas.create_rectangle(0, 0, canvasWidth, canvasHeight / 2,
-                                     fill=self.gameMap.getSkyColor())
+                                     fill=self.gameMap.getSkyColor(),
+                                     tags='static')
         # floor
         self.canvas.create_rectangle(0, canvasHeight / 2,
                                      canvasWidth, canvasHeight,
-                                     fill=self.gameMap.getGroundColor())
+                                     fill=self.gameMap.getGroundColor(),
+                                     tags='static')
         
         self.running = True
         while self.running:
@@ -193,22 +194,19 @@ class TkView(Thread):
             
             # create additional polygons
             for i in range(stateNormalCount - len(orderedPolygonTagsLastFrame)):
-                newPolygonTag = self.getNewPolygonTag()
-                self.canvas.create_polygon(
+                id0 = self.canvas.create_polygon(
                         (0.0, 0.0, 0.0, 0.0),
                         state=HIDDEN,
-                        tags=(newPolygonTag, activeBuffer))
-                self.canvas.create_polygon(
+                        tags=('hidden', 'buffer0'))
+                id1 = self.canvas.create_polygon(
                         (0.0, 0.0, 0.0, 0.0),
                         state=HIDDEN,
-                        tags=(newPolygonTag, inactiveBuffer))
+                        tags=('hidden', 'buffer1'))
                 # save tag order
-                orderedPolygonTagsLastFrame.append(newPolygonTag)
+                orderedPolygonTagsLastFrame.append((id0, id1))
             
             # set hide state for surplus polygons
             surplusCount = len(orderedPolygonTagsLastFrame) - stateNormalCount
-            for i in range(surplusCount):
-                self.canvas.addtag_withtag('hide', orderedPolygonTagsLastFrame[-1 - i])
             
             # set tags
             indexOrderedPolygons = 0
@@ -216,10 +214,10 @@ class TkView(Thread):
                 if polygonsToDraw[i].state == NORMAL:
                     polygonsToDraw[i].polygonOriginal.\
                             setPolygonId(orderedPolygonTagsLastFrame[
-                                            indexOrderedPolygons])
+                                            indexOrderedPolygons][activeBuffer])
                     indexOrderedPolygons += 1
                 else:
-                    polygonsToDraw[i].polygonOriginal.setPolygonId('None')
+                    polygonsToDraw[i].polygonOriginal.setPolygonId(None)
             
             logging.debug('polygon creation, assignment: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
@@ -259,23 +257,16 @@ class TkView(Thread):
             
             # remove show/hide tags
             self.canvas.dtag(ALL, 'normal')
-            self.canvas.dtag(ALL, 'hide')
+            self.canvas.dtag(ALL, 'hidden')
             
             i = 0
             for polygon2DPoints in polygon2DPointsList:
                 polygonOriginal = polygon2DPoints.polygonOriginal
                 points = polygon2DPoints.points
                 
-                polygonWidgetIds = self.canvas.find_withtag(
-                                        polygonOriginal.getPolygonId())
-                activeWidgetIds = self.canvas.find_withtag(activeBuffer)
+                polygonWidgetId = polygonOriginal.getPolygonId()                
                 
-                polygonWidgetId = [r for r in polygonWidgetIds \
-                                   if r in activeWidgetIds]
-                
-                
-                if len(polygonWidgetId) >= 1:
-                    polygonWidgetId = polygonWidgetId[0]
+                if polygonWidgetId is not None:
                     # get active polygon id
                     if polygon2DPoints.state == NORMAL:
                         i += 1
@@ -286,7 +277,7 @@ class TkView(Thread):
                                            _flatten(points))
                         self.canvas.addtag_withtag('normal', polygonWidgetId)
                     else:
-                        self.canvas.addtag_withtag('hide', polygonWidgetId)
+                        self.canvas.addtag_withtag('hidden', polygonWidgetId)
             logging.debug('draw update: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             logging.debug('polygons moved: {}'.format(i))
@@ -294,12 +285,13 @@ class TkView(Thread):
             
             # switch display buffers
             ##########################################
-            self.canvas.itemconfig('normal',
-                                   state=NORMAL)
-            self.canvas.itemconfig('hide',
+            inactiveBuffer = int(not activeBuffer)
+            
+            self.canvas.itemconfig('normal', state=NORMAL)
+            self.canvas.itemconfig('hidden', state=HIDDEN)
+            self.canvas.itemconfig('buffer{}'.format(inactiveBuffer),
                                    state=HIDDEN)
-            self.canvas.itemconfig(inactiveBuffer,
-                                   state=HIDDEN)
+            
             
             # remove surplus polygons
             surplusCount = len(orderedPolygonTagsLastFrame) - stateNormalCount
@@ -307,9 +299,7 @@ class TkView(Thread):
                 self.canvas.delete(orderedPolygonTagsLastFrame[-1])
                 orderedPolygonTagsLastFrame = orderedPolygonTagsLastFrame[:-1]
             
-            tmp = activeBuffer
-            activeBuffer = inactiveBuffer
-            inactiveBuffer = tmp
+            activeBuffer = int(not activeBuffer)
             
             logging.debug('buffer switching: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
