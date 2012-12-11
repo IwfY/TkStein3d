@@ -70,11 +70,13 @@ class TkView(Thread):
         
         # sky
         self.canvas.create_rectangle(0, 0, canvasWidth, canvasHeight / 2,
-                                     fill=self.gameMap.getSkyColor())
+                                     fill=self.gameMap.getSkyColor(),
+                                     tags='static')
         # floor
         self.canvas.create_rectangle(0, canvasHeight / 2,
                                      canvasWidth, canvasHeight,
-                                     fill=self.gameMap.getGroundColor())
+                                     fill=self.gameMap.getGroundColor(),
+                                     tags='static')
         
         self.running = True
         while self.running:
@@ -194,10 +196,12 @@ class TkView(Thread):
             for i in range(stateNormalCount - len(orderedPolygonTagsLastFrame)):
                 id0 = self.canvas.create_polygon(
                         (0.0, 0.0, 0.0, 0.0),
-                        state=HIDDEN)
+                        state=HIDDEN,
+                        tags=('hidden', 'buffer0'))
                 id1 = self.canvas.create_polygon(
                         (0.0, 0.0, 0.0, 0.0),
-                        state=HIDDEN)
+                        state=HIDDEN,
+                        tags=('hidden', 'buffer1'))
                 # save tag order
                 orderedPolygonTagsLastFrame.append((id0, id1))
             
@@ -252,7 +256,8 @@ class TkView(Thread):
             ##########################################
             
             # remove show/hide tags
-            stateNormalWidgets = []
+            self.canvas.dtag(ALL, 'normal')
+            self.canvas.dtag(ALL, 'hidden')
             
             i = 0
             for polygon2DPoints in polygon2DPointsList:
@@ -270,7 +275,9 @@ class TkView(Thread):
                                                outline=polygonOriginal.outline)
                         self.canvas.coords(polygonWidgetId,
                                            _flatten(points))
-                        stateNormalWidgets.append(polygonWidgetId)
+                        self.canvas.addtag_withtag('normal', polygonWidgetId)
+                    else:
+                        self.canvas.addtag_withtag('hidden', polygonWidgetId)
             logging.debug('draw update: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))
             logging.debug('polygons moved: {}'.format(i))
@@ -280,17 +287,10 @@ class TkView(Thread):
             ##########################################
             inactiveBuffer = int(not activeBuffer)
             
-            for polygonTuple in orderedPolygonTagsLastFrame:
-                if polygonTuple[activeBuffer] in stateNormalWidgets:
-                    self.canvas.itemconfig(polygonTuple[activeBuffer],
-                                           state=NORMAL)
-            for polygonTuple in orderedPolygonTagsLastFrame:
-                if polygonTuple[activeBuffer] not in stateNormalWidgets:
-                    self.canvas.itemconfig(polygonTuple[activeBuffer],
-                                           state=HIDDEN)
-            for polygonTuple in orderedPolygonTagsLastFrame:
-                self.canvas.itemconfig(polygonTuple[inactiveBuffer],
-                                       state=HIDDEN)
+            self.canvas.itemconfig('normal', state=NORMAL)
+            self.canvas.itemconfig('hidden', state=HIDDEN)
+            self.canvas.itemconfig('buffer{}'.format(inactiveBuffer),
+                                   state=HIDDEN)
             
             
             # remove surplus polygons
