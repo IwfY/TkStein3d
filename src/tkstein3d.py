@@ -9,7 +9,7 @@ if __name__ == '__main__':
     player = engine.addCharacter()
     player2 = engine.addCharacter()
     
-    client = clientfactory.createTkClient(engine, player)
+    client = clientfactory.createPygameClient(engine, player)
     client.start()
 
     while client.running:
