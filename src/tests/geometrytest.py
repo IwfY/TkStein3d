@@ -127,19 +127,19 @@ class Test(unittest.TestCase):
         t4 = Point3D(0, 1, 0)
         t5 = Point3D(1, 0, 0)
         
-        result = polygon1.polygonFacesPoint(t1)
+        result = polygon1.facesPoint(t1)
         self.assertTrue(result)
         
-        result = polygon1.polygonFacesPoint(t2)
+        result = polygon1.facesPoint(t2)
         self.assertFalse(result)
         
-        result = polygon1.polygonFacesPoint(t3)
+        result = polygon1.facesPoint(t3)
         self.assertTrue(result)
         
-        result = polygon2.polygonFacesPoint(t4)
+        result = polygon2.facesPoint(t4)
         self.assertTrue(result)
         
-        result = polygon3.polygonFacesPoint(t5)
+        result = polygon3.facesPoint(t5)
         self.assertTrue(result)
         
 

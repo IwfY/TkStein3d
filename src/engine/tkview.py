@@ -176,7 +176,7 @@ class TkView(Thread):
             ##########################################
             for polygonToDraw in polygonsToDraw:
                 if polygonToDraw.state == NORMAL:
-                    if not polygonToDraw.polygon.polygonFacesPoint(self.eye):
+                    if not polygonToDraw.polygon.facesPoint(self.eye):
                         polygonToDraw.state = HIDDEN
             logging.debug('normal-view angle check: {} msec'.format(
                         (datetime.now() - stopWatchTime).microseconds / 1000))

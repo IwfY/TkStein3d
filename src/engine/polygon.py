@@ -137,7 +137,7 @@ class Polygon(object):
         return normal.getNormalizedVector()
 
 
-    def polygonFacesPoint(self, point):
+    def facesPoint(self, point):
         '''returns true if polygon faces a point so it can be seen from it
         
         mathematical background
