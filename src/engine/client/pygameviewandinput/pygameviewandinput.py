@@ -19,7 +19,7 @@ class PygameViewAndInput(Thread):
         self.client = client
         self.gameMap = self.client.getGameMap()
         
-        self.millisecondsPerFrame = 10
+        self.millisecondsPerFrame = 30
         self.running = False
         self.keysPressed = []
         
@@ -32,7 +32,7 @@ class PygameViewAndInput(Thread):
         glViewport(0, 0, width, height)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(45, 1.0*width/height, 0.1, 1000.0)
+        gluPerspective(45, 1.0*width/height, 5.0, 1000.0)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
     
@@ -48,17 +48,15 @@ class PygameViewAndInput(Thread):
     def draw(self):
         player = self.client.getPlayer()
         playerPostion = player.getPosition()
-        moveVector = Vector3D(-playerPostion.x,
-                              -playerPostion.y,
-                              -playerPostion.z)
         
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         
-        for polygonOriginal in self.gameMap.getPolygons():
-            polygon = moveAndRotatePolygon(polygonOriginal,
-                                           moveVector,
-                                           self.eye,
-                                           player.getViewAngle())
+        glLoadIdentity()
+
+        glRotatef(player.getViewAngle() * 180 / pi, 0.0, 1.0, 0.0)
+        glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)        
+        
+        for polygon in self.gameMap.getPolygons():
             if polygon.facesPoint(self.eye):
                 glBegin(GL_QUADS)
                 for point in polygon.getPoints3D():
