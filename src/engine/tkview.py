@@ -26,7 +26,7 @@ class TkView(Thread):
         
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
-        self.eye = Point3D(0.0, 0.0, -2.0)
+        self.eye = Point3D(0.0, 0.0, 2.0)
         self.millisecondsPerFrame = 50
         self.running = False
         
@@ -230,8 +230,7 @@ class TkView(Thread):
             for polygonToDraw in polygonsToDraw:
                 if polygonToDraw.state == NORMAL:
                     polygon = polygonToDraw.polygon
-                    points = polygon.getPoints2D(
-                                self.eye, player)
+                    points = polygon.getPoints2D(self.eye)
                     if points is not None:                    
                         tmpPoints = InfoClass()
                         tmpPoints.polygonOriginal = polygonToDraw. \
