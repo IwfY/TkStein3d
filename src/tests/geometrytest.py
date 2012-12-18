@@ -176,9 +176,23 @@ class Test(unittest.TestCase):
         self.assertNear(p3.z, 0)
         
         p1 = Point3D(0, 0, 0)
+        p2 = Point3D(1, 0, 0)
+        p2.rotateAroundYAxisToAngle(p1, 0)
+        self.assertNear(p2.x, 1)
+        self.assertNear(p2.y, 0)
+        self.assertNear(p2.z, 0)
+        
+        p1 = Point3D(0, 0, 0)
         p3 = Point3D(1, 0, -1)
         p3.rotateAroundYAxisToAngle(p1, math.pi)
         self.assertNear(p3.x, -math.sqrt(2))
+        self.assertNear(p3.y, 0)
+        self.assertNear(p3.z, 0)
+        
+        p1 = Point3D(0, 0, 0)
+        p3 = Point3D(-1, 0, 0)
+        p3.rotateAroundYAxisToAngle(p1, 0)
+        self.assertNear(p3.x, 1)
         self.assertNear(p3.y, 0)
         self.assertNear(p3.z, 0)
         
@@ -222,6 +236,13 @@ class Test(unittest.TestCase):
         self.assertNear(p2.x, -2)
         self.assertNear(p2.y, 0)
         self.assertNear(p2.z, 1)
+        
+        p1 = Point3D(0, 0, 0)
+        p2 = Point3D(1, 0, 2)        
+        p2.rotateAroundYAxisByAngle(p1, 0)
+        self.assertNear(p2.x, 1)
+        self.assertNear(p2.y, 0)
+        self.assertNear(p2.z, 2)
         
         
 

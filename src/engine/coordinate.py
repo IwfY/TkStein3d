@@ -78,6 +78,37 @@ class Vector3D(object):
                           (self.z * vector.x) - (self.x * vector.z),
                           (self.x * vector.y) - (self.y * vector.x))
         return result
+
+    def rotateAroundYAxisToAngle(self, rotationCenter, angle):
+        # vector shifted to have rotation center at (0, 0, 0)
+        tmpPoint = Point3D(self.x - rotationCenter.x,
+                           0,
+                           self.z - rotationCenter.z)
+        tmpLength = sqrt(tmpPoint.x * tmpPoint.x + tmpPoint.z * tmpPoint.z)
+        
+        tmpPoint.x = tmpLength * cos(angle)
+        tmpPoint.z = tmpLength * sin(angle)
+        
+        # shift back to rotation center
+        self.x = tmpPoint.x + rotationCenter.x
+        self.z = tmpPoint.z + rotationCenter.z
+    
+    def rotateAroundYAxisByAngle(self, rotationCenter, angle):
+        # vector shifted to have rotation center at (0, 0, 0)
+        tmpPoint = Point3D(self.x - rotationCenter.x,
+                           0,
+                           self.z - rotationCenter.z)
+        tmpLength = sqrt(tmpPoint.x * tmpPoint.x + tmpPoint.z * tmpPoint.z)
+        
+        currentAngle = atan2(tmpPoint.z, tmpPoint.x)
+        newAngle = currentAngle + angle
+        
+        tmpPoint.x = tmpLength * cos(newAngle)
+        tmpPoint.z = tmpLength * sin(newAngle)
+        
+        # shift back to rotation center
+        self.x = tmpPoint.x + rotationCenter.x
+        self.z = tmpPoint.z + rotationCenter.z
     
     def __str__(self):
         return '{} ({}, {}, {})'.format(id(self), self.x, self.y, self.z)

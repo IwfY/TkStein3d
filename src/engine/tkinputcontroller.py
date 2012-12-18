@@ -36,27 +36,27 @@ class TkInputController(Thread):
     def _run(self):
         moveDeltaForward = 0.0
         moveDeltaLeft = 0.0
-        rotation = 0.0
+        rotationClockwise = 0.0
         # copy set because of error when set size changes during iteration
         tmpKeysPressed = set(self.keysPressed)
         for key in tmpKeysPressed:
             if key == 65363:    # right array
-                rotation += pi / 40
+                rotationClockwise += pi / 40
             elif key == 65361:  # left array
-                rotation -= pi / 40
+                rotationClockwise -= pi / 40
             if key == 119:      # w
                 moveDeltaForward += 1.0
             elif key == 115:    # s
                 moveDeltaForward -= 1.0
             elif key == 97:     # a
-                moveDeltaLeft -= 1.0
-            elif key == 100:    # d
                 moveDeltaLeft += 1.0
+            elif key == 100:    # d
+                moveDeltaLeft -= 1.0
             elif key == 113:    # q -> stop
                 self.client.stop()
         self.client.moveRotateCharacter(moveDeltaForward,
                                         moveDeltaLeft,
-                                        rotation)
+                                        rotationClockwise)
     
     def setBindings(self):
         self.window.bind('<KeyPress>', self.keyPressed)
