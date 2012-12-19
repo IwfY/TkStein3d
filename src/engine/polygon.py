@@ -87,8 +87,8 @@ class Polygon(object):
                 x = 0.0 #TODO
                 y = 0.0
             else:
-                x = eye.z * point.x / (point.z - eye.z)
-                y = eye.z * point.y / (point.z - eye.z)
+                x = abs(eye.z) * point.x / abs(point.z - eye.z)
+                y = abs(eye.z) * point.y / abs(point.z - eye.z)
             outPoints.append(Point2D(x, y))
         
         return outPoints
