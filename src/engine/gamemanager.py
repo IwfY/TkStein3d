@@ -59,10 +59,10 @@ class GameManager():
         moveVector = Vector3D(moveDeltaForward, 0 , -moveDeltaLeft)
         character.viewAngle += rotationClockwise
         
-        print('moveVector', moveVector, character.getViewAngle())
+        #print('moveVector', moveVector, character.getViewAngle())
         moveVector.rotateAroundYAxisByAngle(Point3D(0, 0, 0),
                                             character.getViewAngle())
-        print('  moveVector', moveVector, character.getViewAngle())
+        #print('  moveVector', moveVector, character.getViewAngle())
         
         newPosition = Point3D(character.position.x + moveVector.x,
                               character.position.y,

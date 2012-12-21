@@ -30,13 +30,13 @@ class Block(object):
         point8 = Point3D(x1, y2, z2)
         
         self.polygons.append(Polygon('',
-                                     [point1, point2, point3, point4]))
+                                     [point4, point3, point2, point1]))
         self.polygons.append(Polygon('',
-                                     [point2, point6, point7, point3]))
+                                     [point3, point7, point6, point2]))
         self.polygons.append(Polygon('',
-                                     [point6, point5, point8, point7]))
+                                     [point7, point8, point5, point6]))
         self.polygons.append(Polygon('',
-                                     [point5, point1, point4, point8]))
+                                     [point8, point4, point1, point5]))
     
     def getPolygons(self):
         return self.polygons

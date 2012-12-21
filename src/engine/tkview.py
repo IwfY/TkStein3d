@@ -7,6 +7,7 @@ from engine.polygon import moveAndRotatePolygon, Polygon
 
 from datetime import datetime, timedelta
 import logging
+from math import pi
 from operator import attrgetter
 from threading import Thread
 from time import sleep
@@ -46,7 +47,7 @@ class TkView(Thread):
         '''stop the loop from running'''
         self.running = False
     
-    def run(self):
+    def run2(self):
         '''rename this to run and run to _run for profiling output'''
         profiler = cProfile.Profile()
         try:
@@ -54,7 +55,7 @@ class TkView(Thread):
         finally:
             profiler.print_stats()
     
-    def _run(self):
+    def run(self):
         textWidget = None
         orderedPolygonTagsLastFrame = []
         
@@ -109,10 +110,13 @@ class TkView(Thread):
             polygonsToDraw = []
             
             for polygonOriginal in self.gameMap.getPolygons():
+                #have to use '- pi / 2' for rotation as vieving direction 0° is
+                #considered to be into x direction
                 polygon = moveAndRotatePolygon(polygonOriginal,
                                                moveVector,
-                                               self.eye,
-                                               player.getViewAngle())
+                                               Point3D(0, 0, 0),
+                                               -player.getViewAngle() - pi/2)
+
                 info = InfoClass()
                 info.polygon = polygon
                 info.polygonOriginal = polygonOriginal

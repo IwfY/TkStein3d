@@ -62,11 +62,11 @@ class Door(MapObject):
         i, j = coordinate
         if self.rotation == 0:
             self.addWall((i + 0.5) * self.edgeLength - 2,
-                         (j + 1) * self.edgeLength,
-                         0, -self.edgeLength)
-            self.addWall((i + 0.5) * self.edgeLength + 2,
                          j * self.edgeLength,
                          0, self.edgeLength)
+            self.addWall((i + 0.5) * self.edgeLength + 2,
+                         (j + 1) * self.edgeLength,
+                         0, -self.edgeLength)
             
             # horizontal part
             point1 = Point3D((i + 0.5) * self.edgeLength - 2,
@@ -82,17 +82,17 @@ class Door(MapObject):
                              self.height,
                              j * self.edgeLength)
             newPolygon = Polygon('',
-                             [point1, point2, point3, point4],
+                             [point4, point3, point2, point1],
                              '#298b94', '#2a6a70')
             self.polygons.append(newPolygon)
             
         else:
-            self.addWall(i * self.edgeLength,
-                         (j + 0.5) * self.edgeLength - 2,
-                         self.edgeLength, 0)
             self.addWall((i + 1) * self.edgeLength,
-                         (j + 0.5) * self.edgeLength + 2,
+                         (j + 0.5) * self.edgeLength - 2,
                          -self.edgeLength, 0)
+            self.addWall(i * self.edgeLength,
+                         (j + 0.5) * self.edgeLength + 2,
+                         self.edgeLength, 0)
             
             # horizontal part
             point1 = Point3D(i * self.edgeLength,
@@ -108,7 +108,7 @@ class Door(MapObject):
                              self.height,
                              (j + 0.5) * self.edgeLength - 2)
             newPolygon = Polygon('',
-                             [point1, point2, point3, point4],
+                             [point4, point3, point2, point1],
                              '#298b94', '#2a6a70')
             self.polygons.append(newPolygon)
 
