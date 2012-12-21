@@ -7,10 +7,11 @@ from engine.polygon import moveAndRotatePolygon, Polygon
 
 from datetime import datetime, timedelta
 import logging
+from math import pi
 from operator import attrgetter
 from threading import Thread
 from time import sleep
-from tkinter.constants import ALL, HIDDEN, NORMAL 
+from tkinter.constants import ALL, HIDDEN, NORMAL
 from tkinter.ttk import _flatten
 import cProfile
 
@@ -26,7 +27,7 @@ class TkView(Thread):
         
         self.viewXRange = 4    # range in which 2D points are displayed
         self.viewYRange = 3
-        self.eye = Point3D(0.0, 0.0, -2.0)
+        self.eye = Point3D(0.0, 0.0, 2.0)
         self.millisecondsPerFrame = 50
         self.running = False
         
@@ -46,7 +47,7 @@ class TkView(Thread):
         '''stop the loop from running'''
         self.running = False
     
-    def run(self):
+    def run2(self):
         '''rename this to run and run to _run for profiling output'''
         profiler = cProfile.Profile()
         try:
@@ -54,8 +55,8 @@ class TkView(Thread):
         finally:
             profiler.print_stats()
     
-    def _run(self):
-        
+    def run(self):
+        textWidget = None
         orderedPolygonTagsLastFrame = []
         
         activeBuffer = 0
@@ -100,12 +101,22 @@ class TkView(Thread):
             moveVector = Vector3D(-playerPostion.x,
                                 -playerPostion.y,
                                 -playerPostion.z)
+            
+            # polygonsToDraw - objects in list with attributes:
+            #    polygon ... moved and rotated polygon
+            #    polygonOriginal ... original polygon
+            #    distanceToEye ... quadratic distance from rotated & moved
+            #                      polygon to eye
             polygonsToDraw = []
+            
             for polygonOriginal in self.gameMap.getPolygons():
+                #have to use '- pi / 2' for rotation as vieving direction 0° is
+                #considered to be into x direction
                 polygon = moveAndRotatePolygon(polygonOriginal,
                                                moveVector,
-                                               self.eye,
-                                               player.getViewAngle())
+                                               Point3D(0, 0, 0),
+                                               -player.getViewAngle() - pi/2)
+
                 info = InfoClass()
                 info.polygon = polygon
                 info.polygonOriginal = polygonOriginal
@@ -130,6 +141,13 @@ class TkView(Thread):
             
             # check for position towards x-y-plane
             ##########################################
+            
+            # polygonsToDraw - objects in list with attributes:
+            #    polygon ... moved and rotated polygon, also cut at z=1 plane
+            #    polygonOriginal ... original polygon
+            #    distanceToEye ... quadratic distance from rotated & moved
+            #                      polygon to eye
+            #    state ... HIDDEN/NORMAL
             for polygonToDraw in polygonsToDraw:
                 polygon = polygonToDraw.polygon
                 polygonOriginal = polygonToDraw.polygonOriginal
@@ -143,8 +161,8 @@ class TkView(Thread):
                     if i != len(oldPoints) - 1:
                         cursorSuccessor = oldPoints[i + 1]
                      
-                    if cursorSuccessor.z >= 0.0:
-                        if cursor.z < 0.0:
+                    if cursorSuccessor.z <= 0.0:
+                        if cursor.z > 0.0:
                             tmpPointCoordinates = \
                                 getIntersectionXYPlane(cursor,
                                                        cursorSuccessor)
@@ -153,7 +171,7 @@ class TkView(Thread):
                                                0.0)
                             newPoints.append(tmpPoint)
                         newPoints.append(cursorSuccessor)
-                    elif cursor.z > 0:  # and cursorSuccessor.z < 0.0
+                    elif cursor.z < 0:  # and cursorSuccessor.z < 0.0
                         tmpPointCoordinates = \
                                 getIntersectionXYPlane(cursor,
                                                        cursorSuccessor)
@@ -162,7 +180,7 @@ class TkView(Thread):
                                            0.0)
                         newPoints.append(tmpPoint)
                 
-                if len(newPoints) == 0:
+                if len(newPoints) <= 2:
                     polygonToDraw.state = HIDDEN
                 else:
                     polygonToDraw.polygon = \
@@ -230,8 +248,7 @@ class TkView(Thread):
             for polygonToDraw in polygonsToDraw:
                 if polygonToDraw.state == NORMAL:
                     polygon = polygonToDraw.polygon
-                    points = polygon.getPoints2D(
-                                self.eye, player)
+                    points = polygon.getPoints2D(self.eye)
                     if points is not None:                    
                         tmpPoints = InfoClass()
                         tmpPoints.polygonOriginal = polygonToDraw. \
@@ -291,6 +308,18 @@ class TkView(Thread):
             self.canvas.itemconfig('hidden', state=HIDDEN)
             self.canvas.itemconfig('buffer{}'.format(inactiveBuffer),
                                    state=HIDDEN)
+            
+            # info text
+            ##########################################
+            if True:
+                if textWidget is not None:
+                    self.canvas.delete(textWidget)
+                textWidget = self.canvas.create_text(25, 15,
+                        anchor='w',
+                        text='pos:{}; angle:{}/{}'.format(
+                                player.getPosition(),
+                                player.getViewAngle(),
+                                player.getViewAngle()*180/3.14))
             
             
             # remove surplus polygons

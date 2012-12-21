@@ -4,7 +4,7 @@ from engine.gridmap import GridMap
 
 
 from math import cos, pi, sin
-from engine.coordinate import Point3D
+from engine.coordinate import Point3D, Vector3D
 from engine.mapobjects.charactermodel import CharacterModel
 
 
@@ -49,26 +49,24 @@ class GameManager():
 
     def moveRotateCharacter(self, characterID,
                             moveDeltaForward, moveDeltaLeft,
-                            rotation):
+                            rotationClockwise):
         character = self.characterManager.getCharacterByID(characterID)
         if character is None:
             print('GameManager::moveRotateCharacter: character not found',
                   characterID)
             return
         
-        character.viewAngle += rotation
+        moveVector = Vector3D(moveDeltaForward, 0 , -moveDeltaLeft)
+        character.viewAngle += rotationClockwise
         
-        # forward/backward
-        moveDeltaX = -sin(character.viewAngle) * moveDeltaForward
-        moveDeltaZ = -cos(character.viewAngle) * moveDeltaForward
+        #print('moveVector', moveVector, character.getViewAngle())
+        moveVector.rotateAroundYAxisByAngle(Point3D(0, 0, 0),
+                                            character.getViewAngle())
+        #print('  moveVector', moveVector, character.getViewAngle())
         
-        # left/right
-        moveDeltaX += -cos(character.viewAngle) * moveDeltaLeft
-        moveDeltaZ += sin(character.viewAngle) * moveDeltaLeft
-        
-        newPosition = Point3D(character.position.x - moveDeltaX,
+        newPosition = Point3D(character.position.x + moveVector.x,
                               character.position.y,
-                              character.position.z - moveDeltaZ)
+                              character.position.z + moveVector.z)
         
         if character.clipping == False:
             character.position = newPosition

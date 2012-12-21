@@ -21,7 +21,7 @@ def moveAndRotatePolygon(polygon,
     for point in polygon.getPoints3D():
         newPoint = Point3D(point.x, point.y, point.z)
         newPoint.moveByVector(movementVector)
-        newPoint.rotateAroundYAxisToAngle(rotationCenter, rotationAngle)
+        newPoint.rotateAroundYAxisByAngle(rotationCenter, rotationAngle)
         newPolygonPoints.append(newPoint)
 
     newPolygon = getPolygonCopy(polygon)
@@ -79,16 +79,16 @@ class Polygon(object):
     def getPoints3D(self):
         return self.points
     
-    def getPoints2D(self, eye, player):
-        '''transform 3d points to 2d representations on view plane'''
+    def getPoints2D(self, eye):
+        '''transform 3d points to 2d representations on view plane (z = 0)'''
         outPoints = []
         for point in self.getPoints3D():
-            if eye.z - point.z == 0.0:
+            if point.z - eye.z == 0.0:
                 x = 0.0 #TODO
                 y = 0.0
             else:
-                x = (eye.z * point.x) / (eye.z - point.z)
-                y = (eye.z * point.y) / (eye.z - point.z)
+                x = abs(eye.z) * point.x / abs(point.z - eye.z)
+                y = abs(eye.z) * point.y / abs(point.z - eye.z)
             outPoints.append(Point2D(x, y))
         
         return outPoints
@@ -104,57 +104,40 @@ class Polygon(object):
                            self.points[2].z + \
                                 (self.points[0].z - self.points[2].z) / 2)
     
-    def getNormalVectorXZ(self):
-        '''get the normal vector when considering the polygon as a line on the
-        x-z-plane
+    def getPlaneParameters(self):
+        '''return tuple (a, b, c, d) for plane that represents the polygon as
+        ax + by + cz + d = 0'''
+        normal = self.getNormalVector()
+        #d = -ax - by - cz
+        d = - normal.x * self.points[0].x - \
+            normal.y * self.points[0].y - \
+            normal.z * self.points[0].z
         
-        points 1 and 3 are used to calculate the the line v
-        
-        v = (p3.x) - (p1.x)
-            (p3.z)   (p1.z)
-            
-        normal n = ( v.z)
-                   (-v.x)
-        '''
-        
-        vX = self.points[2].x - self.points[0].x
-        vZ = self.points[2].z - self.points[0].z
-        
-        return Vector3D(vZ, 0, -vX)
-        
-        pass
+        return (normal.x, normal.y, normal.z, d)
+
     
     def getNormalVector(self):
-        vector1 = Vector3D(self.points[2].x - self.points[0].x,
-                           self.points[2].y - self.points[0].y,
-                           self.points[2].z - self.points[0].z)
-        vector2 = Vector3D(self.points[1].x - self.points[0].x,
+        '''get the normalized normal vector of the polygon'''
+        vector1 = Vector3D(self.points[1].x - self.points[0].x,
                            self.points[1].y - self.points[0].y,
                            self.points[1].z - self.points[0].z)
+        vector2 = Vector3D(self.points[2].x - self.points[0].x,
+                           self.points[2].y - self.points[0].y,
+                           self.points[2].z - self.points[0].z)
         
         normal = vector1.getCrossProduct(vector2)
         
         return normal.getNormalizedVector()
 
 
+
     def facesPoint(self, point):
-        '''returns true if polygon faces a point so it can be seen from it
+        '''returns true if polygon faces a point so it can be seen from it'''
+        a, b, c, d = self.getPlaneParameters()
         
-        mathematical background
-        ~~~~~~~~~~~~~~~~~~~~~~
-        the angle between the polygons normal vector and the vector from
-        polygon center to point have to be smaller or equal PI/2
-        '''
-        normalVector = self.getNormalVector()
-        center = self.getCenter()
-        vectorCenterToPoint = Vector3D(point.x - center.x,
-                                       point.y - center.y,
-                                       point.z - center.z)
-        vectorCenterToPoint = vectorCenterToPoint.getNormalizedVector()
+        distancePointPlane = a * point.x + b * point.y + c * point.z + d
         
-        angle = getAngleBetweenVectors(normalVector, vectorCenterToPoint)
-        
-        if angle <= pi / 2:
+        if distancePointPlane >= 0.0: 
             return True
         
         return False

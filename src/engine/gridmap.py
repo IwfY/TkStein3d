@@ -17,14 +17,19 @@ class GridMap(GameMap):
         
         self.edgeLength = 15
         
-        # test input
         self.mapGenerator = MapGenerator(30, 30, seed=1)
+        
         self.grid = self.mapGenerator.generateMap()
-        #grid = [[0,0,0,0,0],
-        #        [0,2,2,2,0],
-        #        [0,0,1,2,0],
-        #        [0,0,0,2,0],
-        #        [0,0,0,0,0]]
+        
+        #example:
+        #~~~~~~~~~~~~~~~~~~~~
+        #             <-- z/j--+
+        #                      |
+        #grid = [[0,0,0,0,0],  |
+        #        [0,2,2,2,0],  |
+        #        [0,0,1,2,0],  x/i
+        #        [0,0,2,2,0],  |
+        #        [0,0,0,0,0]]  v
         
         # make walls towards these map grid values
         self.makeWallsTo = set([1, 's', '#'])
@@ -34,23 +39,23 @@ class GridMap(GameMap):
                 if self.grid[i][j] == 2:     # wall
                     if i > 0 and self.grid[i-1][j] in self.makeWallsTo:
                         self.addWall(i * self.edgeLength,
-                                     (j + 1) * self.edgeLength,
-                                     0, -self.edgeLength)
-                    if i < len(self.grid) - 1 and \
-                            self.grid[i+1][j] in self.makeWallsTo:                        
-                        self.addWall((i + 1) * self.edgeLength,
                                      j * self.edgeLength,
                                      0, self.edgeLength)
-                    
-                    if j > 0 and self.grid[i][j-1] in self.makeWallsTo:
-                        self.addWall(i * self.edgeLength,
-                                     j * self.edgeLength,
-                                     self.edgeLength, 0)
-                    if j < len(self.grid[i]) - 1 and\
-                            self.grid[i][j+1] in self.makeWallsTo:
+                    if i < len(self.grid) - 1 and \
+                            self.grid[i+1][j] in self.makeWallsTo:
                         self.addWall((i + 1) * self.edgeLength,
                                      (j + 1) * self.edgeLength,
+                                     0, -self.edgeLength)
+
+                    if j > 0 and self.grid[i][j-1] in self.makeWallsTo:
+                        self.addWall((i + 1) * self.edgeLength,
+                                     j * self.edgeLength,
                                      -self.edgeLength, 0)
+                    if j < len(self.grid[i]) - 1 and\
+                            self.grid[i][j+1] in self.makeWallsTo:
+                        self.addWall(i * self.edgeLength,
+                                     (j + 1) * self.edgeLength,
+                                     self.edgeLength, 0)
 
                 elif self.grid[i][j] == '#':     #door
                     rotation = 1
