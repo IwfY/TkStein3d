@@ -53,16 +53,23 @@ class PygameViewAndInput(Thread):
         
         glLoadIdentity()
 
-        glRotatef(player.getViewAngle() * 180 / pi, 0.0, 1.0, 0.0)
+        glRotatef((player.getViewAngle() + pi/2) * 180 / pi, 0.0, 1.0, 0.0)
         glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)        
         
         for polygon in self.gameMap.getPolygons():
             if polygon.facesPoint(self.eye):
+                r, g, b = polygon.getFillColorTuple()
                 glBegin(GL_QUADS)
                 for point in polygon.getPoints3D():
+                    glColor3f(r/255, g/255, b/255)
                     glVertex3f(point.x, point.y, point.z)
                 glEnd()
+
         
+        print('pos:{}; angle:{}/{}'.format(
+                                player.getPosition(),
+                                player.getViewAngle(),
+                                player.getViewAngle()*180/3.14))
         
     
     def processEvents(self, events):
@@ -91,9 +98,9 @@ class PygameViewAndInput(Thread):
             elif key == K_s:    # s
                 moveDeltaForward -= 1.0
             elif key == K_a:     # a
-                moveDeltaLeft -= 1.0
-            elif key == K_d:    # d
                 moveDeltaLeft += 1.0
+            elif key == K_d:    # d
+                moveDeltaLeft -= 1.0
             elif key == K_q:    # q -> stop
                 self.client.stop()
                 

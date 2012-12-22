@@ -61,7 +61,7 @@ class Polygon(object):
     a N sided polygon with all points on one plane
     '''
 
-    def __init__(self, pId, points, fill='grey', outline='darkgrey'):
+    def __init__(self, pId, points, fill='#505050', outline='#101010'):
         '''the blocks normal vector points towards you when you see the points
         from 1 to N in a counter-clockwise manner'''
         
@@ -69,6 +69,18 @@ class Polygon(object):
         self.polygonId = pId
         self.fill = fill
         self.outline = outline
+    
+    def getFillColorTuple(self):
+        r = int(self.fill[1:3], 16)
+        g = int(self.fill[3:5], 16)
+        b = int(self.fill[5:7], 16)
+        return r, g, b
+    
+    def getOutlineColorTuple(self):
+        r = int(self.outline[1:3], 16)
+        g = int(self.outline[3:5], 16)
+        b = int(self.outline[5:7], 16)
+        return r, g, b
     
     def getPolygonId(self):
         return self.polygonId
