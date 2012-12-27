@@ -10,6 +10,7 @@ from pygame.locals import *
 from math import pi
 from threading import Thread
 import cProfile
+from engine.mathhelper import getPointDistance
 
 
 class PygameViewAndInput(Thread):
@@ -57,7 +58,8 @@ class PygameViewAndInput(Thread):
         glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)
         
         for polygon in self.gameMap.getPolygons():
-            if polygon.facesPoint(playerPostion):
+            if polygon.facesPoint(playerPostion) and \
+                getPointDistance(playerPostion, polygon.getCenter()) < 300:
                 r, g, b = polygon.getFillColorTuple()
                 glBegin(GL_QUADS)
                 for point in polygon.getPoints3D():

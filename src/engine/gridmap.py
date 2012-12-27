@@ -57,8 +57,14 @@ class GridMap(GameMap):
                         self.addWall(i * self.edgeLength,
                                      (j + 1) * self.edgeLength,
                                      self.edgeLength, 0)
+                
+                elif self.grid[i][j] == 1:     #floor and ceiling
+                    self.addFloor(i, j)
+                    self.addCeiling(i, j)
 
                 elif self.grid[i][j] == '#':     #door
+                    self.addFloor(i, j)
+                    self.addCeiling(i, j)
                     rotation = 1
                     if self.grid[i-1][j] in self.makeWallsTo and \
                             self.grid[i+1][j] in self.makeWallsTo:
@@ -67,37 +73,11 @@ class GridMap(GameMap):
                             Door(self.gameManager,
                                  self, (i, j), self.edgeLength, rotation))
                 elif self.grid[i][j] == 's':     #start position
+                    self.addFloor(i, j)
+                    self.addCeiling(i, j)
                     self.startPosition = Point3D((0.5 + i) * self.edgeLength,
                                                  0.0,
                                                  (0.5 + j) * self.edgeLength)
-        
-        # floor and ceiling
-        minX = self.getMinX()
-        maxX = self.getMaxX()
-        minY = self.getMinY()
-        maxY = self.getMaxY()
-        minZ = self.getMinZ()
-        maxZ = self.getMaxZ()
-        
-        floorPolygon = Polygon('',
-                               [
-                                    Point3D(minX, minY, maxZ),
-                                    Point3D(maxX, minY, maxZ),
-                                    Point3D(maxX, minY, minZ),
-                                    Point3D(minX, minY, minZ)
-                               ],
-                               self.groundColor)
-        self.polygons.append(floorPolygon)
-        
-        ceilingPolygon = Polygon('',
-                                 [
-                                  Point3D(minX, maxY, maxZ),
-                                  Point3D(minX, maxY, minZ),
-                                  Point3D(maxX, maxY, minZ),
-                                  Point3D(maxX, maxY, maxZ)
-                                 ],
-                                 self.skyColor)
-        self.polygons.append(ceilingPolygon)
 
 
     def addWall(self, x, z, xDelta, zDelta, fill='#805319', outline='#5e411c'):
@@ -113,6 +93,36 @@ class GridMap(GameMap):
                              fill, outline)
         
         self.polygons.append(newPolygon)
+    
+    def addFloor(self, x, z):
+        minX = x * self.edgeLength
+        maxX = (x + 1) * self.edgeLength
+        minZ = z * self.edgeLength
+        maxZ = (z + 1) * self.edgeLength
+        floorPolygon = Polygon('',
+                   [
+                    Point3D(minX, self.wallBottom, maxZ),
+                    Point3D(maxX, self.wallBottom, maxZ),
+                    Point3D(maxX, self.wallBottom, minZ),
+                    Point3D(minX, self.wallBottom, minZ)
+                   ],
+                   self.groundColor)
+        self.polygons.append(floorPolygon)
+    
+    def addCeiling(self, x, z):
+        minX = x * self.edgeLength
+        maxX = (x + 1) * self.edgeLength
+        minZ = z * self.edgeLength
+        maxZ = (z + 1) * self.edgeLength
+        floorPolygon = Polygon('',
+                   [
+                    Point3D(minX, self.wallTop, maxZ),
+                    Point3D(minX, self.wallTop, minZ),
+                    Point3D(maxX, self.wallTop, minZ),
+                    Point3D(maxX, self.wallTop, maxZ)
+                   ],
+                   self.groundColor)
+        self.polygons.append(floorPolygon)
     
     def getPathBlockedPoint(self, point1, point2):
         '''TODO
