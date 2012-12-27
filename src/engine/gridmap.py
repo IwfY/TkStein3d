@@ -17,7 +17,8 @@ class GridMap(GameMap):
         
         self.edgeLength = 15
         
-        self.mapGenerator = MapGenerator(30, 30, seed=1)
+        #self.mapGenerator = MapGenerator(30, 30, seed=1)
+        self.mapGenerator = MapGenerator(50, 50, seed=2)
         
         self.grid = self.mapGenerator.generateMap()
         
@@ -69,7 +70,34 @@ class GridMap(GameMap):
                     self.startPosition = Point3D((0.5 + i) * self.edgeLength,
                                                  0.0,
                                                  (0.5 + j) * self.edgeLength)
-    
+        
+        # floor and ceiling
+        minX = self.getMinX()
+        maxX = self.getMaxX()
+        minY = self.getMinY()
+        maxY = self.getMaxY()
+        minZ = self.getMinZ()
+        maxZ = self.getMaxZ()
+        
+        floorPolygon = Polygon('',
+                               [
+                                    Point3D(minX, minY, maxZ),
+                                    Point3D(maxX, minY, maxZ),
+                                    Point3D(maxX, minY, minZ),
+                                    Point3D(minX, minY, minZ)
+                               ],
+                               self.groundColor)
+        self.polygons.append(floorPolygon)
+        
+        ceilingPolygon = Polygon('',
+                                 [
+                                  Point3D(minX, maxY, maxZ),
+                                  Point3D(minX, maxY, minZ),
+                                  Point3D(maxX, maxY, minZ),
+                                  Point3D(maxX, maxY, maxZ)
+                                 ],
+                                 self.skyColor)
+        self.polygons.append(ceilingPolygon)
 
 
     def addWall(self, x, z, xDelta, zDelta, fill='#805319', outline='#5e411c'):

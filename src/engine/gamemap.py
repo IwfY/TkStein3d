@@ -26,6 +26,65 @@ class GameMap(object):
     def addMapObject(self, mapObject):
         self.mapObjectsManager.addMapObject(mapObject)
 
+    def getMaxX(self):
+        maxX = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if maxX is None:
+                    maxX = point.x
+                    continue
+                maxX = max(maxX, point.x)        
+        return maxX
+    
+    def getMinX(self):
+        minX = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if minX is None:
+                    minX = point.x
+                    continue
+                minX = min(minX, point.x)        
+        return minX
+                
+    def getMaxY(self):
+        maxY = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if maxY is None:
+                    maxY = point.y
+                    continue
+                maxY = max(maxY, point.y)        
+        return maxY
+    
+    def getMinY(self):
+        minY = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if minY is None:
+                    minY = point.y
+                    continue
+                minY = min(minY, point.y)        
+        return minY
+    
+    def getMaxZ(self):
+        maxZ = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if maxZ is None:
+                    maxZ = point.z
+                    continue
+                maxZ = max(maxZ, point.z)        
+        return maxZ
+    
+    def getMinZ(self):
+        minZ = None
+        for polygon in self.polygons:
+            for point in polygon.getPoints3D():
+                if minZ is None:
+                    minZ = point.z
+                    continue
+                minZ = min(minZ, point.z)        
+        return minZ
 
     def getStartPosition(self):
         return Point3D(0.0, 0.0, 0.0)

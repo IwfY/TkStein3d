@@ -19,7 +19,7 @@ class PygameViewAndInput(Thread):
         self.client = client
         self.gameMap = self.client.getGameMap()
         
-        self.millisecondsPerFrame = 30
+        self.millisecondsPerFrame = 100/6
         self.running = False
         self.keysPressed = []
         
@@ -32,7 +32,7 @@ class PygameViewAndInput(Thread):
         glViewport(0, 0, width, height)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(45, 1.0*width/height, 5.0, 1000.0)
+        gluPerspective(45, 1.0*width/height, 2.0, 1000.0)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
     
@@ -49,12 +49,12 @@ class PygameViewAndInput(Thread):
         player = self.client.getPlayer()
         playerPostion = player.getPosition()
         
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         glLoadIdentity()
 
         glRotatef((player.getViewAngle() + pi/2) * 180 / pi, 0.0, 1.0, 0.0)
-        glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)        
+        glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)
         
         for polygon in self.gameMap.getPolygons():
             if polygon.facesPoint(playerPostion):
@@ -84,17 +84,17 @@ class PygameViewAndInput(Thread):
         
         for key in self.keysPressed:
             if key == K_RIGHT:
-                rotation += pi / 40
+                rotation += pi / 60
             elif key == K_LEFT:
-                rotation -= pi / 40
+                rotation -= pi / 60
             elif key == K_w:
-                moveDeltaForward += 1.0
+                moveDeltaForward += 0.6
             elif key == K_s:    # s
-                moveDeltaForward -= 1.0
+                moveDeltaForward -= 0.6
             elif key == K_a:     # a
-                moveDeltaLeft += 1.0
+                moveDeltaLeft += 0.6
             elif key == K_d:    # d
-                moveDeltaLeft -= 1.0
+                moveDeltaLeft -= 0.6
             elif key == K_q:    # q -> stop
                 self.client.stop()
             elif key == K_p:
@@ -130,9 +130,9 @@ class PygameViewAndInput(Thread):
         pygame.init()
         
         video_flags = OPENGL | DOUBLEBUF
-        pygame.display.set_mode((800, 600), video_flags)
+        pygame.display.set_mode((1440, 900), video_flags)
         
-        self.resize((800,600))
+        self.resize((1440, 900))
         self.init()
         
         self.running = True
