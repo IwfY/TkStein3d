@@ -17,8 +17,8 @@ class GridMap(GameMap):
         
         self.edgeLength = 15
         
-        #self.mapGenerator = MapGenerator(30, 30, seed=1)
-        self.mapGenerator = MapGenerator(50, 50, seed=2)
+        self.mapGenerator = MapGenerator(30, 30, seed=1)
+        #self.mapGenerator = MapGenerator(50, 50, seed=2)
         
         self.grid = self.mapGenerator.generateMap()
         

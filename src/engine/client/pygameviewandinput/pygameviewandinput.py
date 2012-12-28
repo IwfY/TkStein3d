@@ -1,6 +1,6 @@
 from engine.coordinate import Vector3D, Point3D
 from engine.polygon import moveAndRotatePolygon
-from engine.shared.utils import runAndWait
+from engine.shared.utils import runAndWait, mixColors
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -57,15 +57,22 @@ class PygameViewAndInput(Thread):
         glRotatef((player.getViewAngle() + pi/2) * 180 / pi, 0.0, 1.0, 0.0)
         glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)
         
+        glBegin(GL_QUADS)
+        
         for polygon in self.gameMap.getPolygons():
+            distancePolygonPlayer = getPointDistance(playerPostion,
+                                                     polygon.getCenter())
             if polygon.facesPoint(playerPostion) and \
-                getPointDistance(playerPostion, polygon.getCenter()) < 300:
+                distancePolygonPlayer < 300 and \
+                len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
-                glBegin(GL_QUADS)
+                r, g, b = mixColors((r, g, b),
+                                    (0, 0, 0),
+                                    distancePolygonPlayer / 300.0)
                 for point in polygon.getPoints3D():
                     glColor3f(r/255, g/255, b/255)
                     glVertex3f(point.x, point.y, point.z)
-                glEnd()
+        glEnd()
 
     
     def processEvents(self, events):
