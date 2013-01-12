@@ -10,7 +10,7 @@ from pygame.locals import *
 from math import pi
 from threading import Thread
 import cProfile
-from engine.mathhelper import getPointDistance
+from engine.mathhelper import getPointDistance, getSquaredPointDistance
 
 
 class PygameViewAndInput(Thread):
@@ -60,15 +60,15 @@ class PygameViewAndInput(Thread):
         glBegin(GL_QUADS)
         
         for polygon in self.gameMap.getPolygons():
-            distancePolygonPlayer = getPointDistance(playerPostion,
-                                                     polygon.getCenter())
+            distancePolygonPlayer = getSquaredPointDistance(playerPostion,
+                                                            polygon.getCenter())
             if polygon.facesPoint(playerPostion) and \
-                distancePolygonPlayer < 300 and \
+                distancePolygonPlayer < 90000 and \
                 len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 r, g, b = mixColors((r, g, b),
                                     (0, 0, 0),
-                                    distancePolygonPlayer / 300.0)
+                                    distancePolygonPlayer / 90000.0)
                 for point in polygon.getPoints3D():
                     glColor3f(r/255, g/255, b/255)
                     glVertex3f(point.x, point.y, point.z)
