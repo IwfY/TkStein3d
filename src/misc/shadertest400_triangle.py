@@ -11,36 +11,13 @@ class Triangle(object):
     def __init__(self):
         self.running = False
 
-        self.attributeColorIndex = None
         self.vertexShaderId = None
         self.fragmentShaderId = None
         self.programId = None
         self.vaoId = None
         self.vboId = None
         self.colorBufferId = None
-        
-        self.vertexShader120 = '''
-#version 120
 
-attribute vec4 in_color;
-varying vec4 ex_color;
-
-void main(void) {
-    gl_Position = gl_Vertex;
-    ex_color = in_color;
-}
-'''
-
-        self.fragmentShader120 = '''
-#version 120
-
-varying vec4 ex_color;
-
-void main() {
-    gl_FragColor = ex_color;
-}
-'''
-        
         self.vertexShader400 = '''
 #version 400
 
@@ -50,8 +27,8 @@ out vec4 ex_Color;
 
 void main(void)
 {
-	gl_Position = in_Position;
-	ex_Color = in_Color;
+    gl_Position = in_Position;
+    ex_Color = in_Color;
 }
 '''
 
@@ -63,7 +40,7 @@ out vec4 out_Color;
 
 void main(void)
 {
-	out_Color = ex_Color;
+    out_Color = ex_Color;
 }
 '''
     
@@ -110,42 +87,38 @@ void main(void)
         glEnableVertexAttribArray(0)
         
 
-        self.attributeColorIndex = glGetAttribLocation(self.programId,
-                                                       b'in_color')
-        
         self.colorBufferId = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferId)
         glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
                      GL_STATIC_DRAW)
-        glVertexAttribPointer(self.attributeColorIndex,
-                              4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(self.attributeColorIndex)
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(1)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error creating VBOs',
-                  gluErrorString(ErrorCheckValue))
+                  gluErrorString(errorCheckValue))
             exit(-1)
         
     
     def destroyVBO(self):
         errorCheckValue = glGetError()
      
-        glDisableVertexAttribArray(self.attributeColorIndex)
+        glDisableVertexAttribArray(1)
         glDisableVertexAttribArray(0)
          
         glBindBuffer(GL_ARRAY_BUFFER, 0)
      
-        glDeleteBuffers(1, self.colorBufferId)
-        glDeleteBuffers(1, self.vboId)
+        glDeleteBuffers(1, [self.colorBufferId])
+        glDeleteBuffers(1, [self.vboId])
      
         glBindVertexArray(0)
-        glDeleteVertexArrays(1, self.vaoId)
+        glDeleteVertexArrays(1, [self.vaoId])
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error destroying VBOs',
-                  gluErrorString(ErrorCheckValue))
+                  gluErrorString(errorCheckValue))
             exit(-1);
     
     
@@ -153,14 +126,14 @@ void main(void)
         errorCheckValue = glGetError()
          
         self.vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
-        glShaderSource(self.vertexShaderId, self.vertexShader120)
+        glShaderSource(self.vertexShaderId, self.vertexShader400)
         glCompileShader(self.vertexShaderId)
         
         log = glGetShaderInfoLog(self.vertexShaderId)
         if log: print('Vertex Shader: ', log)
      
         self.fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
-        glShaderSource(self.fragmentShaderId, self.fragmentShader120)
+        glShaderSource(self.fragmentShaderId, self.fragmentShader400)
         glCompileShader(self.fragmentShaderId)
         
         log = glGetShaderInfoLog(self.fragmentShaderId)
@@ -175,7 +148,7 @@ void main(void)
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error creating shaders',
-                  gluErrorString(ErrorCheckValue))
+                  gluErrorString(errorCheckValue))
             exit(-1)
     
     def destroyShaders(self):
@@ -194,7 +167,7 @@ void main(void)
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error destroying shaders',
-                  gluErrorString(ErrorCheckValue))
+                  gluErrorString(errorCheckValue))
             exit(-1)
 
     def draw(self):
@@ -205,7 +178,7 @@ void main(void)
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error drawing',
-                  gluErrorString(ErrorCheckValue))
+                  gluErrorString(errorCheckValue))
             exit(-1)
 
     
