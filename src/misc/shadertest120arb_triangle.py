@@ -1,10 +1,15 @@
 from OpenGL.GL import *
+from OpenGL.GL.ARB.shader_objects import *
+from OpenGL.GL.ARB.vertex_shader import *
+from OpenGL.GL.ARB.fragment_shader import *
 from OpenGL.GLU import *
+
 import pygame
 from pygame.locals import *
 
 from math import pi
 from numpy import array, float32
+from OpenGL.GL.shaders import glDetachShader
 
 
 class Triangle(object):
@@ -130,30 +135,29 @@ void main() {
     def createShaders(self):
         errorCheckValue = glGetError()
          
-        self.vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
-        glShaderSource(self.vertexShaderId, self.vertexShader120)
-        glCompileShader(self.vertexShaderId)
+        self.vertexShaderId = glCreateShaderObjectARB(GL_VERTEX_SHADER)
+        glShaderSourceARB(self.vertexShaderId, [self.vertexShader120])
+        glCompileShaderARB(self.vertexShaderId)
         
-        log = glGetShaderInfoLog(self.vertexShaderId)
-        if log: print('Vertex Shader: ', log)
+        log = glGetInfoLogARB(self.vertexShaderId)
+        if log: print('Vertex Shader:', log)
      
-        self.fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
-        glShaderSource(self.fragmentShaderId, self.fragmentShader120)
-        glCompileShader(self.fragmentShaderId)
+        self.fragmentShaderId = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)
+        glShaderSourceARB(self.fragmentShaderId, [self.fragmentShader120])
+        glCompileShaderARB(self.fragmentShaderId)
         
-        log = glGetShaderInfoLog(self.fragmentShaderId)
-        if log: print('Fragment Shader: ', log)
+        log = glGetInfoLogARB(self.fragmentShaderId)
+        if log: print('Fragment Shader:', log)
      
-        self.programId = glCreateProgram()
-        glAttachShader(self.programId, self.vertexShaderId)
-        glAttachShader(self.programId, self.fragmentShaderId)
-        glLinkProgram(self.programId)
+        self.programId = glCreateProgramObjectARB()
+        glAttachObjectARB(self.programId, self.vertexShaderId)
+        glAttachObjectARB(self.programId, self.fragmentShaderId)
+        glLinkProgramARB(self.programId)
         
-        log = glGetProgramInfoLog(self.programId)
+        log = glGetInfoLogARB(self.programId)
         if log:
             print('Program:', log)
-
-        glUseProgram(self.programId)
+        glUseProgramObjectARB(self.programId)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -164,15 +168,15 @@ void main() {
     def destroyShaders(self):
         errorCheckValue = glGetError()
      
-        glUseProgram(0)
+        glUseProgramObjectARB(0)
      
-        glDetachShader(self.programId, self.vertexShaderId)
-        glDetachShader(self.programId, self.fragmentShaderId)
+        glDetachObjectARB(self.programId, self.vertexShaderId)
+        glDetachObjectARB(self.programId, self.fragmentShaderId)
      
-        glDeleteShader(self.fragmentShaderId)
-        glDeleteShader(self.vertexShaderId)
+        glDeleteObjectARB(self.fragmentShaderId)
+        glDeleteObjectARB(self.vertexShaderId)
      
-        glDeleteProgram(self.programId)
+        glDeleteObjectARB(self.programId)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
