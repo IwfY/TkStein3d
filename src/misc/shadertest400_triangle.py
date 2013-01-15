@@ -18,7 +18,7 @@ class Triangle(object):
         self.vboId = None
         self.colorBufferId = None
 
-        self.vertexShader400 = '''
+        self.vertexShader400 = ['''
 #version 400
 
 layout(location=0) in vec4 in_Position;
@@ -30,9 +30,9 @@ void main(void)
     gl_Position = in_Position;
     ex_Color = in_Color;
 }
-'''
+''']
 
-        self.fragmentShader400 = '''
+        self.fragmentShader400 = ['''
 #version 400
 
 in vec4 ex_Color;
@@ -42,7 +42,7 @@ void main(void)
 {
     out_Color = ex_Color;
 }
-'''
+''']
     
     def resize(self, width, height):
         if height == 0:

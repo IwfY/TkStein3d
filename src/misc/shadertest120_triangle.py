@@ -19,7 +19,7 @@ class Triangle(object):
         self.vboId = None
         self.colorBufferId = None
         
-        self.vertexShader120 = '''
+        self.vertexShader120 = ['''
 #version 120
 
 attribute vec4 in_color;
@@ -29,9 +29,9 @@ void main(void) {
     gl_Position = gl_Vertex;
     ex_color = in_color;
 }
-'''
+''']
 
-        self.fragmentShader120 = '''
+        self.fragmentShader120 = ['''
 #version 120
 
 varying vec4 ex_color;
@@ -39,7 +39,7 @@ varying vec4 ex_color;
 void main() {
     gl_FragColor = ex_color;
 }
-'''
+''']
 
     def resize(self, width, height):
         if height == 0:
