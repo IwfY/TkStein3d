@@ -50,15 +50,17 @@ class MapGenerator(object):
 
 
     def addDoor(self):
-        x = random.randrange(1, self.width-1)
-        y = random.randrange(1, self.height-1)
-    
-        if self.walls[x][y] == 2 and \
-            ((self.walls[x-1][y] == 1 and self.walls[x+1][y] == 1) or \
-                (self.walls[x][y-1] == 1 and self.walls[x][y+1] == 1)):
-                    self.walls[x][y] = '#'
-        else:
-            self.addDoor()
+        doorCreated = False
+        
+        while not doorCreated:
+            x = random.randrange(1, self.width-1)
+            y = random.randrange(1, self.height-1)
+        
+            if self.walls[x][y] == 2 and \
+                ((self.walls[x-1][y] == 1 and self.walls[x+1][y] == 1) or \
+                    (self.walls[x][y-1] == 1 and self.walls[x][y+1] == 1)):
+                        self.walls[x][y] = '#'
+                        doorCreated = True
 
     def fillStatus(self):
         fill = 0
