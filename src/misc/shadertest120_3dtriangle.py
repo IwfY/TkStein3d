@@ -18,22 +18,28 @@ class Triangle(object):
         self.vaoId = None
         self.vboId = None
         self.colorBufferId = None
-        self.mvpMatrixUniformLocation = None
-        self.modelViewProjectionMatrix = \
+        self.projectionMatrixUniformLocation = None
+        self.viewMatrixUniformLocation = None
+        self.projectionMatrix = \
                 self.createPerspectiveMatrix(90,
                                              4.0/3.0,
                                              1.0,
                                              300.0)
+        self.viewMatrix = [1, 0, 0, 0,
+                           0, 1, 0, 0,
+                           0, 0, 1, 0,
+                           -1.0, 0, 0, 1]
         
         self.vertexShader120 = '''
 #version 120
 
-uniform mat4 model_view_projection_matrix;
+uniform mat4 projection_matrix;
+uniform mat4 view_matrix;
 attribute vec4 in_color;
 varying vec4 ex_color;
 
 void main(void) {
-    gl_Position = model_view_projection_matrix * gl_Vertex;
+    gl_Position = projection_matrix * view_matrix * gl_Vertex;
     ex_color = in_color;
 }
 '''
@@ -74,6 +80,11 @@ void main() {
         if height == 0:
             height = 1
         glViewport(0, 0, width, height)
+        self.projectionMatrix = \
+                self.createPerspectiveMatrix(90,
+                                             width / height,
+                                             1.0,
+                                             300.0)
     
     def init(self):
         print('GL_SHADING_LANGUAGE_VERSION',
@@ -178,15 +189,21 @@ void main() {
         glAttachShader(self.programId, self.fragmentShaderId)
         glLinkProgram(self.programId)
         
-        self.mvpMatrixUniformLocation = \
+        self.projectionMatrixUniformLocation = \
                 glGetUniformLocation(self.programId,
-                                     b"model_view_projection_matrix");
+                                     b"projection_matrix");
+        self.viewMatrixUniformLocation = \
+                glGetUniformLocation(self.programId,
+                                     b"view_matrix");
         
         log = glGetProgramInfoLog(self.programId)
         if log:
             print('Program:', log)
 
         glUseProgram(self.programId)
+        
+        glUniformMatrix4fv(self.projectionMatrixUniformLocation,
+                           1, GL_FALSE, self.projectionMatrix)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -215,8 +232,9 @@ void main() {
 
     def draw(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glUniformMatrix4fv(self.mvpMatrixUniformLocation,
-                           1, GL_FALSE, self.modelViewProjectionMatrix)
+        
+        glUniformMatrix4fv(self.viewMatrixUniformLocation,
+                           1, GL_FALSE, self.viewMatrix)
         
         glDrawArrays(GL_TRIANGLES, 0, 3)
         
@@ -232,7 +250,18 @@ void main() {
             if event.type == QUIT or \
                (event.type == KEYDOWN and event.key == K_ESCAPE):
                 self.stop()
-    
+            
+            elif event.type == KEYDOWN:
+                if event.key == K_a:
+                    self.viewMatrix[12] += 0.1
+                elif event.key == K_d:
+                    self.viewMatrix[12] -= 0.1
+                elif event.key == K_w:
+                    self.viewMatrix[14] += 0.1
+                elif event.key == K_s:
+                    self.viewMatrix[14] -= 0.1
+                elif event.key == K_q:
+                    self.stop()
     
     def stop(self):
         '''stop the loop from running'''
@@ -260,3 +289,4 @@ void main() {
 if __name__ == '__main__':
     t = Triangle()
     t.run()
+
