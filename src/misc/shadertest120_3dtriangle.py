@@ -3,13 +3,16 @@ from OpenGL.GLU import *
 import pygame
 from pygame.locals import *
 
-from math import pi, tan
+from math import cos, pi, sin, sqrt, tan
 from numpy import array, float32
 
 
 class Triangle(object):
     def __init__(self):
         self.running = False
+        
+        self.rotation = 0.0
+        self.position = [0.0, 0.0, 0.0]
 
         self.attributeColorIndex = None
         self.vertexShaderId = None
@@ -20,17 +23,16 @@ class Triangle(object):
         self.colorBufferId = None
         self.projectionMatrixUniformLocation = None
         self.viewMatrixUniformLocation = None
-        self.projectionMatrix = \
-                self.createPerspectiveMatrix(90,
-                                             4.0/3.0,
-                                             1.0,
-                                             300.0)
+        self.projectionMatrix = [1, 0, 0, 0,
+                                 0, 1, 0, 0,
+                                 0, 0, 1, 0,
+                                 0, 0, 0, 1]  # is set in resize()
         self.viewMatrix = [1, 0, 0, 0,
                            0, 1, 0, 0,
                            0, 0, 1, 0,
-                           -1.0, 0, 0, 1]
+                           0, 0, 0, 1]
         
-        self.vertexShader120 = '''
+        self.vertexShader120 = ['''
 #version 120
 
 uniform mat4 projection_matrix;
@@ -42,9 +44,9 @@ void main(void) {
     gl_Position = projection_matrix * view_matrix * gl_Vertex;
     ex_color = in_color;
 }
-'''
+''']
 
-        self.fragmentShader120 = '''
+        self.fragmentShader120 = ['''
 #version 120
 
 varying vec4 ex_color;
@@ -52,7 +54,7 @@ varying vec4 ex_color;
 void main() {
     gl_FragColor = ex_color;
 }
-'''
+''']
     
     def createPerspectiveMatrix(self, fieldOfView, aspect, nearDistance,
                                 farDistance):
@@ -75,6 +77,50 @@ void main() {
                      (nearDistance - farDistance)
     
         return matrix
+    
+    def rotateAboutY(self, matrix, angle):
+        '''set rotation around y axis to angle for matrix'''
+        sine = sin(angle)
+        cosine = cos(angle)
+        
+        matrix[0] = cosine;
+        matrix[8] = sine;
+        matrix[2] = -sine;
+        matrix[10] = cosine;
+    
+    def getMatrixRotatedAroundAxis(self, vectorX, vectorY, vectorZ, angle):
+        #normalize x, y, z
+        vectorLength = sqrt(vectorX * vectorX + \
+                            vectorY * vectorY + \
+                            vectorZ * vectorZ)
+        
+        if vectorLength != 1:
+            vectorX = vectorX / vectorLength
+            vectorY = vectorY / vectorLength
+            vectorZ = vectorZ / vectorLength
+        
+        matrix = [1, 0, 0, 0,
+                  0, 1, 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1]
+        
+        c = cos(angle);
+        s = sin(angle);
+     
+        matrix[0] = vectorX * vectorX * (1-c) + c;
+        matrix[1] = vectorX * vectorY * (1-c) - vectorZ*s;
+        matrix[2] = vectorX * vectorZ * (1-c) + vectorY*s;
+     
+        matrix[4] = vectorY * vectorX * (1-c) + vectorZ*s;
+        matrix[5] = vectorY * vectorY * (1-c) + c;
+        matrix[6] = vectorY * vectorZ * (1-c) - vectorX*s;
+     
+        matrix[8] = vectorX * vectorZ * (1-c) - vectorY*s;
+        matrix[9] = vectorY * vectorZ * (1-c) + vectorX*s;
+        matrix[10] = vectorZ * vectorZ * (1-c) + c;
+        
+        return matrix
+
 
     def resize(self, width, height):
         if height == 0:
@@ -83,8 +129,8 @@ void main() {
         self.projectionMatrix = \
                 self.createPerspectiveMatrix(90,
                                              width / height,
-                                             1.0,
-                                             300.0)
+                                             0.1,
+                                             1000.0)
     
     def init(self):
         print('GL_SHADING_LANGUAGE_VERSION',
@@ -102,16 +148,18 @@ void main() {
     
     def createVBO(self):
         vertices = array([
-                          -0.8, -0.8, -1.0, 1.0,
-                           0.0,  0.8, -1.0, 1.0,
-                           0.8, -0.8, -1.0, 1.0
+                          -0.8, -0.8, -2.0, 1.0,
+                           0.8,  -0.8, -2.0, 1.0,
+                           0.8, 0.8, -2.0, 1.0,
+                           -0.8, 0.8, -2.0, 1.0
                          ],
                          dtype=float32)
         
         colors = array([
                            1.0, 0.0, 0.0, 1.0,
                            0.0, 1.0, 0.0, 1.0,
-                           0.0, 0.0, 1.0, 1.0
+                           0.0, 0.0, 1.0, 1.0,
+                           1.0, 0.0, 1.0, 1.0
                         ],
                         dtype=float32)
         
@@ -236,7 +284,7 @@ void main() {
         glUniformMatrix4fv(self.viewMatrixUniformLocation,
                            1, GL_FALSE, self.viewMatrix)
         
-        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glDrawArrays(GL_QUADS, 0, 4)
         
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -253,15 +301,26 @@ void main() {
             
             elif event.type == KEYDOWN:
                 if event.key == K_a:
-                    self.viewMatrix[12] += 0.1
+                    self.position[0] += 0.1
                 elif event.key == K_d:
-                    self.viewMatrix[12] -= 0.1
+                    self.position[0] -= 0.1
                 elif event.key == K_w:
-                    self.viewMatrix[14] += 0.1
+                    self.position[2] += 0.1
                 elif event.key == K_s:
-                    self.viewMatrix[14] -= 0.1
+                    self.position[2] -= 0.1
+                
+                elif event.key == K_LEFT:
+                    self.rotation += 0.1
+                elif event.key == K_RIGHT:
+                    self.rotation -= 0.1
+                    
+                
                 elif event.key == K_q:
                     self.stop()
+            
+            self.viewMatrix = self.getMatrixRotatedAroundAxis(0.0, 1.0, 0.0, self.rotation)
+            self.viewMatrix[12] = self.position[0]
+            self.viewMatrix[14] = self.position[2]
     
     def stop(self):
         '''stop the loop from running'''

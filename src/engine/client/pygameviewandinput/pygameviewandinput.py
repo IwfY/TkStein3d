@@ -15,6 +15,8 @@ from math import pi
 from threading import Thread
 import cProfile
 from engine.mathhelper import getPointDistance, getSquaredPointDistance
+from engine.shared.matrixhelper import createPerspectiveMatrix
+from OpenGL.raw.GL.VERSION.GL_2_0 import glUniform3f
 
 
 class PygameViewAndInput(Thread):
@@ -39,19 +41,47 @@ class PygameViewAndInput(Thread):
         self.vboId = None
         self.colorBufferId = None
         
-        self.vertexShader120 = '''
+        self.projectionMatrixUniformLocation = None
+        self.playerPositionUniformLocation = None
+        self.playerRotationUniformLocation = None
+        self.projectionMatrixUniformLocation = None
+        
+        self.projectionMatrix = [1, 0, 0, 0,
+                                 0, 1, 0, 0,
+                                 0, 0, 1, 0,
+                                 0, 0, 0, 1]  # is set in resize()
+        
+        
+        
+        self.vertexShader120 = ['''
 #version 120
 
+uniform mat4 projection_matrix;
+uniform vec3 player_position;
+uniform float player_rotation;
 attribute vec4 in_color;
 varying vec4 ex_color;
 
 void main(void) {
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    float pi = 3.1416;
+    vec4 vertex = gl_Vertex + vec4(player_position, 1.0);
+    
+    float rotation = -player_rotation - pi/2;
+    
+    float vectorLength = sqrt(vertex[0] * vertex[0] + vertex[2] * vertex[2]);
+    
+    float currentAngle = atan(vertex[2], vertex[0]);
+    float newAngle = currentAngle + rotation;
+    
+    vertex[0] = vectorLength * cos(newAngle);
+    vertex[2] = vectorLength * sin(newAngle);
+     
+    gl_Position = projection_matrix * vertex;
     ex_color = in_color;
 }
-'''
+''']
 
-        self.fragmentShader120 = '''
+        self.fragmentShader120 = ['''
 #version 120
 
 varying vec4 ex_color;
@@ -59,26 +89,19 @@ varying vec4 ex_color;
 void main() {
     gl_FragColor = ex_color;
 }
-'''
+''']
     
     def resize(self, tuple_wh):
         width, height = tuple_wh
         if height==0:
             height=1
         glViewport(0, 0, width, height)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(45, 1.0*width/height, 2.0, 1000.0)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        self.projectionMatrix = createPerspectiveMatrix(90, width / height,
+                                                        0.1, 1000.0)
+        
     
     def init(self):
-        glShadeModel(GL_SMOOTH)
-        glClearColor(0.0, 0.0, 0.0, 0.0)
-        glClearDepth(1.0)
-        glEnable(GL_DEPTH_TEST)
-        glDepthFunc(GL_LEQUAL)
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+        glClearColor(0.2, 0.0, 0.0, 0.0)
         
         self.createShaders()
         self.initStaticPolygonVBO()
@@ -90,48 +113,62 @@ void main() {
     def createShaders(self):
         errorCheckValue = glGetError()
          
-        self.vertexShaderId = glCreateShaderObjectARB(GL_VERTEX_SHADER)
-        glShaderSourceARB(self.vertexShaderId, [self.vertexShader120])
-        glCompileShaderARB(self.vertexShaderId)
+        # vertex shader
+        self.vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
+        glShaderSource(self.vertexShaderId, self.vertexShader120)
+        glCompileShader(self.vertexShaderId)
         
-        log = glGetInfoLogARB(self.vertexShaderId)
-        if log: print('Vertex Shader:', log)
+        log = glGetShaderInfoLog(self.vertexShaderId)
+        if log: print('Vertex Shader: ', log)
      
-        self.fragmentShaderId = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)
-        glShaderSourceARB(self.fragmentShaderId, [self.fragmentShader120])
-        glCompileShaderARB(self.fragmentShaderId)
+        # fragment shader
+        self.fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
+        glShaderSource(self.fragmentShaderId, self.fragmentShader120)
+        glCompileShader(self.fragmentShaderId)
         
-        log = glGetInfoLogARB(self.fragmentShaderId)
-        if log: print('Fragment Shader:', log)
+        log = glGetShaderInfoLog(self.fragmentShaderId)
+        if log: print('Fragment Shader: ', log)
      
-        self.programId = glCreateProgramObjectARB()
-        glAttachObjectARB(self.programId, self.vertexShaderId)
-        glAttachObjectARB(self.programId, self.fragmentShaderId)
-        glLinkProgramARB(self.programId)
+        # program creation
+        self.programId = glCreateProgram()
+        glAttachShader(self.programId, self.vertexShaderId)
+        glAttachShader(self.programId, self.fragmentShaderId)
+        glLinkProgram(self.programId)
         
-        log = glGetInfoLogARB(self.programId)
-        if log:
-            print('Program:', log)
-        glUseProgramObjectARB(self.programId)
+        self.projectionMatrixUniformLocation = \
+                glGetUniformLocation(self.programId,
+                                     b"projection_matrix");
+        self.playerPositionUniformLocation = \
+                glGetUniformLocation(self.programId,
+                                     b"player_position");
+        self.playerRotationUniformLocation = \
+                glGetUniformLocation(self.programId,
+                                     b"player_rotation");
+
+        glUseProgram(self.programId)
+        
+        glUniformMatrix4fv(self.projectionMatrixUniformLocation,
+                           1, GL_FALSE, self.projectionMatrix)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
             print('error creating shaders',
                   gluErrorString(errorCheckValue))
             exit(-1)
-    
+
+
     def destroyShaders(self):
         errorCheckValue = glGetError()
      
-        glUseProgramObjectARB(0)
+        glUseProgram(0)
      
-        glDetachObjectARB(self.programId, self.vertexShaderId)
-        glDetachObjectARB(self.programId, self.fragmentShaderId)
+        glDetachShader(self.programId, self.vertexShaderId)
+        glDetachShader(self.programId, self.fragmentShaderId)
      
-        glDeleteObjectARB(self.fragmentShaderId)
-        glDeleteObjectARB(self.vertexShaderId)
+        glDeleteShader(self.fragmentShaderId)
+        glDeleteShader(self.vertexShaderId)
      
-        glDeleteObjectARB(self.programId)
+        glDeleteProgram(self.programId)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -147,15 +184,32 @@ void main() {
         vertices = array([], dtype=float32)        
         colors = array([], dtype=float32)
         
+        #vertices = array([
+        #                  -0.8, -0.8, -2.0, 1.0,
+        #                   0.8,  -0.8, -2.0, 1.0,
+        #                   0.8, 0.8, -2.0, 1.0,
+        #                   -0.8, 0.8, -2.0, 1.0
+        #                 ],
+        #                 dtype=float32)
+        
+        #colors = array([
+        #                   1.0, 0.0, 0.0, 1.0,
+        #                   0.0, 1.0, 0.0, 1.0,
+        #                   0.0, 0.0, 1.0, 1.0,
+        #                   1.0, 0.0, 1.0, 1.0
+        #                ],
+        #                dtype=float32)
+        
         self.staticVerticesCount = 0
         #for polygon in self.gameMap.getStaticPolygons():
         for polygon in self.gameMap.getPolygons():
             if len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 for point in polygon.getPoints3D():
-                    append(vertices, [point.x, point.y, point.z])
-                    append(colors, [r/255, g/255, b/255])
+                    vertices = append(vertices, [point.x, point.y, point.z])
+                    colors = append(colors, [r/255, g/255, b/255])
                     self.staticVerticesCount += 1
+                    #pass
         
         errorCheckValue = glGetError()
          
@@ -205,7 +259,7 @@ void main() {
         if errorCheckValue != GL_NO_ERROR:
             print('error destroying VBOs',
                   gluErrorString(errorCheckValue))
-            exit(-1);
+            exit(-1)
 
     def draw(self):
         player = self.client.getPlayer()
@@ -213,12 +267,21 @@ void main() {
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        glLoadIdentity()
-
-        glRotatef((player.getViewAngle() + pi/2) * 180 / pi, 0.0, 1.0, 0.0)
-        glTranslatef(-playerPostion.x, -playerPostion.y, -playerPostion.z)
+        glUniform3f(self.playerPositionUniformLocation,
+                    -playerPostion.x, -playerPostion.y, -playerPostion.z)
+        glUniform1f(self.playerRotationUniformLocation,
+                    player.getViewAngle())
+        
+        glUniformMatrix4fv(self.projectionMatrixUniformLocation,
+                           1, GL_FALSE, self.projectionMatrix)
         
         glDrawArrays(GL_QUADS, 0, self.staticVerticesCount)
+        
+        errorCheckValue = glGetError()
+        if errorCheckValue != GL_NO_ERROR:
+            print('draw error',
+                  gluErrorString(errorCheckValue))
+            exit(-1);
 
     
     def processEvents(self, events):
