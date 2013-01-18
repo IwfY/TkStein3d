@@ -5,6 +5,9 @@ from pygame.locals import *
 
 from math import cos, pi, sin, sqrt, tan
 from numpy import array, float32
+from engine.shared.matrixhelper import createLookAtAngleViewMatrix,\
+    createLookAtViewMatrix
+from engine.coordinate import Point3D
 
 
 class Triangle(object):
@@ -127,7 +130,7 @@ void main() {
             height = 1
         glViewport(0, 0, width, height)
         self.projectionMatrix = \
-                self.createPerspectiveMatrix(90,
+                self.createPerspectiveMatrix(60,
                                              width / height,
                                              0.1,
                                              1000.0)
@@ -252,6 +255,8 @@ void main() {
         
         glUniformMatrix4fv(self.projectionMatrixUniformLocation,
                            1, GL_FALSE, self.projectionMatrix)
+        glUniformMatrix4fv(self.viewMatrixUniformLocation,
+                           1, GL_FALSE, self.viewMatrix)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -318,9 +323,12 @@ void main() {
                 elif event.key == K_q:
                     self.stop()
             
-            self.viewMatrix = self.getMatrixRotatedAroundAxis(0.0, 1.0, 0.0, self.rotation)
-            self.viewMatrix[12] = self.position[0]
-            self.viewMatrix[14] = self.position[2]
+            self.viewMatrix = createLookAtAngleViewMatrix(
+                                    Point3D(self.position[0],
+                                            self.position[1],
+                                            self.position[2]),
+                                    self.rotation)
+            print(self.viewMatrix)
     
     def stop(self):
         '''stop the loop from running'''
