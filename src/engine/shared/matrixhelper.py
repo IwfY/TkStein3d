@@ -1,4 +1,4 @@
-from math import cos, pi, sin, tan
+from math import cos, floor, pi, sin, tan
 from engine.coordinate import Vector3D, Point3D
 from engine.mathhelper import getVectorDotProduct
 
@@ -106,3 +106,18 @@ def createLookAtAngleViewMatrix(cameraPosition, viewAngle,
                              cameraPosition.z - cos(viewAngle))
 
     return createLookAtViewMatrix(cameraPosition, lookAtPosition, worldUpVector)
+
+
+def getTransposedMatrix44(matrix):
+    outMatrix = [1, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 0, 0, 0, 1]
+    
+    for i in range(15):
+        div4 = floor(i / 4)
+        modulo4 = i % 4
+        
+        outMatrix[i] = matrix[modulo4 * 4 + div4]
+    
+    return outMatrix

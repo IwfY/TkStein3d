@@ -15,8 +15,8 @@ from math import pi
 from threading import Thread
 import cProfile
 from engine.mathhelper import getPointDistance, getSquaredPointDistance
-from engine.shared.matrixhelper import createPerspectiveMatrix
-from OpenGL.raw.GL.VERSION.GL_2_0 import glUniform3f
+from engine.shared.matrixhelper import createPerspectiveMatrix,\
+    createLookAtAngleViewMatrix
 
 
 class PygameViewAndInput(Thread):
@@ -42,14 +42,16 @@ class PygameViewAndInput(Thread):
         self.colorBufferId = None
         
         self.projectionMatrixUniformLocation = None
-        self.playerPositionUniformLocation = None
-        self.playerRotationUniformLocation = None
-        self.projectionMatrixUniformLocation = None
+        self.viewMatrixUniformLocation = None
         
         self.projectionMatrix = [1, 0, 0, 0,
                                  0, 1, 0, 0,
                                  0, 0, 1, 0,
                                  0, 0, 0, 1]  # is set in resize()
+        self.viewMatrix = [1, 0, 0, 0,
+                           0, 1, 0, 0,
+                           0, 0, 1, 0,
+                           0, 0, 0, 1]
         
         
         
@@ -57,27 +59,25 @@ class PygameViewAndInput(Thread):
 #version 120
 
 uniform mat4 projection_matrix;
-uniform vec3 player_position;
-uniform float player_rotation;
+uniform mat4 view_matrix;
 attribute vec4 in_color;
 varying vec4 ex_color;
 
 void main(void) {
-    float pi = 3.1416;
-    vec4 vertex = gl_Vertex + vec4(player_position, 1.0);
+    vec4 final_vertex = projection_matrix * view_matrix * gl_Vertex;
+    gl_Position = final_vertex;
     
-    float rotation = -player_rotation - pi/2;
+    float square_distance_vertex_player = final_vertex[0] * final_vertex[0] + \
+                                          final_vertex[1] * final_vertex[1] + \
+                                          final_vertex[2] * final_vertex[2];
+                         
+    float black_potion = square_distance_vertex_player / 2000.0f;
+    if (black_potion > 1.0f) {
+        black_potion = 1.0f;
+    }
     
-    float vectorLength = sqrt(vertex[0] * vertex[0] + vertex[2] * vertex[2]);
-    
-    float currentAngle = atan(vertex[2], vertex[0]);
-    float newAngle = currentAngle + rotation;
-    
-    vertex[0] = vectorLength * cos(newAngle);
-    vertex[2] = vectorLength * sin(newAngle);
-     
-    gl_Position = projection_matrix * vertex;
-    ex_color = in_color;
+    vec4 black = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    ex_color = mix(in_color, black, black_potion);
 }
 ''']
 
@@ -96,12 +96,15 @@ void main() {
         if height==0:
             height=1
         glViewport(0, 0, width, height)
-        self.projectionMatrix = createPerspectiveMatrix(90, width / height,
-                                                        0.1, 1000.0)
+        self.projectionMatrix = createPerspectiveMatrix(60, width / height,
+                                                        0.01, 100.0)
         
     
     def init(self):
         glClearColor(0.2, 0.0, 0.0, 0.0)
+        
+        glEnable(GL_CULL_FACE)
+        glEnable(GL_DEPTH_TEST)
         
         self.createShaders()
         self.initStaticPolygonVBO()
@@ -112,43 +115,47 @@ void main() {
     
     def createShaders(self):
         errorCheckValue = glGetError()
-         
+
         # vertex shader
         self.vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
         glShaderSource(self.vertexShaderId, self.vertexShader120)
         glCompileShader(self.vertexShaderId)
-        
+
         log = glGetShaderInfoLog(self.vertexShaderId)
         if log: print('Vertex Shader: ', log)
-     
+
         # fragment shader
         self.fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
         glShaderSource(self.fragmentShaderId, self.fragmentShader120)
         glCompileShader(self.fragmentShaderId)
-        
+
         log = glGetShaderInfoLog(self.fragmentShaderId)
         if log: print('Fragment Shader: ', log)
-     
-        # program creation
+
+        # shader program creation 
         self.programId = glCreateProgram()
         glAttachShader(self.programId, self.vertexShaderId)
         glAttachShader(self.programId, self.fragmentShaderId)
         glLinkProgram(self.programId)
         
+        # get uniform locations
         self.projectionMatrixUniformLocation = \
                 glGetUniformLocation(self.programId,
-                                     b"projection_matrix");
-        self.playerPositionUniformLocation = \
+                                     b"projection_matrix")
+        self.viewMatrixUniformLocation = \
                 glGetUniformLocation(self.programId,
-                                     b"player_position");
-        self.playerRotationUniformLocation = \
-                glGetUniformLocation(self.programId,
-                                     b"player_rotation");
+                                     b"view_matrix")
+        
+        log = glGetProgramInfoLog(self.programId)
+        if log:
+            print('Program:', log)
 
         glUseProgram(self.programId)
         
         glUniformMatrix4fv(self.projectionMatrixUniformLocation,
                            1, GL_FALSE, self.projectionMatrix)
+        glUniformMatrix4fv(self.viewMatrixUniformLocation,
+                           1, GL_FALSE, self.viewMatrix)
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -184,32 +191,17 @@ void main() {
         vertices = array([], dtype=float32)        
         colors = array([], dtype=float32)
         
-        #vertices = array([
-        #                  -0.8, -0.8, -2.0, 1.0,
-        #                   0.8,  -0.8, -2.0, 1.0,
-        #                   0.8, 0.8, -2.0, 1.0,
-        #                   -0.8, 0.8, -2.0, 1.0
-        #                 ],
-        #                 dtype=float32)
-        
-        #colors = array([
-        #                   1.0, 0.0, 0.0, 1.0,
-        #                   0.0, 1.0, 0.0, 1.0,
-        #                   0.0, 0.0, 1.0, 1.0,
-        #                   1.0, 0.0, 1.0, 1.0
-        #                ],
-        #                dtype=float32)
-        
-        self.staticVerticesCount = 0
-        #for polygon in self.gameMap.getStaticPolygons():
-        for polygon in self.gameMap.getPolygons():
+        self.staticVerticesCount = 4
+        for polygon in self.gameMap.getStaticPolygons():
+        #for polygon in self.gameMap.getPolygons():
             if len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 for point in polygon.getPoints3D():
-                    vertices = append(vertices, [point.x, point.y, point.z])
-                    colors = append(colors, [r/255, g/255, b/255])
+                    vertices = append(vertices, array([point.x, point.y, -point.z, 1.0], dtype=float32))
+                    colors = append(colors, array([r/255.0, g/255.0, b/255.0, 1.0], dtype=float32))
                     self.staticVerticesCount += 1
-                    #pass
+        
+        print('vertices', vertices)
         
         errorCheckValue = glGetError()
          
@@ -261,16 +253,22 @@ void main() {
                   gluErrorString(errorCheckValue))
             exit(-1)
 
+
     def draw(self):
         player = self.client.getPlayer()
         playerPostion = player.getPosition()
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        glUniform3f(self.playerPositionUniformLocation,
-                    -playerPostion.x, -playerPostion.y, -playerPostion.z)
-        glUniform1f(self.playerRotationUniformLocation,
-                    player.getViewAngle())
+        self.viewMatrix = createLookAtAngleViewMatrix(
+                                    Point3D(playerPostion.x,
+                                            playerPostion.y,
+                                            playerPostion.z),
+                                    player.getViewAngle())
+        
+        # set uniforms
+        glUniformMatrix4fv(self.viewMatrixUniformLocation,
+                           1, GL_FALSE, self.viewMatrix)
         
         glUniformMatrix4fv(self.projectionMatrixUniformLocation,
                            1, GL_FALSE, self.projectionMatrix)
@@ -306,21 +304,23 @@ void main() {
             elif key == K_LEFT:
                 rotation -= pi / 60
             elif key == K_w:
-                moveDeltaForward += 0.6
+                moveDeltaForward += 0.05
             elif key == K_s:    # s
-                moveDeltaForward -= 0.6
+                moveDeltaForward -= 0.05
             elif key == K_a:     # a
-                moveDeltaLeft += 0.6
+                moveDeltaLeft += 0.05
             elif key == K_d:    # d
-                moveDeltaLeft -= 0.6
+                moveDeltaLeft -= 0.05
             elif key == K_q:    # q -> stop
                 self.client.stop()
             elif key == K_p:
                 player = self.client.getPlayer()
-                print('pos:{}; angle:{}/{}'.format(
+                print('PygameViewAndInput::processEvents:',
+                      'pos:{}; angle:{}r/{}d'.format(
                                 player.getPosition(),
-                                player.getViewAngle(),
-                                player.getViewAngle()*180/3.14))
+                                round(player.getViewAngle(), 3),
+                                round((player.getViewAngle()*180/3.14) % 180,
+                                      2)))
                 
         self.client.moveRotateCharacter(moveDeltaForward,
                                         moveDeltaLeft,
@@ -348,9 +348,9 @@ void main() {
         pygame.init()
         
         video_flags = OPENGL | DOUBLEBUF
-        pygame.display.set_mode((1440, 900), video_flags)
+        pygame.display.set_mode((1024, 768), video_flags)
         
-        self.resize((1440, 900))
+        self.resize((1024, 768))
         self.init()
         
         self.running = True

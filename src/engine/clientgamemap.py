@@ -26,6 +26,12 @@ class ClientGameMap(Thread):
         
         return out
 
+    def getStaticPolygons(self):
+        return self.staticPolygons
+    
+    def getDynamicPolygons(self):
+        return self.dynamicPolygonBuffers[self.activeDynamicPolygonBuffer]
+
     def getGroundColor(self):
         return self.groundColor
     
