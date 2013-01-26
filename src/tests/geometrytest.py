@@ -243,8 +243,37 @@ class Test(unittest.TestCase):
         self.assertNear(p2.x, 1)
         self.assertNear(p2.y, 0)
         self.assertNear(p2.z, 2)
+    
+    
+    def testPoint3DAdditionSubstraction(self):
+        a = Point3D(0, 0, 0)
+        b = Point3D(-1, 5, -3)
         
+        c = a + b
+        d = a - b
         
+        self.assertEqual(c.x, -1)
+        self.assertEqual(c.y, 5)
+        self.assertEqual(c.z, -3)
+        
+        self.assertEqual(d.x, 1)
+        self.assertEqual(d.y, -5)
+        self.assertEqual(d.z, 3)
+    
+    def testVector3DAdditionSubstraction(self):
+        a = Vector3D(0, 0, 0)
+        b = Vector3D(-1, 5, -3)
+        
+        c = a + b
+        d = a - b
+        
+        self.assertEqual(c.x, -1)
+        self.assertEqual(c.y, 5)
+        self.assertEqual(c.z, -3)
+        
+        self.assertEqual(d.x, 1)
+        self.assertEqual(d.y, -5)
+        self.assertEqual(d.z, 3)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testAngleBetweenAngles']

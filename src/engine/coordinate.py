@@ -1,5 +1,3 @@
-from engine.mathhelper import getPointDistance
-
 from math import atan2, cos, pi, sin, sqrt
 
 class Point2D(object):
@@ -18,6 +16,16 @@ class Point3D(object):
     
     def __str__(self):
         return '{} ({}, {}, {})'.format(id(self), round(self.x, 2), round(self.y, 2), round(self.z, 2))
+    
+    def __add__(self, other):
+        return Vector3D(self.x + other.x,
+                        self.y + other.y,
+                        self.z + other.z)
+    
+    def __sub__(self, other):
+        return Vector3D(self.x - other.x,
+                        self.y - other.y,
+                        self.z - other.z)
     
     def moveByVector(self, vector):
         self.x += vector.x
@@ -58,6 +66,17 @@ class Point3D(object):
 class Vector3D(Point3D):
     def __init__(self, x, y, z):
         Point3D.__init__(self, x, y, z)
+    
+    def __add__(self, other):
+        return Vector3D(self.x + other.x,
+                        self.y + other.y,
+                        self.z + other.z)
+    
+    def __sub__(self, other):
+        return Vector3D(self.x - other.x,
+                        self.y - other.y,
+                        self.z - other.z)
+
     
     def getLength(self):
         return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)

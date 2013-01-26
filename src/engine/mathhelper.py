@@ -1,4 +1,5 @@
 from math import acos, sqrt
+from engine.coordinate import Vector3D
 
 def getPointDistance(point1, point2):
     '''get the distance between 2 points'''
@@ -36,6 +37,12 @@ def getVectorDotProduct(vector1, vector2):
     return vector1.x * vector2.x + \
            vector1.y * vector2.y + \
            vector1.z * vector2.z
+
+def getVectorCrossProduct(vector1, vector2):
+    result = Vector3D((vector1.y * vector2.z) - (vector1.z * vector2.y),
+                      (vector1.z * vector2.x) - (vector1.x * vector2.z),
+                      (vector1.x * vector2.y) - (vector1.y * vector2.x))
+    return result
 
 def getAngleBetweenVectors(vector1, vector2):
     dotProduct = getVectorDotProduct(vector1, vector2)
