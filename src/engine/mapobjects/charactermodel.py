@@ -11,10 +11,10 @@ class CharacterModel(MapObject):
     
     def tick(self):
         characterPosition = self.character.getPosition()
-        block = Block(Point3D(characterPosition.x - 3,
-                              characterPosition.y - 7.5,
-                              characterPosition.z - 3),
-                      Point3D(characterPosition.x + 3,
-                              characterPosition.y + 2,
-                              characterPosition.z + 3))
+        block = Block(Point3D(characterPosition.x - 0.15,
+                              characterPosition.y - 0.5,
+                              characterPosition.z - 0.15),
+                      Point3D(characterPosition.x + 0.15,
+                              characterPosition.y + 0.2,
+                              characterPosition.z + 0.15))
         self.polygons = block.getPolygons()

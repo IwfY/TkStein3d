@@ -61,24 +61,24 @@ class Door(MapObject):
     def createPolygons(self, coordinate, edgeLength):
         i, j = coordinate
         if self.rotation == 0:
-            self.addWall((i + 0.5) * self.edgeLength - 2,
+            self.addWall((i + 0.5) * self.edgeLength - (self.edgeLength / 8),
                          j * self.edgeLength,
                          0, self.edgeLength)
-            self.addWall((i + 0.5) * self.edgeLength + 2,
+            self.addWall((i + 0.5) * self.edgeLength + (self.edgeLength / 8),
                          (j + 1) * self.edgeLength,
                          0, -self.edgeLength)
             
             # horizontal part
-            point1 = Point3D((i + 0.5) * self.edgeLength - 2,
+            point1 = Point3D((i + 0.5) * self.edgeLength - (self.edgeLength / 8),
                              self.height,
                              j * self.edgeLength)
-            point2 = Point3D((i + 0.5) * self.edgeLength - 2,
+            point2 = Point3D((i + 0.5) * self.edgeLength - (self.edgeLength / 8),
                              self.height,
                              (j + 1) * self.edgeLength)            
-            point3 = Point3D((i + 0.5) * self.edgeLength + 2,
+            point3 = Point3D((i + 0.5) * self.edgeLength + (self.edgeLength / 8),
                              self.height,
                              (j + 1) * self.edgeLength)
-            point4 = Point3D((i + 0.5) * self.edgeLength + 2,
+            point4 = Point3D((i + 0.5) * self.edgeLength + (self.edgeLength / 8),
                              self.height,
                              j * self.edgeLength)
             newPolygon = Polygon('',
@@ -88,25 +88,25 @@ class Door(MapObject):
             
         else:
             self.addWall((i + 1) * self.edgeLength,
-                         (j + 0.5) * self.edgeLength - 2,
+                         (j + 0.5) * self.edgeLength - (self.edgeLength / 8),
                          -self.edgeLength, 0)
             self.addWall(i * self.edgeLength,
-                         (j + 0.5) * self.edgeLength + 2,
+                         (j + 0.5) * self.edgeLength + (self.edgeLength / 8),
                          self.edgeLength, 0)
             
             # horizontal part
             point1 = Point3D(i * self.edgeLength,
                              self.height,
-                             (j + 0.5) * self.edgeLength + 2)
+                             (j + 0.5) * self.edgeLength + (self.edgeLength / 8))
             point2 = Point3D((i + 1) * self.edgeLength,
                              self.height,
-                             (j + 0.5) * self.edgeLength + 2)            
+                             (j + 0.5) * self.edgeLength + (self.edgeLength / 8))            
             point3 = Point3D((i + 1) * self.edgeLength,
                              self.height,
-                             (j + 0.5) * self.edgeLength - 2)
+                             (j + 0.5) * self.edgeLength - (self.edgeLength / 8))
             point4 = Point3D(i * self.edgeLength,
                              self.height,
-                             (j + 0.5) * self.edgeLength - 2)
+                             (j + 0.5) * self.edgeLength - (self.edgeLength / 8))
             newPolygon = Polygon('',
                              [point4, point3, point2, point1],
                              '#298b94', '#2a6a70')
