@@ -1,6 +1,6 @@
 from math import cos, floor, pi, sin, tan
 from engine.coordinate import Vector3D, Point3D
-from engine.mathhelper import getVectorDotProduct
+from engine.mathhelper import getVectorDotProduct, getVectorCrossProduct
 
 def createPerspectiveMatrix(fieldOfView, aspect, nearDistance, farDistance):
     '''reference:
@@ -44,8 +44,8 @@ def createOrthogonalProjectionMatrixWidthHeight(width, height,
 
 def createLookAtViewMatrix(cameraPosition, lookAtPosition,
                            worldUpVector=Vector3D(0.0, 1.0, 0.0)):
-    '''create a view matrix (column major) representing the translation
-    and rotation in a look at transformation
+    '''create a view matrix (right handed, column major) representing the
+    translation and rotation in a look at transformation
     
     @param cameraPosition : const Point3D    position of the camera
     @param lookAtPosition : const Point3D    position the camera is looking at
@@ -55,32 +55,38 @@ def createLookAtViewMatrix(cameraPosition, lookAtPosition,
     @return 4x4 matrix values in a list in column major order
     '''
     
-    lookVector = Vector3D(lookAtPosition.x - cameraPosition.x,
-                            lookAtPosition.y - cameraPosition.y,
-                            lookAtPosition.z - cameraPosition.z)
+    lookVector = cameraPosition - lookAtPosition
     lookVector.normalize()
     
-    normalizedWorldUpVector = worldUpVector.getNormalizedVector()
+    horizontalVector = getVectorCrossProduct(worldUpVector, lookVector)
+    horizontalVector.normalize()
     
-    horizonatalVector = lookVector.getCrossProduct(normalizedWorldUpVector)
+    upVector = getVectorCrossProduct(lookVector, horizontalVector)
     
-    upVector = horizonatalVector.getCrossProduct(lookVector)
+    #print('cameraPosition', cameraPosition)
+    #print('lookvector', lookVector)
+    #print('horizontalVector', horizontalVector)
+    #print('upVector', upVector)
+    
+    #print('-dot(horizontalVector, cameraPosition)', -getVectorDotProduct(horizontalVector, cameraPosition))
+    #print('-dot(upVector, cameraPosition)', -getVectorDotProduct(upVector, cameraPosition))
+    #print('-dot(lookVector, cameraPosition)', -getVectorDotProduct(lookVector, cameraPosition))
 
     matrix = [1, 0, 0, 0,
               0, 1, 0, 0,
               0, 0, 1, 0,
               0, 0, 0, 1]
     
-    matrix[0] = horizonatalVector.x
-    matrix[4] = horizonatalVector.y
-    matrix[8] = horizonatalVector.z
+    matrix[0] = horizontalVector.x
+    matrix[4] = horizontalVector.y
+    matrix[8] = horizontalVector.z
     matrix[1] = upVector.x
     matrix[5] = upVector.y  
     matrix[9] = upVector.z
     matrix[2] = lookVector.x
     matrix[6] = lookVector.y
     matrix[10] = lookVector.z
-    matrix[12] = -getVectorDotProduct(horizonatalVector, cameraPosition)
+    matrix[12] = -getVectorDotProduct(horizontalVector, cameraPosition)
     matrix[13] = -getVectorDotProduct(upVector, cameraPosition)
     matrix[14] = -getVectorDotProduct(lookVector, cameraPosition)
 

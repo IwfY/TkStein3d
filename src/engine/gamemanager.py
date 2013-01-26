@@ -56,8 +56,8 @@ class GameManager():
                   characterID)
             return
         
-        moveVector = Vector3D(-moveDeltaLeft, 0 , moveDeltaForward)
-        character.viewAngle -= rotationClockwise
+        moveVector = Vector3D(-moveDeltaLeft, 0 , -moveDeltaForward)
+        character.viewAngle += rotationClockwise
         
         #print('moveVector', moveVector, character.getViewAngle())
         moveVector.rotateAroundYAxisByAngle(Point3D(0, 0, 0),
@@ -65,7 +65,7 @@ class GameManager():
         #print('  moveVector', moveVector, character.getViewAngle())
         
         newPosition = Point3D(character.position.x + moveVector.x,
-                              character.position.y,
+                              character.position.y + moveVector.y,
                               character.position.z + moveVector.z)
         
         if character.clipping == False:

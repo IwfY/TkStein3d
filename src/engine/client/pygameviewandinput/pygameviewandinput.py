@@ -71,7 +71,7 @@ void main(void) {
                                           final_vertex[1] * final_vertex[1] + \
                                           final_vertex[2] * final_vertex[2];
                          
-    float black_potion = square_distance_vertex_player / 2000.0f;
+    float black_potion = square_distance_vertex_player / 1000.0f;
     if (black_potion > 1.0f) {
         black_potion = 1.0f;
     }
@@ -197,7 +197,7 @@ void main() {
             if len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 for point in polygon.getPoints3D():
-                    vertices = append(vertices, array([point.x, point.y, -point.z, 1.0], dtype=float32))
+                    vertices = append(vertices, array([point.x, point.y, point.z, 1.0], dtype=float32))
                     colors = append(colors, array([r/255.0, g/255.0, b/255.0, 1.0], dtype=float32))
                     self.staticVerticesCount += 1
         
