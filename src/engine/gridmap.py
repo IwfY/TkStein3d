@@ -4,6 +4,8 @@ from engine.mapgenerator import MapGenerator
 from engine.polygon import Polygon
 from engine.mapobjects.door import Door
 
+from math import pi
+
 class GridMap(GameMap):
     def __init__(self, gameManager, grid=None, edgeLength=1.0):
         '''
@@ -82,13 +84,15 @@ class GridMap(GameMap):
                 elif self.grid[i][j] == '#':     #door
                     self.addFloor(j, i)
                     self.addCeiling(j, i)
-                    rotation = 1
+                    rotation = 0
                     if self.grid[i-1][j] in self.makeWallsTo and \
                             self.grid[i+1][j] in self.makeWallsTo:
-                        rotation = 0
+                        rotation = pi / 2
+                    
                     self.mapObjectsManager.addMapObject(
                             Door(self.gameManager,
                                  self, (j, i), self.edgeLength, rotation))
+                
                 elif self.grid[i][j] == 's':     #start position
                     self.addFloor(j, i)
                     self.addCeiling(j, i)
