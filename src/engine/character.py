@@ -7,7 +7,7 @@ class Character(object):
         self.characterID = characterID
         self.position = position
         self.viewAngle = viewAngle
-        self.clipping = False
+        self.clipping = True
     
     def getCharacterID(self):
         return self.characterID

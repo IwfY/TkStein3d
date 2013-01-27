@@ -17,6 +17,8 @@ class GridMap(GameMap):
                 [0,0,2,2,0],  |
                 [0,0,0,0,0]]  v
         
+        grid[zIndex][xIndex]
+        
         '''
         GameMap.__init__(self, gameManager)
         
@@ -32,7 +34,7 @@ class GridMap(GameMap):
         
         if grid is None:
             #self.mapGenerator = MapGenerator(30, 30, seed=1)
-            self.mapGenerator = MapGenerator(100, 100, seed=1)
+            self.mapGenerator = MapGenerator(50, 50, seed=1)
             
             self.grid = self.mapGenerator.generateMap()
         else:
@@ -145,32 +147,32 @@ class GridMap(GameMap):
         intersects an object
         
         return none if no intersection'''
-        i2 = int(point2.x / self.edgeLength)
-        j2 = int(point2.z / self.edgeLength)
+        i2 = int(point2.z / self.edgeLength)
+        j2 = int(point2.x / self.edgeLength)
         
         distanceCellXM1 = point2.x % self.edgeLength
         distanceCellXP1 = self.edgeLength - point2.x % self.edgeLength
         distanceCellZM1 = point2.z % self.edgeLength
         distanceCellZP1 = self.edgeLength - point2.z % self.edgeLength
         
-        minDistance = 3.0
+        minDistance = 0.2
         
         # check goal cell
         if self.grid[i2][j2] not in self.makeWallsTo:
             return Point3D(0.0, 0.0, 0.0)
         
         # check neighbouring cells
-        if distanceCellXM1 < minDistance:
+        if distanceCellZM1 < minDistance:
             if self.grid[i2 - 1][j2] not in self.makeWallsTo:
                 return Point3D(0.0, 0.0, 0.0)
-        elif distanceCellXP1 < minDistance:
+        elif distanceCellZP1 < minDistance:
             if self.grid[i2 + 1][j2] not in self.makeWallsTo:
                 return Point3D(0.0, 0.0, 0.0)
         
-        if distanceCellZM1 < minDistance:
+        if distanceCellXM1 < minDistance:
             if self.grid[i2][j2 - 1] not in self.makeWallsTo:
                 return Point3D(0.0, 0.0, 0.0)
-        elif distanceCellZP1 < minDistance:
+        elif distanceCellXP1 < minDistance:
             if self.grid[i2][j2 + 1] not in self.makeWallsTo:
                 return Point3D(0.0, 0.0, 0.0)
         
