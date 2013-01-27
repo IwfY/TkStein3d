@@ -33,8 +33,8 @@ class GridMap(GameMap):
         self.grid = None
         
         if grid is None:
-            #self.mapGenerator = MapGenerator(30, 30, seed=1)
-            self.mapGenerator = MapGenerator(50, 50, seed=1)
+            self.mapGenerator = MapGenerator(30, 30, seed=1)
+            #self.mapGenerator = MapGenerator(50, 50, seed=1)
             
             self.grid = self.mapGenerator.generateMap()
         else:
@@ -138,7 +138,7 @@ class GridMap(GameMap):
                     Point3D(maxX, self.wallTop, maxZ),
                     Point3D(minX, self.wallTop, maxZ)
                    ],
-                   self.groundColor)
+                   self.skyColor)
         self.polygons.append(floorPolygon)
     
     def getPathBlockedPoint(self, point1, point2):
