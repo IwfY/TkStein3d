@@ -41,6 +41,11 @@ class PygameViewAndInput(Thread):
         self.vboId = None
         self.colorBufferId = None
         
+        self.vaoIdDynamic = None
+        self.vboIdDynamic = None
+        self.colorBufferIdDynamic = None
+        self.dynamicVerticesCount = 0
+        
         self.projectionMatrixUniformLocation = None
         self.viewMatrixUniformLocation = None
         
@@ -108,7 +113,9 @@ void main() {
         
         self.createShaders()
         self.initStaticPolygonVBO()
-    
+        self.initDynamicPolygonVBO()
+
+
     def cleanup(self):
         self.destroyShaders()
         self.destroyStaticPolygonsVBO()
@@ -137,6 +144,10 @@ void main() {
         glAttachShader(self.programId, self.vertexShaderId)
         glAttachShader(self.programId, self.fragmentShaderId)
         glLinkProgram(self.programId)
+        
+        # get attribute location
+        self.attributeColorIndex = glGetAttribLocation(self.programId,
+                                                       b'in_color')
         
         # get uniform locations
         self.projectionMatrixUniformLocation = \
@@ -182,8 +193,56 @@ void main() {
             print('error destroying shaders',
                   gluErrorString(errorCheckValue))
             exit(-1)
+
+
+    def updateDynamicPolygonVBO(self):
+        vertices, colors, count = self.gameMap.getDynamicPolygonArrays()
         
-    
+        self.dynamicVerticesCount = count
+        
+        glBindVertexArray(self.vaoIdDynamic)
+        
+        glBindBuffer(GL_ARRAY_BUFFER, self.vboIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(vertices) * 4, vertices,
+                     GL_STATIC_DRAW)
+        
+        glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
+                     GL_STATIC_DRAW)
+
+
+    def initDynamicPolygonVBO(self):
+        errorCheckValue = glGetError()
+        
+        vertices, colors, count = self.gameMap.getDynamicPolygonArrays()
+        
+        self.dynamicVerticesCount = count
+         
+        self.vaoIdDynamic = glGenVertexArrays(1)
+        glBindVertexArray(self.vaoIdDynamic)
+     
+        self.vboIdDynamic = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vboIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(vertices) * 4, vertices,
+                     GL_STATIC_DRAW)
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(0)
+        
+        self.colorBufferIdDynamic = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
+                     GL_STATIC_DRAW)
+        glVertexAttribPointer(self.attributeColorIndex,
+                              4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(self.attributeColorIndex)
+     
+        errorCheckValue = glGetError()
+        if errorCheckValue != GL_NO_ERROR:
+            print('error creating VBOs',
+                  gluErrorString(errorCheckValue))
+            exit(-1)
+
+
     def initStaticPolygonVBO(self):
         '''create and fill buffer objects for static polygons'''
         
@@ -191,7 +250,7 @@ void main() {
         vertices = array([], dtype=float32)        
         colors = array([], dtype=float32)
         
-        self.staticVerticesCount = 4
+        self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
         #for polygon in self.gameMap.getPolygons():
             if len(polygon.getPoints3D()) == 4:
@@ -200,8 +259,6 @@ void main() {
                     vertices = append(vertices, array([point.x, point.y, point.z, 1.0], dtype=float32))
                     colors = append(colors, array([r/255.0, g/255.0, b/255.0, 1.0], dtype=float32))
                     self.staticVerticesCount += 1
-        
-        print('vertices', vertices)
         
         errorCheckValue = glGetError()
          
@@ -214,10 +271,6 @@ void main() {
                      GL_STATIC_DRAW)
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(0)
-        
-
-        self.attributeColorIndex = glGetAttribLocation(self.programId,
-                                                       b'in_color')
         
         self.colorBufferId = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferId)
@@ -243,9 +296,12 @@ void main() {
      
         glDeleteBuffers(1, [self.colorBufferId])
         glDeleteBuffers(1, [self.vboId])
+        glDeleteBuffers(1, [self.colorBufferIdDynamic])
+        glDeleteBuffers(1, [self.vboIdDynamic])
      
         glBindVertexArray(0)
         glDeleteVertexArrays(1, [self.vaoId])
+        glDeleteVertexArrays(1, [self.vaoIdDynamic])
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -273,7 +329,13 @@ void main() {
         glUniformMatrix4fv(self.projectionMatrixUniformLocation,
                            1, GL_FALSE, self.projectionMatrix)
         
+        glBindVertexArray(self.vaoId)
         glDrawArrays(GL_QUADS, 0, self.staticVerticesCount)
+        
+        glBindVertexArray(self.vaoIdDynamic)
+        glDrawArrays(GL_QUADS, 0, self.dynamicVerticesCount)
+        
+        self.updateDynamicPolygonVBO()
         
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
