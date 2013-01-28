@@ -247,8 +247,8 @@ void main() {
         '''create and fill buffer objects for static polygons'''
         
         # create vertex and color arrays
-        vertices = array([], dtype=float32)        
-        colors = array([], dtype=float32)
+        vertices = []
+        colors = []
         
         self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
@@ -256,9 +256,12 @@ void main() {
             if len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 for point in polygon.getPoints3D():
-                    vertices = append(vertices, array([point.x, point.y, point.z, 1.0], dtype=float32))
-                    colors = append(colors, array([r/255.0, g/255.0, b/255.0, 1.0], dtype=float32))
+                    vertices.extend([point.x, point.y, point.z, 1.0])
+                    colors.extend([r/255.0, g/255.0, b/255.0, 1.0])
                     self.staticVerticesCount += 1
+        
+        vertices = array(vertices, dtype=float32)        
+        colors = array(colors, dtype=float32)
         
         errorCheckValue = glGetError()
          
