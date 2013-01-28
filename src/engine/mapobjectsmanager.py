@@ -9,7 +9,7 @@ class MapObjectsManager(Thread):
         
         self.gameManager = gameManager
         
-        self.millisecondsPerTick = 100
+        self.millisecondsPerTick = 60
         
         self.mapObjects = []
         self.running = True

@@ -11,10 +11,18 @@ class CharacterModel(MapObject):
     
     def tick(self):
         characterPosition = self.character.getPosition()
-        block = Block(Point3D(characterPosition.x - 0.15,
+        characterRotation = self.character.getViewAngle()
+        block = Block(Point3D(characterPosition.x - 0.2,
                               characterPosition.y - 0.5,
-                              characterPosition.z - 0.15),
-                      Point3D(characterPosition.x + 0.15,
+                              characterPosition.z - 0.2),
+                      Point3D(characterPosition.x + 0.2,
                               characterPosition.y + 0.2,
-                              characterPosition.z + 0.15))
-        self.polygons = block.getPolygons()
+                              characterPosition.z + 0.2))
+        blockPolygons = block.getPolygons()
+        
+        for polygon in blockPolygons:
+            polygon.fill = '#101018'
+            for point in polygon.getPoints3D():
+                point.rotateAroundYAxisByAngle(characterPosition,
+                                               characterRotation)
+        self.polygons = blockPolygons
