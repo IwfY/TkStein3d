@@ -1,3 +1,4 @@
+from math import sqrt
 import random
 
 class MapGenerator(object):
@@ -13,39 +14,42 @@ class MapGenerator(object):
         self.processed = []
     
     def addRectangle(self, start=False):
-        x1 = random.randrange(1, self.width-1)
-        x2 = random.randrange(1, self.width-1)
-    
-        y1 = random.randrange(1, self.height-1)
-        y2 = random.randrange(1, self.height-1)
-    
-        x1, x2 = min(x1, x2), max(x1, x2)
-        y1, y2 = min(y1, y2), max(y1, y2)
-    
-        # rooms not too small
-        if x2 - x1 < 3 or y2 - y1 < 3:
-            self.addRectangle(start)
-            return()
+        roomCreated = False
+        while not roomCreated:
+            x1 = random.randrange(1, self.width-1)
+            x2 = random.randrange(1, self.width-1)
         
-        # rooms not to large
-        if x2 - x1 > self.width * 2/3 or y2 - y1 > self.height * 2/3:
-            self.addRectangle(start)
-            return()
-    
-        for i in range(x1, x2):
-            for j in range(y1, y2):
-                # already taken
-                if self.processed[i][j] == 1:
-                    continue
-    
-                if i == x1 or i == x2-1 or j == y1 or j == y2-1:
-                    self.walls[i][j] = 2
-                else:
-                    self.walls[i][j] = 1
-                self.processed[i][j] = 1
-    
-        if start:
-            self.walls[int((x2-x1) / 2) + x1][int((y2-y1) / 2) + y1] = 's'
+            y1 = random.randrange(1, self.height-1)
+            y2 = random.randrange(1, self.height-1)
+        
+            x1, x2 = min(x1, x2), max(x1, x2)
+            y1, y2 = min(y1, y2), max(y1, y2)
+        
+            # rooms not too small
+            if x2 - x1 < 3 or y2 - y1 < 3:
+                continue
+            
+            # rooms not to large
+            if x2 - x1 > sqrt(5 * self.width + 2 * self.height) or \
+                    y2 - y1 > sqrt(5 * self.height + 2 * self.width):
+                continue
+        
+            for i in range(x1, x2):
+                for j in range(y1, y2):
+                    # already taken
+                    if self.processed[i][j] == 1:
+                        continue
+        
+                    if i == x1 or i == x2-1 or j == y1 or j == y2-1:
+                        self.walls[i][j] = 2
+                    else:
+                        self.walls[i][j] = 1
+                    self.processed[i][j] = 1
+        
+            if start:
+                self.walls[int((x2-x1) / 2) + x1][int((y2-y1) / 2) + y1] = 's'
+                
+            roomCreated = True
 
 
 
@@ -63,6 +67,7 @@ class MapGenerator(object):
                         doorCreated = True
 
     def fillStatus(self):
+        '''return the fill ratio of the available space'''
         fill = 0
         for i in range(self.width):
             for j in range(self.height):
@@ -89,7 +94,7 @@ class MapGenerator(object):
             self.addRectangle()
             roomCount += 1
         
-        for i in range(roomCount):
+        for i in range(int(0.8 * roomCount)):
             self.addDoor()
         
         # show result

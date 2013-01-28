@@ -35,7 +35,7 @@ class GridMap(GameMap):
         self.grid = None
         
         if grid is None:
-            self.mapGenerator = MapGenerator(30, 30, seed=1)
+            self.mapGenerator = MapGenerator(80, 80, seed=1)
             #self.mapGenerator = MapGenerator(50, 50, seed=1)
             
             self.grid = self.mapGenerator.generateMap()
