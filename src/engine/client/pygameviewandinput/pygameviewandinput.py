@@ -412,10 +412,12 @@ void main() {
     def run(self):
         pygame.init()
         
-        video_flags = OPENGL | DOUBLEBUF
-        pygame.display.set_mode((1024, 768), video_flags)
+        resolutionTuple = (800, 560)
         
-        self.resize((1024, 768))
+        video_flags = OPENGL | DOUBLEBUF
+        pygame.display.set_mode(resolutionTuple, video_flags)
+        
+        self.resize(resolutionTuple)
         self.init()
         
         self.running = True
