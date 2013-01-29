@@ -38,10 +38,12 @@ class PygameViewAndInput(Thread):
         self.vaoId = None
         self.vboId = None
         self.colorBufferId = None
+        self.uvBufferId = None
         
         self.vaoIdDynamic = None
         self.vboIdDynamic = None
         self.colorBufferIdDynamic = None
+        self.uvBufferIdDynamic = None
         self.dynamicVerticesCount = 0
         
         self.projectionMatrixUniformLocation = None
@@ -84,7 +86,8 @@ class PygameViewAndInput(Thread):
     def createShaders(self):
         self.shaderProgram = ShaderProgram('data/shader/vertexshader.vert',
                                            'data/shader/fragmentshader.frag',
-                                           [('in_color', '4fv')],
+                                           [('in_color', '4fv'),
+                                            ('uv', '2fv')],
                                            [('projection_matrix', 'Matrix4fv'),
                                             ('view_matrix', 'Matrix4fv')])
         
@@ -102,7 +105,8 @@ class PygameViewAndInput(Thread):
 
 
     def updateDynamicPolygonVBO(self):
-        vertices, colors, count = self.gameMap.getDynamicPolygonArrays()
+        vertices, colors, uvCoordinates, count = \
+                self.gameMap.getDynamicPolygonArrays()
         
         self.dynamicVerticesCount = count
         
@@ -115,12 +119,17 @@ class PygameViewAndInput(Thread):
         glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
         glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
                      GL_STATIC_DRAW)
+        
+        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
+                     GL_STATIC_DRAW)
 
 
     def initDynamicPolygonVBO(self):
         errorCheckValue = glGetError()
         
-        vertices, colors, count = self.gameMap.getDynamicPolygonArrays()
+        vertices, colors, uvCoordinates, count = \
+                self.gameMap.getDynamicPolygonArrays()
         
         self.dynamicVerticesCount = count
          
@@ -143,6 +152,16 @@ class PygameViewAndInput(Thread):
                 4, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(
                 self.shaderProgram.getAttributeLocation('in_color'))
+        
+        self.uvBufferIdDynamic = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferIdDynamic)
+        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
+                     GL_STATIC_DRAW)
+        glVertexAttribPointer(
+                self.shaderProgram.getAttributeLocation('uv'),
+                2, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(
+                self.shaderProgram.getAttributeLocation('uv'))
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -157,6 +176,7 @@ class PygameViewAndInput(Thread):
         # create vertex and color arrays
         vertices = []
         colors = []
+        uvCoordinates = []
         
         self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
@@ -166,9 +186,14 @@ class PygameViewAndInput(Thread):
                     vertices.extend([point.x, point.y, point.z, 1.0])
                     colors.extend([r/255.0, g/255.0, b/255.0, 1.0])
                     self.staticVerticesCount += 1
+                uvCoordinates.extend([0.0, 0.0,
+                                      1.0, 0.0,
+                                      1.0, 1.0,
+                                      0.0, 1.0])
         
         vertices = array(vertices, dtype=float32)        
         colors = array(colors, dtype=float32)
+        uvCoordinates = array(uvCoordinates, dtype=float32)
         
         errorCheckValue = glGetError()
          
@@ -191,6 +216,16 @@ class PygameViewAndInput(Thread):
                 4, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(
                 self.shaderProgram.getAttributeLocation('in_color'))
+        
+        self.uvBufferId = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferId)
+        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
+                     GL_STATIC_DRAW)
+        glVertexAttribPointer(
+                self.shaderProgram.getAttributeLocation('uv'),
+                2, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(
+                self.shaderProgram.getAttributeLocation('uv'))
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -324,7 +359,7 @@ class PygameViewAndInput(Thread):
     def run(self):
         pygame.init()
         
-        resolutionTuple = (800, 560)
+        resolutionTuple = (1800, 1100)
         
         video_flags = OPENGL | DOUBLEBUF
         pygame.display.set_mode(resolutionTuple, video_flags)

@@ -3,7 +3,9 @@
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 attribute vec4 in_color;
+attribute vec2 uv;
 varying vec4 ex_color;
+varying vec2 uv_pass;
 
 void main(void) {
     vec4 final_vertex = projection_matrix * view_matrix * gl_Vertex;
@@ -18,4 +20,5 @@ void main(void) {
     
     vec4 black = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     ex_color = mix(in_color, black, black_potion);
+    uv_pass = uv;
 }

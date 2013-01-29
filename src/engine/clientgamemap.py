@@ -15,6 +15,8 @@ class ClientGameMap(Thread):
                                      array([], dtype=float32)]
         self.dynamicVertexColorBuffers = [array([], dtype=float32),
                                           array([], dtype=float32)]
+        self.dynamicVertexUVBuffers = [array([], dtype=float32),
+                                       array([], dtype=float32)]
         self.dynamicVertexCountBuffers = [0, 0]
         self.activeDynamicPolygonBuffer = 0
         
@@ -34,7 +36,7 @@ class ClientGameMap(Thread):
 
     def getDynamicPolygonArrays(self):
         '''return a tuple 
-            (vertex array, color array, polygon count)
+            (vertex array, color array, uv coordinate array, polygon count)
         of the dynamic polygons where every 4 entries represent a vertex/color
         and every 4 of these represent a polygon
         
@@ -42,6 +44,8 @@ class ClientGameMap(Thread):
         return (self.dynamicVertexBuffers[
                                         self.activeDynamicPolygonBuffer],
                 self.dynamicVertexColorBuffers[
+                                        self.activeDynamicPolygonBuffer],
+                self.dynamicVertexUVBuffers[
                                         self.activeDynamicPolygonBuffer],
                 self.dynamicVertexCountBuffers[
                                         self.activeDynamicPolygonBuffer])
@@ -65,6 +69,7 @@ class ClientGameMap(Thread):
         # update vertex and color buffers
         tmpVertexBuffer = []
         tmpVertexColorBuffer = []
+        tmpVertexUVBuffer = []
         
         for polygon in self.dynamicPolygonBuffers[unusedBuffer]:
             if len(polygon.getPoints3D()) == 4:
@@ -73,11 +78,17 @@ class ClientGameMap(Thread):
                     tmpVertexBuffer.extend([point.x, point.y, point.z, 1.0])
                     tmpVertexColorBuffer.extend(
                             [r/255.0, g/255.0, b/255.0, 1.0])
+                tmpVertexUVBuffer.extend([0.0, 0.0,
+                                          1.0, 0.0,
+                                          1.0, 1.0,
+                                          0.0, 1.0])
         
         self.dynamicVertexBuffers[unusedBuffer] = \
                 array(tmpVertexBuffer, dtype=float32)
         self.dynamicVertexColorBuffers[unusedBuffer] = \
                 array(tmpVertexColorBuffer, dtype=float32)
+        self.dynamicVertexUVBuffers[unusedBuffer] = \
+                array(tmpVertexUVBuffer, dtype=float32)
         
         # make updated buffers active
         self.activeDynamicPolygonBuffer = unusedBuffer
