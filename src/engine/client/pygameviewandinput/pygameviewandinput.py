@@ -4,9 +4,6 @@ from engine.shared.utils import runAndWait, mixColors
 
 from numpy import append, array, float32
 from OpenGL.GL import *
-from OpenGL.GL.ARB.shader_objects import *
-from OpenGL.GL.ARB.vertex_shader import *
-from OpenGL.GL.ARB.fragment_shader import *
 from OpenGL.GLU import *
 import pygame
 from pygame.locals import *
@@ -17,6 +14,7 @@ import cProfile
 from engine.mathhelper import getPointDistance, getSquaredPointDistance
 from engine.shared.matrixhelper import createPerspectiveMatrix,\
     createLookAtAngleViewMatrix
+from engine.client.pygameviewandinput.shader import ShaderProgram
 
 
 class PygameViewAndInput(Thread):
@@ -34,9 +32,9 @@ class PygameViewAndInput(Thread):
         
         self.staticVerticesCount = 0
         self.attributeColorIndex = None
-        self.vertexShaderId = None
-        self.fragmentShaderId = None
-        self.programId = None
+        
+        self.shaderProgram = None
+        
         self.vaoId = None
         self.vboId = None
         self.colorBufferId = None
@@ -57,44 +55,7 @@ class PygameViewAndInput(Thread):
                            0, 1, 0, 0,
                            0, 0, 1, 0,
                            0, 0, 0, 1]
-        
-        
-        
-        self.vertexShader120 = ['''
-#version 120
 
-uniform mat4 projection_matrix;
-uniform mat4 view_matrix;
-attribute vec4 in_color;
-varying vec4 ex_color;
-
-void main(void) {
-    vec4 final_vertex = projection_matrix * view_matrix * gl_Vertex;
-    gl_Position = final_vertex;
-    
-    float square_distance_vertex_player = final_vertex[0] * final_vertex[0] + \
-                                          final_vertex[1] * final_vertex[1] + \
-                                          final_vertex[2] * final_vertex[2];
-                         
-    float black_potion = square_distance_vertex_player / 1000.0f;
-    if (black_potion > 1.0f) {
-        black_potion = 1.0f;
-    }
-    
-    vec4 black = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    ex_color = mix(in_color, black, black_potion);
-}
-''']
-
-        self.fragmentShader120 = ['''
-#version 120
-
-varying vec4 ex_color;
-
-void main() {
-    gl_FragColor = ex_color;
-}
-''']
     
     def resize(self, tuple_wh):
         width, height = tuple_wh
@@ -117,82 +78,27 @@ void main() {
 
 
     def cleanup(self):
-        self.destroyShaders()
-        self.destroyStaticPolygonsVBO()
+        self.destroyVBOs()
+        self.destroyShaders()        
     
     def createShaders(self):
-        errorCheckValue = glGetError()
-
-        # vertex shader
-        self.vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
-        glShaderSource(self.vertexShaderId, self.vertexShader120)
-        glCompileShader(self.vertexShaderId)
-
-        log = glGetShaderInfoLog(self.vertexShaderId)
-        if log: print('Vertex Shader: ', log)
-
-        # fragment shader
-        self.fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
-        glShaderSource(self.fragmentShaderId, self.fragmentShader120)
-        glCompileShader(self.fragmentShaderId)
-
-        log = glGetShaderInfoLog(self.fragmentShaderId)
-        if log: print('Fragment Shader: ', log)
-
-        # shader program creation 
-        self.programId = glCreateProgram()
-        glAttachShader(self.programId, self.vertexShaderId)
-        glAttachShader(self.programId, self.fragmentShaderId)
-        glLinkProgram(self.programId)
+        self.shaderProgram = ShaderProgram('data/shader/vertexshader.vert',
+                                           'data/shader/fragmentshader.frag',
+                                           [('in_color', '4fv')],
+                                           [('projection_matrix', 'Matrix4fv'),
+                                            ('view_matrix', 'Matrix4fv')])
         
-        # get attribute location
-        self.attributeColorIndex = glGetAttribLocation(self.programId,
-                                                       b'in_color')
+        self.shaderProgram.use()
         
-        # get uniform locations
-        self.projectionMatrixUniformLocation = \
-                glGetUniformLocation(self.programId,
-                                     b"projection_matrix")
-        self.viewMatrixUniformLocation = \
-                glGetUniformLocation(self.programId,
-                                     b"view_matrix")
-        
-        log = glGetProgramInfoLog(self.programId)
-        if log:
-            print('Program:', log)
-
-        glUseProgram(self.programId)
-        
-        glUniformMatrix4fv(self.projectionMatrixUniformLocation,
-                           1, GL_FALSE, self.projectionMatrix)
-        glUniformMatrix4fv(self.viewMatrixUniformLocation,
-                           1, GL_FALSE, self.viewMatrix)
-     
-        errorCheckValue = glGetError()
-        if errorCheckValue != GL_NO_ERROR:
-            print('error creating shaders',
-                  gluErrorString(errorCheckValue))
-            exit(-1)
+        self.shaderProgram.setUniform('projection_matrix',
+                                      self.projectionMatrix)
+        self.shaderProgram.setUniform('view_matrix',
+                                      self.viewMatrix)
 
 
     def destroyShaders(self):
-        errorCheckValue = glGetError()
-     
-        glUseProgram(0)
-     
-        glDetachShader(self.programId, self.vertexShaderId)
-        glDetachShader(self.programId, self.fragmentShaderId)
-     
-        glDeleteShader(self.fragmentShaderId)
-        glDeleteShader(self.vertexShaderId)
-     
-        glDeleteProgram(self.programId)
-     
-        errorCheckValue = glGetError()
-        if errorCheckValue != GL_NO_ERROR:
-            print('error destroying shaders',
-                  gluErrorString(errorCheckValue))
-            exit(-1)
+        self.shaderProgram.destroy()
+        self.shaderProgram = None
 
 
     def updateDynamicPolygonVBO(self):
@@ -232,9 +138,11 @@ void main() {
         glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
         glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
                      GL_STATIC_DRAW)
-        glVertexAttribPointer(self.attributeColorIndex,
-                              4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(self.attributeColorIndex)
+        glVertexAttribPointer(
+                self.shaderProgram.getAttributeLocation('in_color'),
+                4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(
+                self.shaderProgram.getAttributeLocation('in_color'))
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -252,7 +160,6 @@ void main() {
         
         self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
-        #for polygon in self.gameMap.getPolygons():
             if len(polygon.getPoints3D()) == 4:
                 r, g, b = polygon.getFillColorTuple()
                 for point in polygon.getPoints3D():
@@ -279,9 +186,11 @@ void main() {
         glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferId)
         glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
                      GL_STATIC_DRAW)
-        glVertexAttribPointer(self.attributeColorIndex,
-                              4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(self.attributeColorIndex)
+        glVertexAttribPointer(
+                self.shaderProgram.getAttributeLocation('in_color'),
+                4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(
+                self.shaderProgram.getAttributeLocation('in_color'))
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -289,10 +198,11 @@ void main() {
                   gluErrorString(errorCheckValue))
             exit(-1)
     
-    def destroyStaticPolygonsVBO(self):
+    def destroyVBOs(self):
         errorCheckValue = glGetError()
      
-        glDisableVertexAttribArray(self.attributeColorIndex)
+        glDisableVertexAttribArray(
+                self.shaderProgram.getAttributeLocation('in_color'))
         glDisableVertexAttribArray(0)
          
         glBindBuffer(GL_ARRAY_BUFFER, 0)
@@ -326,17 +236,19 @@ void main() {
                                     player.getViewAngle())
         
         # set uniforms
-        glUniformMatrix4fv(self.viewMatrixUniformLocation,
-                           1, GL_FALSE, self.viewMatrix)
-        
-        glUniformMatrix4fv(self.projectionMatrixUniformLocation,
-                           1, GL_FALSE, self.projectionMatrix)
+        self.shaderProgram.use()
+        self.shaderProgram.setUniform('projection_matrix',
+                                      self.projectionMatrix)
+        self.shaderProgram.setUniform('view_matrix',
+                                      self.viewMatrix)
         
         glBindVertexArray(self.vaoId)
         glDrawArrays(GL_QUADS, 0, self.staticVerticesCount)
         
         glBindVertexArray(self.vaoIdDynamic)
         glDrawArrays(GL_QUADS, 0, self.dynamicVerticesCount)
+        
+        self.shaderProgram.unUse()
         
         self.updateDynamicPolygonVBO()
         
