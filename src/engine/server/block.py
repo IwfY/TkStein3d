@@ -1,5 +1,5 @@
 from engine.shared.coordinate import Point3D
-from engine.polygon import Polygon
+from engine.shared.polygon import Polygon
 
 class Block(object):
     '''a block is represented by its 4 surrounding polygons'''

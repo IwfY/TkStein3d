@@ -4,7 +4,7 @@ Created on Nov 7, 2012
 @author: Marcel Pfeiffer
 '''
 from time import sleep
-from engine.clientgamemap import ClientGameMap
+from engine.client.clientgamemap import ClientGameMap
 
 class Client(object):
     def __init__(self, gameManager, playerID):

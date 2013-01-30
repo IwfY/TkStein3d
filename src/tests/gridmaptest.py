@@ -4,7 +4,7 @@ Created on Jan 21, 2013
 @author: marcel
 '''
 import unittest
-from engine.gridmap import GridMap
+from engine.server.gridmap import GridMap
 from engine.shared.coordinate import Point3D
 
 

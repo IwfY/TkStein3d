@@ -1,8 +1,8 @@
 from engine.shared.coordinate import Point3D, Vector3D
-from engine.infoclass import InfoClass
-from engine.mathhelper import getPointDistance, getIntersectionXYPlane,\
+from engine.shared.infoclass import InfoClass
+from engine.shared.mathhelper import getPointDistance, getIntersectionXYPlane,\
     getSquaredPointDistance
-from engine.polygon import moveAndRotatePolygon, Polygon
+from engine.shared.polygon import moveAndRotatePolygon, Polygon
 
 
 from datetime import datetime, timedelta

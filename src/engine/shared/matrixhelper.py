@@ -1,6 +1,6 @@
 from math import cos, floor, pi, sin, tan
 from engine.shared.coordinate import Vector3D, Point3D
-from engine.mathhelper import getVectorDotProduct, getVectorCrossProduct
+from engine.shared.mathhelper import getVectorDotProduct, getVectorCrossProduct
 
 def createPerspectiveMatrix(fieldOfView, aspect, nearDistance, farDistance):
     '''reference:

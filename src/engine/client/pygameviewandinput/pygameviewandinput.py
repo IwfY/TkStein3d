@@ -1,5 +1,5 @@
 from engine.shared.coordinate import Vector3D, Point3D
-from engine.polygon import moveAndRotatePolygon
+from engine.shared.polygon import moveAndRotatePolygon
 from engine.shared.utils import runAndWait, mixColors
 
 from numpy import append, array, float32
@@ -11,7 +11,7 @@ from pygame.locals import *
 from math import pi
 from threading import Thread
 import cProfile
-from engine.mathhelper import getPointDistance, getSquaredPointDistance
+from engine.shared.mathhelper import getPointDistance, getSquaredPointDistance
 from engine.shared.matrixhelper import createPerspectiveMatrix,\
     createLookAtAngleViewMatrix
 from engine.client.pygameviewandinput.shader import ShaderProgram

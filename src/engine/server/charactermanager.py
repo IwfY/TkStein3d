@@ -1,4 +1,4 @@
-from engine.character import Character
+from engine.server.character import Character
 
 from threading import Lock
 

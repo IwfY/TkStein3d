@@ -1,5 +1,5 @@
 from engine.client.client import Client
-from engine.tkviewandinput import TkViewAndInput
+from engine.client.tkviewandinput.tkviewandinput import TkViewAndInput
 from engine.client.pygameviewandinput.pygameviewandinput import \
     PygameViewAndInput
 

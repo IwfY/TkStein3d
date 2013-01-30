@@ -1,6 +1,6 @@
 from engine.shared.coordinate import Point3D, Vector3D
 from engine.map import Map
-from engine.polygon import Polygon
+from engine.shared.polygon import Polygon
 
 import re
 from threading import Lock

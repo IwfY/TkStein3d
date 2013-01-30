@@ -1,5 +1,5 @@
-from engine.charactermanager import CharacterManager
-from engine.gridmap import GridMap
+from engine.server.charactermanager import CharacterManager
+from engine.server.gridmap import GridMap
 #from engine.svgmap import SVGMap
 
 

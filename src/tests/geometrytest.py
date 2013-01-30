@@ -5,9 +5,9 @@ Created on Dec 4, 2012
 '''
 import unittest
 from engine.shared.coordinate import Vector3D, Point3D
-from engine.mathhelper import getVectorDotProduct, getAngleBetweenVectors
+from engine.shared.mathhelper import getVectorDotProduct, getAngleBetweenVectors
 import math
-from engine.polygon import Polygon
+from engine.shared.polygon import Polygon
 
 
 class Test(unittest.TestCase):

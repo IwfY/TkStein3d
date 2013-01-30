@@ -1,7 +1,7 @@
 from engine.shared.coordinate import Point3D
-from engine.gamemap import GameMap
-from engine.mapgenerator import MapGenerator
-from engine.polygon import Polygon
+from engine.server.gamemap import GameMap
+from engine.server.mapgenerator import MapGenerator
+from engine.shared.polygon import Polygon
 from engine.mapobjects.door import Door
 
 from math import pi
@@ -35,7 +35,7 @@ class GridMap(GameMap):
         self.grid = None
         
         if grid is None:
-            self.mapGenerator = MapGenerator(80, 80, seed=1)
+            self.mapGenerator = MapGenerator(30, 30, seed=1)
             #self.mapGenerator = MapGenerator(50, 50, seed=1)
             
             self.grid = self.mapGenerator.generateMap()

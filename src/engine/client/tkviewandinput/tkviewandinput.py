@@ -1,6 +1,6 @@
-from engine.tkview import TkView
-from engine.tkinputcontroller import TkInputController
-from engine.tkwindowmainloop import TkWindowMainLoop
+from engine.client.tkviewandinput.tkview import TkView
+from engine.client.tkviewandinput.tkinputcontroller import TkInputController
+from engine.client.tkviewandinput.tkwindowmainloop import TkWindowMainLoop
 
 class TkViewAndInput(object):
     '''

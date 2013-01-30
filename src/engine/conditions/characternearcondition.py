@@ -1,5 +1,5 @@
 from engine.conditions.condition import Condition
-from engine.mathhelper import getPointDistance
+from engine.shared.mathhelper import getPointDistance
 
 class CharacterNearCondition(Condition):
     def __init__(self, gameManager, position, radius):
