@@ -45,7 +45,8 @@ class Point3D(object):
         # shift back to rotation center
         self.x = tmpPoint.x + rotationCenter.x
         self.z = tmpPoint.z + rotationCenter.z
-    
+
+
     def rotateAroundYAxisByAngle(self, rotationCenter, angle):
         # points shifted to have rotation center at (0, 0, 0)
         tmpPoint = Point3D(self.x - rotationCenter.x,
@@ -62,6 +63,21 @@ class Point3D(object):
         # shift back to rotation center
         self.x = tmpPoint.x + rotationCenter.x
         self.z = tmpPoint.z + rotationCenter.z
+
+
+class Point3DColorUV(Point3D):
+    def __init__(self, positionTuple, colorTuple, uvTuple):
+        Point3D.__init__(self,
+                         positionTuple[0],
+                         positionTuple[1],
+                         positionTuple[2])
+        
+        self.r = colorTuple[0]
+        self.g = colorTuple[1]
+        self.b = colorTuple[2]
+        
+        self.u = uvTuple[0]
+        self.v = uvTuple[1]
 
 class Vector3D(Point3D):
     def __init__(self, x, y, z):

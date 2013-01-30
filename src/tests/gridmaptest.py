@@ -5,7 +5,7 @@ Created on Jan 21, 2013
 '''
 import unittest
 from engine.gridmap import GridMap
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 
 
 class GridMapTest(unittest.TestCase):

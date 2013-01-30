@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D, Vector3D
+from engine.shared.coordinate import Point3D, Vector3D
 from engine.infoclass import InfoClass
 from engine.mathhelper import getPointDistance, getIntersectionXYPlane,\
     getSquaredPointDistance

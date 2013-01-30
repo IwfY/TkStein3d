@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 from engine.gamemap import GameMap
 from engine.mapgenerator import MapGenerator
 from engine.polygon import Polygon

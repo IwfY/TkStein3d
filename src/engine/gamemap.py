@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 from engine.mapobjectsmanager import MapObjectsManager
 
 class GameMap(object):

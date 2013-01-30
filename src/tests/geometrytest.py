@@ -4,7 +4,7 @@ Created on Dec 4, 2012
 @author: marcel
 '''
 import unittest
-from engine.coordinate import Vector3D, Point3D
+from engine.shared.coordinate import Vector3D, Point3D
 from engine.mathhelper import getVectorDotProduct, getAngleBetweenVectors
 import math
 from engine.polygon import Polygon

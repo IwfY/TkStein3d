@@ -7,7 +7,7 @@ from math import cos, pi, sin, sqrt, tan
 from numpy import array, float32
 from engine.shared.matrixhelper import createLookAtAngleViewMatrix,\
     createLookAtViewMatrix
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 
 
 class Triangle(object):

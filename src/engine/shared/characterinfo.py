@@ -1,4 +1,4 @@
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 class CharacterInfo(object):
     def __init__(self, position=Point3D(0.0, 0.0, 0.0), viewAngle=0.0):
         self.position = position

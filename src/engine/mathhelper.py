@@ -1,5 +1,5 @@
 from math import acos, sqrt
-from engine.coordinate import Vector3D
+from engine.shared.coordinate import Vector3D
 
 def getPointDistance(point1, point2):
     '''get the distance between 2 points'''

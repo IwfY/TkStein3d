@@ -1,5 +1,5 @@
 from engine.conditions.characternearcondition import CharacterNearCondition
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 from engine.mapobjects.mapobject import MapObject
 from engine.polygon import Polygon
 

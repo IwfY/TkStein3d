@@ -1,4 +1,4 @@
-from engine.coordinate import Vector3D, Point3D
+from engine.shared.coordinate import Vector3D, Point3D
 from engine.polygon import moveAndRotatePolygon
 from engine.shared.utils import runAndWait, mixColors
 

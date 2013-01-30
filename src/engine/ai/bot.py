@@ -2,7 +2,7 @@ from engine.shared.utils import runAndWait
 
 import random
 from threading import Thread
-from engine.coordinate import Vector3D
+from engine.shared.coordinate import Vector3D
 
 class Bot(Thread):
     def __init__(self, gameManager, characterId):

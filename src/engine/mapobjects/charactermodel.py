@@ -1,6 +1,6 @@
 from engine.mapobjects.mapobject import MapObject
 from engine.server.block import Block
-from engine.coordinate import Point3D
+from engine.shared.coordinate import Point3D
 
 class CharacterModel(MapObject):
     def __init__(self, gameMap, character):

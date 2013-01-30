@@ -3,7 +3,7 @@ Created on Aug 4, 2012
 
 @author: marcel
 '''
-from engine.coordinate import Point2D, Point3D, Vector3D
+from engine.shared.coordinate import Point2D, Point3D, Vector3D
 from engine.mathhelper import getVectorDotProduct, getAngleBetweenVectors
 
 from math import pi
