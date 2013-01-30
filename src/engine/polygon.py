@@ -91,6 +91,17 @@ class Polygon(object):
     def getPoints3D(self):
         return self.points
     
+
+    def getTrianglePoints3D(self):
+        return [self.points[0], self.points[1], self.points[2],
+                self.points[0], self.points[2], self.points[3]]
+
+    
+    def getTriangleUVCoordinates(self):
+        return [0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+               0.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+
+
     def getPoints2D(self, eye):
         '''transform 3d points to 2d representations on view plane (z = 0)'''
         outPoints = []

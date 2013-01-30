@@ -62,27 +62,22 @@ class ClientGameMap(Thread):
         self.dynamicPolygonBuffers[unusedBuffer] = \
                 self.client.getDynamicPolygons()
         
-        # update polygon count buffer
-        self.dynamicVertexCountBuffers[unusedBuffer] = \
-                len(self.dynamicPolygonBuffers[unusedBuffer]) * 4
-        
         # update vertex and color buffers
         tmpVertexBuffer = []
         tmpVertexColorBuffer = []
         tmpVertexUVBuffer = []
+        tmpVertexCount = 0
         
         for polygon in self.dynamicPolygonBuffers[unusedBuffer]:
-            if len(polygon.getPoints3D()) == 4:
-                r, g, b = polygon.getFillColorTuple()
-                for point in polygon.getPoints3D():
-                    tmpVertexBuffer.extend([point.x, point.y, point.z, 1.0])
-                    tmpVertexColorBuffer.extend(
-                            [r/255.0, g/255.0, b/255.0, 1.0])
-                tmpVertexUVBuffer.extend([0.0, 0.0,
-                                          1.0, 0.0,
-                                          1.0, 1.0,
-                                          0.0, 1.0])
+            r, g, b = polygon.getFillColorTuple()
+            for point in polygon.getTrianglePoints3D():
+                tmpVertexBuffer.extend([point.x, point.y, point.z, 1.0])
+                tmpVertexColorBuffer.extend(
+                        [r/255.0, g/255.0, b/255.0, 1.0])
+                tmpVertexCount += 1
+            tmpVertexUVBuffer.extend(polygon.getTriangleUVCoordinates())
         
+        self.dynamicVertexCountBuffers[unusedBuffer] = tmpVertexCount
         self.dynamicVertexBuffers[unusedBuffer] = \
                 array(tmpVertexBuffer, dtype=float32)
         self.dynamicVertexColorBuffers[unusedBuffer] = \

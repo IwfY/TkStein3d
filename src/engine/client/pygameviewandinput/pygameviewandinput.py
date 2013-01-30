@@ -180,16 +180,12 @@ class PygameViewAndInput(Thread):
         
         self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
-            if len(polygon.getPoints3D()) == 4:
-                r, g, b = polygon.getFillColorTuple()
-                for point in polygon.getPoints3D():
-                    vertices.extend([point.x, point.y, point.z, 1.0])
-                    colors.extend([r/255.0, g/255.0, b/255.0, 1.0])
-                    self.staticVerticesCount += 1
-                uvCoordinates.extend([0.0, 0.0,
-                                      1.0, 0.0,
-                                      1.0, 1.0,
-                                      0.0, 1.0])
+            r, g, b = polygon.getFillColorTuple()
+            for point in polygon.getTrianglePoints3D():
+                vertices.extend([point.x, point.y, point.z, 1.0])
+                colors.extend([r/255.0, g/255.0, b/255.0, 1.0])
+                self.staticVerticesCount += 1
+            uvCoordinates.extend(polygon.getTriangleUVCoordinates())
         
         vertices = array(vertices, dtype=float32)        
         colors = array(colors, dtype=float32)
@@ -278,10 +274,10 @@ class PygameViewAndInput(Thread):
                                       self.viewMatrix)
         
         glBindVertexArray(self.vaoId)
-        glDrawArrays(GL_QUADS, 0, self.staticVerticesCount)
+        glDrawArrays(GL_TRIANGLES, 0, self.staticVerticesCount)
         
         glBindVertexArray(self.vaoIdDynamic)
-        glDrawArrays(GL_QUADS, 0, self.dynamicVerticesCount)
+        glDrawArrays(GL_TRIANGLES, 0, self.dynamicVerticesCount)
         
         self.shaderProgram.unUse()
         
@@ -359,7 +355,7 @@ class PygameViewAndInput(Thread):
     def run(self):
         pygame.init()
         
-        resolutionTuple = (1800, 1100)
+        resolutionTuple = (800, 600)
         
         video_flags = OPENGL | DOUBLEBUF
         pygame.display.set_mode(resolutionTuple, video_flags)
