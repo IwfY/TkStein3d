@@ -66,7 +66,9 @@ class Point3D(object):
 
 
 class Point3DColorUV(Point3D):
-    def __init__(self, positionTuple, colorTuple, uvTuple):
+    def __init__(self, positionTuple = [None, None, None],
+                 colorTuple = [None, None, None],
+                 uvTuple = [None,None]):
         Point3D.__init__(self,
                          positionTuple[0],
                          positionTuple[1],
