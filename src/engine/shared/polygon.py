@@ -91,6 +91,22 @@ class Polygon(object):
     def getPoints3D(self):
         return self.points
     
+    
+    def translate(self, dx, dy, dz):
+        for point in self.points:
+            point.moveByVector(Vector3D(dx, dy, dz))
+    
+    
+    def scale(self, scaleOrigin=Point3D(0.0, 0.0, 0.0), sx=1.0, sy=1.0, sz=1.0):
+        for point in self.points:
+            newVectorOriginPoint = Vector3D(sx * (point.x - scaleOrigin.x),
+                                            sy * (point.y - scaleOrigin.y),
+                                            sz * (point.z - scaleOrigin.z))
+            point.x = scaleOrigin.x + newVectorOriginPoint.x
+            point.y = scaleOrigin.y + newVectorOriginPoint.y
+            point.z = scaleOrigin.z + newVectorOriginPoint.z
+            
+    
 
     def getTrianglePoints3D(self):
         return [self.points[0], self.points[1], self.points[2],
