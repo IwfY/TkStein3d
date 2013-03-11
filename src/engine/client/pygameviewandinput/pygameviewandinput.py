@@ -74,9 +74,13 @@ class PygameViewAndInput(Thread):
         glEnable(GL_CULL_FACE)
         glEnable(GL_DEPTH_TEST)
         
-        self.createShaders()
+        errorCheck = self.createShaders()
+        if not errorCheck:
+            return False
         self.initStaticPolygonVBO()
         self.initDynamicPolygonVBO()
+        
+        return True
 
 
     def cleanup(self):
@@ -84,12 +88,16 @@ class PygameViewAndInput(Thread):
         self.destroyShaders()        
     
     def createShaders(self):
-        self.shaderProgram = ShaderProgram('data/shader/vertexshader.vert',
-                                           'data/shader/fragmentshader.frag',
-                                           [('in_color', '4fv'),
-                                            ('uv', '2fv')],
-                                           [('projection_matrix', 'Matrix4fv'),
-                                            ('view_matrix', 'Matrix4fv')])
+        try:
+            self.shaderProgram = ShaderProgram('data/shader/vertexshader.vert',
+                                               'data/shader/fragmentshader.frag',
+                                               [('in_color', '4fv'),
+                                                ('uv', '2fv')],
+                                               [('projection_matrix', 'Matrix4fv'),
+                                                ('view_matrix', 'Matrix4fv')])
+        except Exception as e:
+            print('Error creating Shader:', e)
+            return False
         
         self.shaderProgram.use()
         
@@ -97,6 +105,8 @@ class PygameViewAndInput(Thread):
                                       self.projectionMatrix)
         self.shaderProgram.setUniform('view_matrix',
                                       self.viewMatrix)
+        
+        return True
 
 
     def destroyShaders(self):
@@ -361,7 +371,12 @@ class PygameViewAndInput(Thread):
         pygame.display.set_mode(resolutionTuple, video_flags)
         
         self.resize(resolutionTuple)
-        self.init()
+        errorCheck = self.init()
+        
+        if not errorCheck:
+            self.client.stop()
+            pygame.quit()
+            return
         
         self.running = True
         while self.running:

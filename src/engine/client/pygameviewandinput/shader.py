@@ -69,6 +69,7 @@ class ShaderProgram(object):
         log = glGetShaderInfoLog(self.vertexShaderId)
         if log:
             print('Vertex Shader: ', log)
+            raise Exception('Shader Error')
         
         # fragment shader
         fragmentShaderString = \
@@ -81,6 +82,7 @@ class ShaderProgram(object):
         log = glGetShaderInfoLog(self.fragmentShaderId)
         if log:
             print('Fragment Shader: ', log)
+            raise Exception('Shader Error')
 
         # shader program creation 
         self.programId = glCreateProgram()
