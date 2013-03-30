@@ -1,5 +1,6 @@
 from engine.shared.actions import ACTION_FORWARD, ACTION_BACK, ACTION_LEFT,\
-    ACTION_RIGHT, ACTION_SHOOT, ACTION_ROTATE_LEFT, ACTION_ROTATE_RIGHT
+    ACTION_RIGHT, ACTION_SHOOT, ACTION_ROTATE_LEFT, ACTION_ROTATE_RIGHT,\
+    ACTION_WALK
 from engine.shared.utils import runAndWait
 
 from math import pi
@@ -25,6 +26,7 @@ class ServerInputController(Thread):
                                 ACTION_RIGHT,
                                 ACTION_ROTATE_LEFT,
                                 ACTION_ROTATE_RIGHT,
+                                ACTION_WALK,
                                 ACTION_SHOOT]
         
         self.millisecondsPerTick = 20
@@ -64,6 +66,7 @@ class ServerInputController(Thread):
         #print('ServerInputController::applyActions',
         #      characterId, characterActionList)
         movementPerTick = 0.05
+        movementWalkModifier = 0.5
         rotationPerTick = pi / 60
         moveForward = 0.0
         moveLeft = 0.0
@@ -81,6 +84,9 @@ class ServerInputController(Thread):
             rotateClockwise -= rotationPerTick
         if (ACTION_ROTATE_RIGHT in characterActionList):
             rotateClockwise += rotationPerTick
+        if (ACTION_WALK in characterActionList):
+            moveForward *= movementWalkModifier
+            moveLeft *= movementWalkModifier
         if (ACTION_SHOOT in characterActionList):
             pass
         

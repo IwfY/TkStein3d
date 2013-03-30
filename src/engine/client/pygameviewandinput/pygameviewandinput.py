@@ -16,7 +16,7 @@ from engine.shared.matrixhelper import createPerspectiveMatrix,\
     createLookAtAngleViewMatrix
 from engine.client.pygameviewandinput.shader import ShaderProgram
 from engine.shared.actions import ACTION_ROTATE_RIGHT, ACTION_ROTATE_LEFT,\
-    ACTION_FORWARD, ACTION_BACK, ACTION_LEFT, ACTION_RIGHT
+    ACTION_FORWARD, ACTION_BACK, ACTION_LEFT, ACTION_RIGHT, ACTION_WALK
 
 
 class PygameViewAndInput(Thread):
@@ -329,6 +329,8 @@ class PygameViewAndInput(Thread):
                 actions += ACTION_LEFT
             elif key == K_d:    # d
                 actions += ACTION_RIGHT
+            elif key == K_LSHIFT:
+                actions += ACTION_WALK
             elif key == K_q:    # q -> stop
                 self.client.stop()
             elif key == K_p:
