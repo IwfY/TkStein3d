@@ -27,7 +27,7 @@ class ServerInputController(Thread):
                                 ACTION_ROTATE_RIGHT,
                                 ACTION_SHOOT]
         
-        self.millisecondsPerTick = 30
+        self.millisecondsPerTick = 20
         self.running = False
 
 

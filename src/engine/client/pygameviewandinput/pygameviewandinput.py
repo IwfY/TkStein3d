@@ -15,6 +15,8 @@ from engine.shared.mathhelper import getPointDistance, getSquaredPointDistance
 from engine.shared.matrixhelper import createPerspectiveMatrix,\
     createLookAtAngleViewMatrix
 from engine.client.pygameviewandinput.shader import ShaderProgram
+from engine.shared.actions import ACTION_ROTATE_RIGHT, ACTION_ROTATE_LEFT,\
+    ACTION_FORWARD, ACTION_BACK, ACTION_LEFT, ACTION_RIGHT
 
 
 class PygameViewAndInput(Thread):
@@ -301,9 +303,7 @@ class PygameViewAndInput(Thread):
 
     
     def processEvents(self, events):
-        moveDeltaForward = 0.0
-        moveDeltaLeft = 0.0
-        rotation = 0.0
+        actions = 0
         
         for event in events:
             if event.type == QUIT or \
@@ -318,17 +318,17 @@ class PygameViewAndInput(Thread):
         
         for key in self.keysPressed:
             if key == K_RIGHT:
-                rotation += pi / 60
+                actions += ACTION_ROTATE_RIGHT
             elif key == K_LEFT:
-                rotation -= pi / 60
+                actions += ACTION_ROTATE_LEFT
             elif key == K_w:
-                moveDeltaForward += 0.05
+                actions += ACTION_FORWARD
             elif key == K_s:    # s
-                moveDeltaForward -= 0.05
+                actions += ACTION_BACK
             elif key == K_a:     # a
-                moveDeltaLeft += 0.05
+                actions += ACTION_LEFT
             elif key == K_d:    # d
-                moveDeltaLeft -= 0.05
+                actions += ACTION_RIGHT
             elif key == K_q:    # q -> stop
                 self.client.stop()
             elif key == K_p:
@@ -340,9 +340,7 @@ class PygameViewAndInput(Thread):
                                 round((player.getViewAngle()*180/3.14) % 180,
                                       2)))
                 
-        self.client.moveRotateCharacter(moveDeltaForward,
-                                        moveDeltaLeft,
-                                        rotation)
+        self.client.setActions(actions)
     
     
     def stop(self):

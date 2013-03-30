@@ -29,13 +29,8 @@ class Client(object):
     def getDynamicPolygons(self):
         return self.gameManager.getDynamicPolygons()
     
-    def moveRotateCharacter(self,
-                            moveDeltaForward, moveDeltaLeft,
-                            rotation):
-        '''wrapper for GameManager method'''
-        self.gameManager.moveRotateCharacter(self.playerID,
-                                             moveDeltaForward, moveDeltaLeft,
-                                             rotation)
+    def setActions(self, actionInteger):
+        self.gameManager.setActions(self.playerID, actionInteger)
     
     def start(self):
         self.gameMap.start()
