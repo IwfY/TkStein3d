@@ -28,12 +28,11 @@ class ServerInputController(Thread):
                                 ACTION_SHOOT]
         
         self.millisecondsPerTick = 30
-        self.running = True
+        self.running = False
 
 
     def setActions(self, characterId, actions):
-        if characterId in self.characterActionMap:
-            self.characterActionMap[characterId] = actions
+        self.characterActionMap[characterId] = actions
 
 
     def stop(self):
@@ -41,6 +40,7 @@ class ServerInputController(Thread):
 
 
     def run(self):
+        self.running = True
         while self.running:
             runAndWait(self._run, self.millisecondsPerTick)
 
@@ -61,6 +61,8 @@ class ServerInputController(Thread):
 
 
     def applyActions(self, characterId, characterActionList):
+        #print('ServerInputController::applyActions',
+        #      characterId, characterActionList)
         movementPerTick = 0.05
         rotationPerTick = pi / 60
         moveForward = 0.0

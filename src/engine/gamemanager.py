@@ -50,6 +50,7 @@ class GameManager():
     
     # client sends actions
     def setActions(self, characterId, actionInteger):
+        #print('GameManager::setAction', characterId, actionInteger)
         self.inputController.setActions(characterId, actionInteger)
 
 
