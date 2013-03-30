@@ -6,6 +6,7 @@ from engine.server.gridmap import GridMap
 from math import cos, pi, sin
 from engine.shared.coordinate import Point3D, Vector3D
 from engine.mapobjects.charactermodel import CharacterModel
+from engine.server.serverinputcontroller import ServerInputController
 
 
 
@@ -14,6 +15,7 @@ class GameManager():
         self.characters = []
         self.characterManager = CharacterManager(self)
         self.gameMap = GridMap(self)
+        self.inputController = ServerInputController(self)
         #self.gameMap = SVGMap("data/maps/map_city.svg")
     
     def getGameMap(self):
@@ -45,6 +47,10 @@ class GameManager():
     
     def getDynamicPolygons(self):
         return self.gameMap.getDynamicPolygons()
+    
+    # client sends actions
+    def setActions(self, characterId, actionInteger):
+        self.inputController.setActions(characterId, actionInteger)
 
 
     def moveRotateCharacter(self, characterID,
@@ -77,6 +83,8 @@ class GameManager():
 
     def start(self):
         self.gameMap.start()
+        self.inputController.start()
     
     def stop(self):
+        self.inputController.stop()
         self.gameMap.stop()
