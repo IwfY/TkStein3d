@@ -1,6 +1,5 @@
-from engine.shared.actions import ACTION_FORWARD, ACTION_BACK, ACTION_LEFT,\
-    ACTION_RIGHT, ACTION_SHOOT, ACTION_ROTATE_LEFT, ACTION_ROTATE_RIGHT,\
-    ACTION_WALK
+from engine.shared.actions import *
+from engine.shared.coordinate import Vector3D
 from engine.shared.utils import runAndWait
 
 from math import pi
@@ -68,29 +67,34 @@ class ServerInputController(Thread):
         movementPerTick = 0.05
         movementWalkModifier = 0.5
         rotationPerTick = pi / 60
-        moveForward = 0.0
-        moveLeft = 0.0
+        movementVector = Vector3D(0.0, 0.0, 0.0) # +z ... forward; +x ... left
         rotateClockwise = 0.0
         
         if (ACTION_FORWARD in characterActionList):
-            moveForward += movementPerTick
+            movementVector.z += movementPerTick
         if (ACTION_BACK in characterActionList):
-            moveForward -= movementPerTick
+            movementVector.z -= movementPerTick
         if (ACTION_LEFT in characterActionList):
-            moveLeft += movementPerTick
+            movementVector.x += movementPerTick
         if (ACTION_RIGHT in characterActionList):
-            moveLeft -= movementPerTick
+            movementVector.x -= movementPerTick
+        
+        # don't let character walk diagonally faster
+        movementVector.normalize()
+        movementVector.multiplyByScalar(movementPerTick)
+        
+        if (ACTION_WALK in characterActionList):
+            movementVector.multiplyByScalar(movementWalkModifier)
+        
         if (ACTION_ROTATE_LEFT in characterActionList):
             rotateClockwise -= rotationPerTick
         if (ACTION_ROTATE_RIGHT in characterActionList):
             rotateClockwise += rotationPerTick
-        if (ACTION_WALK in characterActionList):
-            moveForward *= movementWalkModifier
-            moveLeft *= movementWalkModifier
+
         if (ACTION_SHOOT in characterActionList):
             pass
         
         self.gameManager.moveRotateCharacter(characterId,
-                                             moveForward,
-                                             moveLeft,
+                                             movementVector.z,
+                                             movementVector.x,
                                              rotateClockwise)

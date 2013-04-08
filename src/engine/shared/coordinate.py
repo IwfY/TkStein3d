@@ -107,7 +107,14 @@ class Vector3D(Point3D):
         return Vector3D(self.x / length,
                         self.y / length,
                         self.z / length)
-    
+
+
+    def multiplyByScalar(self, scalar):
+        self.x *= scalar
+        self.y *= scalar
+        self.z *= scalar
+
+
     def normalize(self):
         length = self.getLength()
         if length == 0.0 or length == 1.0:
