@@ -17,6 +17,7 @@ from engine.shared.matrixhelper import createPerspectiveMatrix,\
 from engine.client.pygameviewandinput.shader import ShaderProgram
 from engine.shared.actions import ACTION_ROTATE_RIGHT, ACTION_ROTATE_LEFT,\
     ACTION_FORWARD, ACTION_BACK, ACTION_LEFT, ACTION_RIGHT, ACTION_WALK
+from engine.client.pygameviewandinput.renderunit import RenderUnit
 
 
 class PygameViewAndInput(Thread):
@@ -32,15 +33,9 @@ class PygameViewAndInput(Thread):
         
         self.eye = Point3D(0.0, 0.0, -2.0)
         
-        self.staticVerticesCount = 0
-        self.attributeColorIndex = None
-        
         self.shaderProgram = None
         
-        self.vaoId = None
-        self.vboId = None
-        self.colorBufferId = None
-        self.uvBufferId = None
+        self.renderUnits = []
         
         self.vaoIdDynamic = None
         self.vboIdDynamic = None
@@ -190,74 +185,33 @@ class PygameViewAndInput(Thread):
         colors = []
         uvCoordinates = []
         
-        self.staticVerticesCount = 0
         for polygon in self.gameMap.getStaticPolygons():
             r, g, b = polygon.getFillColorTuple()
             for point in polygon.getTrianglePoints3D():
                 vertices.extend([point.x, point.y, point.z, 1.0])
                 colors.extend([r/255.0, g/255.0, b/255.0, 1.0])
-                self.staticVerticesCount += 1
             uvCoordinates.extend(polygon.getTriangleUVCoordinates())
         
-        vertices = array(vertices, dtype=float32)        
-        colors = array(colors, dtype=float32)
-        uvCoordinates = array(uvCoordinates, dtype=float32)
-        
-        errorCheckValue = glGetError()
-         
-        self.vaoId = glGenVertexArrays(1)
-        glBindVertexArray(self.vaoId)
-     
-        self.vboId = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vboId)
-        glBufferData(GL_ARRAY_BUFFER, len(vertices) * 4, vertices,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
-        
-        self.colorBufferId = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferId)
-        glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(
-                self.shaderProgram.getAttributeLocation('in_color'),
-                4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(
-                self.shaderProgram.getAttributeLocation('in_color'))
-        
-        self.uvBufferId = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferId)
-        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(
-                self.shaderProgram.getAttributeLocation('uv'),
-                2, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(
-                self.shaderProgram.getAttributeLocation('uv'))
-     
-        errorCheckValue = glGetError()
-        if errorCheckValue != GL_NO_ERROR:
-            print('error creating VBOs',
-                  gluErrorString(errorCheckValue))
-            exit(-1)
-    
+        newRenderUnit = RenderUnit(self.shaderProgram,
+                                   [0, 'in_color', 'uv'],
+                                   [vertices, colors, uvCoordinates])
+        self.renderUnits.append(newRenderUnit)
+
+
     def destroyVBOs(self):
         errorCheckValue = glGetError()
      
-        glDisableVertexAttribArray(
-                self.shaderProgram.getAttributeLocation('in_color'))
-        glDisableVertexAttribArray(0)
-         
         glBindBuffer(GL_ARRAY_BUFFER, 0)
      
-        glDeleteBuffers(1, [self.colorBufferId])
-        glDeleteBuffers(1, [self.vboId])
         glDeleteBuffers(1, [self.colorBufferIdDynamic])
         glDeleteBuffers(1, [self.vboIdDynamic])
      
         glBindVertexArray(0)
-        glDeleteVertexArrays(1, [self.vaoId])
+        
         glDeleteVertexArrays(1, [self.vaoIdDynamic])
+        
+        for renderUnit in self.renderUnits:
+            renderUnit.destroyVertexArrayObject()
      
         errorCheckValue = glGetError()
         if errorCheckValue != GL_NO_ERROR:
@@ -285,13 +239,19 @@ class PygameViewAndInput(Thread):
         self.shaderProgram.setUniform('view_matrix',
                                       self.viewMatrix)
         
-        glBindVertexArray(self.vaoId)
-        glDrawArrays(GL_TRIANGLES, 0, self.staticVerticesCount)
-        
         glBindVertexArray(self.vaoIdDynamic)
         glDrawArrays(GL_TRIANGLES, 0, self.dynamicVerticesCount)
         
         self.shaderProgram.unUse()
+        
+        
+        for renderUnit in self.renderUnits:
+            renderUnit.setShaderUniform('projection_matrix',
+                                        self.projectionMatrix)
+            renderUnit.setShaderUniform('view_matrix',
+                                        self.viewMatrix)
+            renderUnit.render()
+        
         
         self.updateDynamicPolygonVBO()
         

@@ -133,6 +133,14 @@ class ShaderProgram(object):
     def getUniformLocation(self, uniformName):
         if uniformName in self.uniformLocations:
             return self.uniformLocations[uniformName]
+    
+    
+    def getUniformList(self):
+        return self.uniformLocations.keys()
+
+
+    def getAttributeList(self):
+        return self.attributeLocations.keys()
 
 
     def use(self):
@@ -146,6 +154,8 @@ class ShaderProgram(object):
     def setUniform(self, uniformName, data):
         assert(uniformName in self.uniformLocations)
         assert(uniformName in self.uniformTypes)
+        
+        self.use()
         
         location = self.uniformLocations[uniformName]
         dataType = self.uniformTypes[uniformName]

@@ -28,7 +28,7 @@ class VertexArrayObject(object):
         errorCheckValue = glGetError()
         
         self.vertexArrayId = glGenVertexArrays(1)
-        glBindVertexArray(self.vaoId)
+        glBindVertexArray(self.vertexArrayId)
         
         for i in range(len(attributeList)):
             # transform data array to numpy array
@@ -50,6 +50,16 @@ class VertexArrayObject(object):
             print('error creating VBOs',
                   gluErrorString(errorCheckValue))
             exit(-1)
+    
+    
+    def destroy(self):
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        
+        for vertexBufferObjectTuple in self.vertexBufferObjectDict.items():
+            glDeleteBuffers(1, [vertexBufferObjectTuple[1]])
+     
+        glBindVertexArray(0)
+        glDeleteVertexArrays(1, [self.vertexArrayId])
 
 
     def getVertexArrayId(self):
