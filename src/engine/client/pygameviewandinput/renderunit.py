@@ -33,9 +33,14 @@ class RenderUnit(object):
             
             attributeLocation = self.shaderProgram.getAttributeLocation(
                                         attributeName)
+            attributeType = self.shaderProgram.getAttributeType(
+                                        attributeName)
+            numberOfComponents = 4
+            if attributeType == '2fv':
+                numberOfComponents = 2
             
             glVertexAttribPointer(attributeLocation,
-                    4, GL_FLOAT, GL_FALSE, 0, None)
+                    numberOfComponents, GL_FLOAT, GL_FALSE, 0, None)
             glEnableVertexAttribArray(attributeLocation)
 
 

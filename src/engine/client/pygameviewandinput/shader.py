@@ -141,6 +141,12 @@ class ShaderProgram(object):
 
     def getAttributeList(self):
         return self.attributeLocations.keys()
+    
+    
+    def getAttributeType(self, attributeName):
+        assert(attributeName in self.attributeTypes.keys())
+        
+        return self.attributeTypes[attributeName]
 
 
     def use(self):
