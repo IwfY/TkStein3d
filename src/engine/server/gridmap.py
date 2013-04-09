@@ -85,7 +85,10 @@ class GridMap(GameMap):
                     self.addFloor(j, i)
                     self.addCeiling(j, i)
                     rotation = 0
-                    if self.grid[i-1][j] in self.makeWallsTo and \
+                    if self.grid[i-1][j] == '#' and \
+                            self.grid[i+1][j] == '#':
+                        rotation = 0
+                    elif self.grid[i-1][j] in self.makeWallsTo and \
                             self.grid[i+1][j] in self.makeWallsTo:
                         rotation = pi / 2
                     
