@@ -36,15 +36,7 @@ class PygameViewAndInput(Thread):
         self.shaderProgram = None
         
         self.renderUnits = []
-        
-        self.vaoIdDynamic = None
-        self.vboIdDynamic = None
-        self.colorBufferIdDynamic = None
-        self.uvBufferIdDynamic = None
-        self.dynamicVerticesCount = 0
-        
-        self.projectionMatrixUniformLocation = None
-        self.viewMatrixUniformLocation = None
+        self.dynamicRenderUnit = None
         
         self.projectionMatrix = [1, 0, 0, 0,
                                  0, 1, 0, 0,
@@ -115,66 +107,21 @@ class PygameViewAndInput(Thread):
         vertices, colors, uvCoordinates, count = \
                 self.gameMap.getDynamicPolygonArrays()
         
-        self.dynamicVerticesCount = count
-        
-        glBindVertexArray(self.vaoIdDynamic)
-        
-        glBindBuffer(GL_ARRAY_BUFFER, self.vboIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(vertices) * 4, vertices,
-                     GL_STATIC_DRAW)
-        
-        glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
-                     GL_STATIC_DRAW)
-        
-        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
-                     GL_STATIC_DRAW)
+        self.dynamicRenderUnit.updateVertexBufferObjectData(0, vertices)
+        self.dynamicRenderUnit.\
+                updateVertexBufferObjectData('in_color', colors)
+        self.dynamicRenderUnit.\
+                updateVertexBufferObjectData('uv', uvCoordinates)
 
 
     def initDynamicPolygonVBO(self):
-        errorCheckValue = glGetError()
-        
         vertices, colors, uvCoordinates, count = \
                 self.gameMap.getDynamicPolygonArrays()
         
-        self.dynamicVerticesCount = count
-         
-        self.vaoIdDynamic = glGenVertexArrays(1)
-        glBindVertexArray(self.vaoIdDynamic)
-     
-        self.vboIdDynamic = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vboIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(vertices) * 4, vertices,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
-        
-        self.colorBufferIdDynamic = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.colorBufferIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(colors) * 4, colors,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(
-                self.shaderProgram.getAttributeLocation('in_color'),
-                4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(
-                self.shaderProgram.getAttributeLocation('in_color'))
-        
-        self.uvBufferIdDynamic = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.uvBufferIdDynamic)
-        glBufferData(GL_ARRAY_BUFFER, len(uvCoordinates) * 4, uvCoordinates,
-                     GL_STATIC_DRAW)
-        glVertexAttribPointer(
-                self.shaderProgram.getAttributeLocation('uv'),
-                2, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(
-                self.shaderProgram.getAttributeLocation('uv'))
-     
-        errorCheckValue = glGetError()
-        if errorCheckValue != GL_NO_ERROR:
-            print('error creating VBOs',
-                  gluErrorString(errorCheckValue))
-            exit(-1)
+        self.dynamicRenderUnit = RenderUnit(self.shaderProgram,
+                                            [0, 'in_color', 'uv'],
+                                            [vertices, colors, uvCoordinates])
+        self.renderUnits.append(self.dynamicRenderUnit)
 
 
     def initStaticPolygonVBO(self):
@@ -201,15 +148,6 @@ class PygameViewAndInput(Thread):
     def destroyVBOs(self):
         errorCheckValue = glGetError()
      
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-     
-        glDeleteBuffers(1, [self.colorBufferIdDynamic])
-        glDeleteBuffers(1, [self.vboIdDynamic])
-     
-        glBindVertexArray(0)
-        
-        glDeleteVertexArrays(1, [self.vaoIdDynamic])
-        
         for renderUnit in self.renderUnits:
             renderUnit.destroyVertexArrayObject()
      
@@ -232,19 +170,6 @@ class PygameViewAndInput(Thread):
                                             playerPostion.z),
                                     player.getViewAngle())
         
-        # set uniforms
-        self.shaderProgram.use()
-        self.shaderProgram.setUniform('projection_matrix',
-                                      self.projectionMatrix)
-        self.shaderProgram.setUniform('view_matrix',
-                                      self.viewMatrix)
-        
-        glBindVertexArray(self.vaoIdDynamic)
-        glDrawArrays(GL_TRIANGLES, 0, self.dynamicVerticesCount)
-        
-        self.shaderProgram.unUse()
-        
-        
         for renderUnit in self.renderUnits:
             renderUnit.setShaderUniform('projection_matrix',
                                         self.projectionMatrix)
@@ -254,12 +179,6 @@ class PygameViewAndInput(Thread):
         
         
         self.updateDynamicPolygonVBO()
-        
-        errorCheckValue = glGetError()
-        if errorCheckValue != GL_NO_ERROR:
-            print('draw error',
-                  gluErrorString(errorCheckValue))
-            exit(-1);
 
     
     def processEvents(self, events):

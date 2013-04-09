@@ -68,3 +68,13 @@ class VertexArrayObject(object):
 
     def getVertexBufferObjectsDict(self):
         return self.vertexBufferObjectDict
+
+
+    def updateVertexBufferObjectData(self, attributeName, data):
+        vertexBufferObjectId = self.vertexBufferObjectDict[attributeName]
+        
+        data = array(data, dtype=float32)
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectId)
+        glBufferData(GL_ARRAY_BUFFER, len(data) * 4, data,
+                     GL_STATIC_DRAW)

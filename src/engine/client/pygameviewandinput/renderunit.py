@@ -3,6 +3,9 @@ from engine.client.pygameviewandinput.vertexarrayobject import VertexArrayObject
 from OpenGL.GL import *
 
 class RenderUnit(object):
+    '''this class provides an easy access to a single vertex array object
+    connected to a shader program'''
+    
     def __init__(self, shaderProgram, attributeList, arrayList):
         self.shaderProgram = shaderProgram
         
@@ -46,10 +49,20 @@ class RenderUnit(object):
 
     def setShaderUniform(self, uniformName, data):
         self.shaderProgram.setUniform(uniformName, data)
+    
+    
+    def updateVertexBufferObjectData(self, attributeName, data):
+        self.vertexArrayObject.\
+                updateVertexBufferObjectData(attributeName, data)
 
 
     def destroyVertexArrayObject(self):
         self.vertexArrayObject.destroy()
+    
+    
+    def destroyAll(self):
+        self.vertexArrayObject.destroy()
+        self.shaderProgram.destroy()
 
 
     def render(self):
