@@ -9,8 +9,9 @@ class VertexArrayObject(object):
         @param attributeList
             list of strings with the corresponding attribute names for the data
             arrays (first is ignored as this is for vertex data)
-        @param list of arrays containing the data; in the same order as
-            specified by attribute list
+        @param arrayList
+            list of arrays containing the data; in the same order as specified
+            by attribute list
         '''
         
         # first array is for vertex data --> attribute 0

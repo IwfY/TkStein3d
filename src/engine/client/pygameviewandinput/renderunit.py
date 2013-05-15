@@ -54,6 +54,10 @@ class RenderUnit(object):
     def updateVertexBufferObjectData(self, attributeName, data):
         self.vertexArrayObject.\
                 updateVertexBufferObjectData(attributeName, data)
+        
+        if attributeName == 0:
+            self.vertices = data.copy()
+            self.verticesCount = int(len(self.vertices) / 4)
 
 
     def destroyVertexArrayObject(self):
