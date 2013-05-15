@@ -1,9 +1,10 @@
 from engine.shared.actions import *
-from engine.shared.coordinate import Vector3D
+from engine.shared.coordinate import Vector3D, Point3D
 from engine.shared.utils import runAndWait
 
 from math import pi
 from threading import Thread
+from engine.mapobjects.bullet import Bullet
 
 
 class ServerInputController(Thread):
@@ -92,7 +93,12 @@ class ServerInputController(Thread):
             rotateClockwise += rotationPerTick
 
         if (ACTION_SHOOT in characterActionList):
-            pass
+            character = self.gameManager.getCharacterInfo(characterId)
+            self.gameManager.getGameMap().\
+                    addMapObject(
+                        Bullet(self.gameManager.getGameMap(),
+                               character.getPosition(),
+                               Point3D(1.0, 0, 0)))
         
         self.gameManager.moveRotateCharacter(characterId,
                                              movementVector.z,
