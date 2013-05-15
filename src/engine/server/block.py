@@ -2,11 +2,12 @@ from engine.shared.coordinate import Point3D
 from engine.shared.polygon import Polygon
 
 class Block(object):
-    '''a block is represented by its 4 surrounding polygons'''
+    '''a block is represented by its 6 (alternatively 4) surrounding polygons'''
      
-    def __init__(self, point1, point2):
+    def __init__(self, point1, point2, horizontalHullOnly=False):
         self.point1 = point1
         self.point2 = point2
+        self.horizontalHullOnly = horizontalHullOnly
         self.polygons = []
         
         self.initPolygons()
@@ -37,6 +38,11 @@ class Block(object):
                                      [point7, point8, point5, point6]))
         self.polygons.append(Polygon('',
                                      [point8, point4, point1, point5]))
+        if not self.horizontalHullOnly:
+            self.polygons.append(Polygon('',
+                                         [point1, point2, point6, point5]))
+            self.polygons.append(Polygon('',
+                                         [point3, point4, point8, point7]))
     
     def getPolygons(self):
         return self.polygons

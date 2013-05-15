@@ -17,7 +17,8 @@ class CharacterModel(MapObject):
                               characterPosition.z - 0.2),
                       Point3D(characterPosition.x + 0.2,
                               characterPosition.y + 0.2,
-                              characterPosition.z + 0.2))
+                              characterPosition.z + 0.2),
+                      True)
         blockPolygons = block.getPolygons()
         
         for polygon in blockPolygons:
