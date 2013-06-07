@@ -25,6 +25,9 @@ class GameMap(object):
     
     def addMapObject(self, mapObject):
         self.mapObjectsManager.addMapObject(mapObject)
+    
+    def removeMapObject(self, mapObject):
+        self.mapObjectsManager.removeMapObject(mapObject)
 
     def getMaxX(self):
         maxX = None

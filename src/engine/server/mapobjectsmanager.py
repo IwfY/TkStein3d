@@ -13,6 +13,7 @@ class MapObjectsManager(Thread):
         
         self.mapObjects = []
         self.running = True
+        self.currentTick = 0
     
     
     def addMapObject(self, mapObject):
@@ -29,7 +30,8 @@ class MapObjectsManager(Thread):
     
     def _run(self):
         for mapObject in self.mapObjects:
-                mapObject.tick()
+                mapObject.tick(self.currentTick)
+        self.currentTick += 1
     
     
     def stop(self):

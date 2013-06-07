@@ -35,7 +35,7 @@ class Door(MapObject):
         
         self.createPolygons(coordinate, self.edgeLength)
     
-    def tick(self):
+    def tick(self, count):
         '''is called periodically. used to check for conditions and transform
         polygons'''
         if self.characterNearCondition.check():

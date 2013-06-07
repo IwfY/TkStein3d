@@ -10,6 +10,7 @@ class Bullet(MapObject):
         MapObject.__init__(self, gameMap)
         self.position = position
         self.moveVector = moveVector
+        self.firstTick = None
         
         self.initPolygons()
     
@@ -30,3 +31,11 @@ class Bullet(MapObject):
                 point.rotateAroundYAxisByAngle(self.position,
                                                rotation)
         self.polygons = blockPolygons
+
+    def tick(self, count):
+        if self.firstTick is None:
+            self.firstTick = count
+        
+        if (count - self.firstTick) > 100:
+            self.gameMap.removeMapObject(self)
+            self.polygons = []

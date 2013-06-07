@@ -4,7 +4,7 @@ class MapObject(object):
         self.gameMap = gameMap
         self.polygons = []
     
-    def tick(self):
+    def tick(self, count):
         '''is called periodically. used to check for conditions and transform
         polygons'''
         pass

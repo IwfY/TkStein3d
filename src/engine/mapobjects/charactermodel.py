@@ -7,9 +7,9 @@ class CharacterModel(MapObject):
         MapObject.__init__(self, gameMap)
         self.character = character
         
-        self.tick()
+        self.tick(0)
     
-    def tick(self):
+    def tick(self, count):
         characterPosition = self.character.getPosition()
         characterRotation = self.character.getViewAngle()
         block = Block(Point3D(characterPosition.x - 0.2,
