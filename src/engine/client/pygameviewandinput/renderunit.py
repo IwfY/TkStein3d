@@ -1,6 +1,7 @@
 from engine.client.pygameviewandinput.vertexarrayobject import VertexArrayObject
 
 from OpenGL.GL import *
+from engine.shared.coordinate import Point3D, AABoundingBox
 
 class RenderUnit(object):
     '''this class provides an easy access to a single vertex array object
@@ -17,6 +18,9 @@ class RenderUnit(object):
         # every 4 floats represent a vertex
         self.vertices = arrayList[0].copy()
         self.verticesCount = int(len(self.vertices) / 4)
+        
+        self.boundingBox = None
+        self.calculateBoundingBox()
         #TODO calculate bounding box
     
     
@@ -58,6 +62,40 @@ class RenderUnit(object):
         if attributeName == 0:
             self.vertices = data.copy()
             self.verticesCount = int(len(self.vertices) / 4)
+            self.calculateBoundingBox()
+
+    
+    def calculateBoundingBox(self):
+        minX = None
+        maxX = None
+        minY = None
+        maxY = None
+        minZ = None
+        maxZ = None
+        first = True
+        
+        for i in range(int(len(self.vertices) / 4)):
+            if first:
+                minX = self.vertices[i * 4]
+                maxX = self.vertices[i * 4]
+                minY = self.vertices[i * 4 + 1]
+                maxY = self.vertices[i * 4 + 1]
+                minZ = self.vertices[i * 4 + 2]
+                maxZ = self.vertices[i * 4 + 2]
+                first = False
+                continue
+            
+            minX = min(minX, self.vertices[i * 4])
+            maxX = max(maxX, self.vertices[i * 4])
+            minY = min(minY, self.vertices[i * 4 + 1])
+            maxY = max(maxY, self.vertices[i * 4 + 1])
+            minZ = min(minZ, self.vertices[i * 4 + 2])
+            maxZ = max(maxZ, self.vertices[i * 4 + 2])
+        
+        point1 = Point3D(minX, minY, minZ)
+        point2 = Point3D(maxX, maxY, maxZ)
+        
+        self.boundingBox = AABoundingBox(point1, point2)
 
 
     def destroyVertexArrayObject(self):

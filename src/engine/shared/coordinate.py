@@ -8,6 +8,28 @@ class Point2D(object):
     def __str__(self):
         return '{} ({}, {})'.format(id(self), self.x, self.y)
 
+
+class AABoundingBox(object):
+    '''axis aligned bounding box'''
+    def __init__(self, point1, point2):
+        self.point1 = point1
+        self.point2 = point2
+        
+        self.minX = min(point1.x, point2.x)
+        self.maxX = max(point1.x, point2.x)
+        self.minY = min(point1.y, point2.y)
+        self.maxY = max(point1.y, point2.y)
+        self.minZ = min(point1.z, point2.z)
+        self.maxZ = max(point1.z, point2.z)
+    
+    def contains(self, point):
+        if point.x < self.minX or point.x > self.maxX or \
+                point.y < self.minY or point.y > self.maxY or \
+                point.z < self.minZ or point.z > self.maxZ:
+            return False
+        
+        return True
+
 class Point3D(object):
     def __init__(self, x, y, z):
         self.x = x
