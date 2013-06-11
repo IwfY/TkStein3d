@@ -2,7 +2,7 @@ from engine.mapobjects.mapobject import MapObject
 from engine.server.block import Block
 from engine.shared.coordinate import Point3D
 
-from math import atan2
+from math import atan2, pi
 from engine.shared.polygon import Polygon
 
 class Bullet(MapObject):
@@ -23,7 +23,7 @@ class Bullet(MapObject):
                               self.position.z + 0.02))
         blockPolygons = block.getPolygons()
 
-        rotation = atan2(self.moveVector.z, self.moveVector.x)
+        rotation = atan2(self.moveVector.z, self.moveVector.x) - pi / 2
         
         for polygon in blockPolygons:
             polygon.fill = '#405010'
@@ -35,6 +35,11 @@ class Bullet(MapObject):
     def tick(self, count):
         if self.firstTick is None:
             self.firstTick = count
+        
+        for polygon in self.polygons:
+            polygon.translate(self.moveVector.x,
+                              self.moveVector.y,
+                              self.moveVector.z)
         
         if (count - self.firstTick) > 100:
             self.gameMap.removeMapObject(self)

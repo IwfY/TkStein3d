@@ -2,7 +2,7 @@ from engine.shared.actions import *
 from engine.shared.coordinate import Vector3D, Point3D
 from engine.shared.utils import runAndWait
 
-from math import pi
+from math import cos, pi, sin
 from threading import Thread
 from engine.mapobjects.bullet import Bullet
 
@@ -94,11 +94,13 @@ class ServerInputController(Thread):
 
         if (ACTION_SHOOT in characterActionList):
             character = self.gameManager.getCharacterInfo(characterId)
+            bulletMoveX = sin(character.getViewAngle()) * 0.1
+            bulletMoveZ = -cos(character.getViewAngle()) * 0.1
             self.gameManager.getGameMap().\
                     addMapObject(
                         Bullet(self.gameManager.getGameMap(),
                                character.getPosition(),
-                               Point3D(1.0, 0, 0)))
+                               Point3D(bulletMoveX, 0, bulletMoveZ)))
         
         self.gameManager.moveRotateCharacter(characterId,
                                              movementVector.z,
