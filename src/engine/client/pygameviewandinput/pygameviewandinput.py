@@ -213,6 +213,8 @@ class PygameViewAndInput(Thread):
                 actions += ACTION_WALK
             elif key == K_LCTRL:
                 actions += ACTION_SHOOT
+            elif key == K_PAUSE:
+                self.gameMap.togglePaused()
             elif key == K_q:    # q -> stop
                 self.client.stop()
             elif key == K_p:

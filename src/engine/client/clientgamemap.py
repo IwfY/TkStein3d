@@ -25,6 +25,7 @@ class ClientGameMap(Thread):
         
         self.millisecondsPerTick = 30
         self.running = True
+        self.paused = False
         
     
     def getPolygons(self):
@@ -100,7 +101,10 @@ class ClientGameMap(Thread):
     
     def getSkyColor(self):
         return self.skyColor
-
+    
+    
+    def togglePaused(self):
+        self.paused = not self.paused
     
     def stop(self):
         self.running = False
@@ -110,4 +114,5 @@ class ClientGameMap(Thread):
             runAndWait(self._run, self.millisecondsPerTick)
     
     def _run(self):
-        self.updateAndSwitchDynamicPolygonBuffers()
+        if not self.paused:
+            self.updateAndSwitchDynamicPolygonBuffers()
