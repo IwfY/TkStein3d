@@ -1,5 +1,6 @@
 from engine.shared.utils import runAndWait
 
+from math import sin, cos
 from numpy import array, float32, append
 from threading import Thread
 
@@ -9,6 +10,7 @@ class ClientGameMap(Thread):
         Thread.__init__(self)
         self.client = client
         
+        # 3 consecutive entries in these buffers represent a polygon
         self.staticPolygons = self.client.getStaticPolygons()
         self.dynamicPolygonBuffers = [[], []]
         self.dynamicVertexBuffers = [array([], dtype=float32),
@@ -102,6 +104,56 @@ class ClientGameMap(Thread):
     def getSkyColor(self):
         return self.skyColor
     
+    
+    def writeSVG(self):
+        oldPaused = self.paused 
+        self.paused = True
+        try:
+            file = open('clientmap.svg', 'w')
+            file.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
+            file.write('<svg>')
+            
+            # static polygons
+            for polygon in self.staticPolygons:
+                points = polygon.getPoints3D()
+                file.write(('<line x1="{}" y1="{}" x2="{}" y2="{}"' +
+                            ' stroke="black" stroke-width="0.1" />').format(
+                                points[0].x,
+                                points[0].z,
+                                points[2].x,
+                                points[2].z))
+
+            # dynamic polygons
+            activeBuffer = self.activeDynamicPolygonBuffer
+            # iterate of polygons which make up 3x4 floats
+            # first and third vertices are interesting
+            for i in range(
+                    int(len(self.dynamicVertexBuffers[activeBuffer]) / 12)):
+                file.write(('<line x1="{}" y1="{}" x2="{}" y2="{}"' +
+                            ' stroke="orange" stroke-width="0.08" />').format(
+                    self.dynamicVertexBuffers[activeBuffer][i * 12 + 0],
+                    self.dynamicVertexBuffers[activeBuffer][i * 12 + 2],
+                    self.dynamicVertexBuffers[activeBuffer][i * 12 + 8 + 0],
+                    self.dynamicVertexBuffers[activeBuffer][i * 12 + 8 + 2]))
+                
+            # player
+            player = self.client.getPlayer()
+            file.write(('<line x1="{}" y1="{}" x2="{}" y2="{}"' +
+                            ' stroke="#ff0000" stroke-width="0.05" />').format(
+                                player.getPosition().x,
+                                player.getPosition().z,
+                                player.getPosition().x +
+                                        sin(player.getViewAngle()) * 0.7,
+                                player.getPosition().z -
+                                        cos(player.getViewAngle()) * 0.7))
+            
+            file.write('</svg>')
+        finally:
+            file.close()
+            self.paused = oldPaused
+            print('SVG written.')
+        
+            
     
     def togglePaused(self):
         self.paused = not self.paused
