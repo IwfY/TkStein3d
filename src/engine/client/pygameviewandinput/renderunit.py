@@ -21,7 +21,6 @@ class RenderUnit(object):
         
         self.boundingBox = None
         self.calculateBoundingBox()
-        #TODO calculate bounding box
     
     
     def enableVertexAttributes(self):
