@@ -11,25 +11,25 @@ from engine.server.serverinputcontroller import ServerInputController
 
 
 class GameManager():
-    def __init__(self):        
+    def __init__(self):
         self.characters = []
         self.characterManager = CharacterManager(self)
         self.gameMap = GridMap(self)
         self.inputController = ServerInputController(self)
         #self.gameMap = SVGMap("data/maps/map_city.svg")
-    
+
     def getGameMap(self):
         return self.gameMap
-    
+
     def addCharacter(self):
         '''adds a new character to the game and returns its ID'''
         newCharacterID = self.characterManager.addCharacter()
         character = self.characterManager.getCharacterByID(newCharacterID)
-        
+
         self.gameMap.addMapObject(CharacterModel(self.gameMap, character))
-        
+
         return newCharacterID
-    
+
     def getCharacterInfo(self, characterID):
         character = self.characterManager.getCharacterByID(characterID)
         if character is None:
@@ -38,16 +38,16 @@ class GameManager():
             return None
 
         return character.getCharacterInfo()
-    
+
     def getCharacters(self):
         return self.characterManager.getCharacters()
-    
+
     def getStaticPolygons(self):
         return self.gameMap.getStaticPolygons()
-    
+
     def getDynamicPolygons(self):
         return self.gameMap.getDynamicPolygons()
-    
+
     # client sends actions
     def setActions(self, characterId, actionInteger):
         #print('GameManager::setAction', characterId, actionInteger)
@@ -62,19 +62,19 @@ class GameManager():
             print('GameManager::moveRotateCharacter: character not found',
                   characterID)
             return
-        
+
         moveVector = Vector3D(-moveDeltaLeft, 0 , -moveDeltaForward)
         character.viewAngle += rotationClockwise
-        
+
         #print('moveVector', moveVector, character.getViewAngle())
         moveVector.rotateAroundYAxisByAngle(Point3D(0, 0, 0),
                                             character.getViewAngle())
         #print('  moveVector', moveVector, character.getViewAngle())
-        
+
         newPosition = Point3D(character.position.x + moveVector.x,
                               character.position.y + moveVector.y,
                               character.position.z + moveVector.z)
-        
+
         if character.clipping == False:
             character.position = newPosition
         else:
@@ -85,7 +85,7 @@ class GameManager():
     def start(self):
         self.gameMap.start()
         self.inputController.start()
-    
+
     def stop(self):
         self.inputController.stop()
         self.gameMap.stop()
